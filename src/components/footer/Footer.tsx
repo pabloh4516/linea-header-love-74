@@ -1,11 +1,11 @@
 const Footer = () => {
   return (
-    <footer className="w-full bg-white text-black py-4 px-6 border-t border-black">
+    <footer className="w-full bg-white text-black pt-8 pb-2 px-6 border-t border-black">
       <div className="">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-8">
           {/* Brand - Left side */}
           <div>
-            <h3 className="text-sm font-light mb-4">Linea</h3>
+            <h3 className="text-sm font-normal mb-4">Linea</h3>
             <p className="text-sm font-light text-black/70 leading-relaxed max-w-md">
               Minimalist jewelry crafted for the modern individual
             </p>
@@ -15,7 +15,7 @@ const Footer = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Shop */}
             <div>
-              <h4 className="text-sm font-light mb-4">Shop</h4>
+              <h4 className="text-sm font-normal mb-4">Shop</h4>
               <ul className="space-y-2">
                 <li><a href="#" className="text-sm font-light text-black/70 hover:text-black transition-colors">New In</a></li>
                 <li><a href="#" className="text-sm font-light text-black/70 hover:text-black transition-colors">Rings</a></li>
@@ -27,7 +27,7 @@ const Footer = () => {
 
             {/* Support */}
             <div>
-              <h4 className="text-sm font-light mb-4">Support</h4>
+              <h4 className="text-sm font-normal mb-4">Support</h4>
               <ul className="space-y-2">
                 <li><a href="#" className="text-sm font-light text-black/70 hover:text-black transition-colors">Size Guide</a></li>
                 <li><a href="#" className="text-sm font-light text-black/70 hover:text-black transition-colors">Care Instructions</a></li>
@@ -39,7 +39,7 @@ const Footer = () => {
 
             {/* Connect */}
             <div>
-              <h4 className="text-sm font-light mb-4">Connect</h4>
+              <h4 className="text-sm font-normal mb-4">Connect</h4>
               <ul className="space-y-2">
                 <li><a href="#" className="text-sm font-light text-black/70 hover:text-black transition-colors">Instagram</a></li>
                 <li><a href="#" className="text-sm font-light text-black/70 hover:text-black transition-colors">Pinterest</a></li>
