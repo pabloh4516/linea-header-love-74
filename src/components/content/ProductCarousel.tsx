@@ -11,7 +11,7 @@ import eclipseImage from "@/assets/eclipse.jpg";
 import haloImage from "@/assets/halo.jpg";
 import obliqueImage from "@/assets/oblique.jpg";
 import lintelImage from "@/assets/lintel.jpg";
-import shadowlineImage from "@/assets/shadowline-1.jpg";
+import shadowlineImage from "@/assets/shadowline.jpg";
 
 interface Product {
   id: number;
