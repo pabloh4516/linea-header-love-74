@@ -84,19 +84,19 @@ const Navigation = () => {
       <div className="flex items-center justify-between h-16 px-4">
         {/* Mobile hamburger button */}
         <button
-          className="md:hidden p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
+          className="md:hidden p-2 mt-0.5 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle menu"
         >
           <div className="w-5 h-5 relative">
             <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 ${
-              isMobileMenuOpen ? 'rotate-45 top-2.5' : 'top-0.5'
+              isMobileMenuOpen ? 'rotate-45 top-2.5' : 'top-1.5'
             }`}></span>
             <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 top-2.5 ${
               isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
             }`}></span>
             <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 ${
-              isMobileMenuOpen ? '-rotate-45 top-2.5' : 'top-4.5'
+              isMobileMenuOpen ? '-rotate-45 top-2.5' : 'top-3.5'
             }`}></span>
           </div>
         </button>
@@ -128,7 +128,7 @@ const Navigation = () => {
         </div>
 
         {/* Right icons */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           <button 
             className="p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
             aria-label="Search"
