@@ -5,7 +5,11 @@ const Footer = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-8">
           {/* Brand - Left side */}
           <div>
-            <h3 className="text-sm font-normal mb-4">Linea</h3>
+            <img 
+              src="/LINEA_JEWELRY_INC.svg" 
+              alt="Linea Jewelry Inc." 
+              className="mb-4 h-4 w-auto"
+            />
             <p className="text-sm font-light text-black/70 leading-relaxed max-w-md">
               Minimalist jewelry crafted for the modern individual
             </p>
