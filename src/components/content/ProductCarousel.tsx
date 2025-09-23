@@ -12,6 +12,8 @@ import haloImage from "@/assets/halo.jpg";
 import obliqueImage from "@/assets/oblique.jpg";
 import lintelImage from "@/assets/lintel.jpg";
 import shadowlineImage from "@/assets/shadowline.jpg";
+import organicEarring from "@/assets/organic-earring.png";
+import linkBracelet from "@/assets/link-bracelet.png";
 
 interface Product {
   id: number;
@@ -82,16 +84,26 @@ const ProductCarousel = () => {
                 key={product.id}
                 className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
-                <Card className="border-none shadow-none bg-transparent">
-                  <CardContent className="p-0">
-                    <div className="aspect-square mb-3 overflow-hidden bg-muted/10 relative">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-black/[0.03]"></div>
-                    </div>
+                 <Card className="border-none shadow-none bg-transparent group">
+                   <CardContent className="p-0">
+                     <div className="aspect-square mb-3 overflow-hidden bg-muted/10 relative">
+                       <img
+                         src={product.image}
+                         alt={product.name}
+                         className="w-full h-full object-cover transition-all duration-300 group-hover:opacity-0"
+                       />
+                       <img
+                         src={product.category === "Earrings" ? organicEarring : linkBracelet}
+                         alt={`${product.name} lifestyle`}
+                         className="absolute inset-0 w-full h-full object-cover transition-all duration-300 opacity-0 group-hover:opacity-100"
+                       />
+                       <div className="absolute inset-0 bg-black/[0.03]"></div>
+                       {(product.id === 1 || product.id === 3) && (
+                         <div className="absolute top-2 left-2 bg-white px-2 py-1 text-xs font-medium text-black">
+                           NEW
+                         </div>
+                       )}
+                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-light text-foreground">
                         {product.category}
