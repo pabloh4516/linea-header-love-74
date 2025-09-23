@@ -1,8 +1,24 @@
 import { Search, User, ShoppingBag, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Navigation = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  
+  // Preload dropdown images for faster display
+  useEffect(() => {
+    const imagesToPreload = [
+      "/rings-collection.png",
+      "/earrings-collection.png", 
+      "/arcus-bracelet.png",
+      "/span-bracelet.png",
+      "/founders.png"
+    ];
+    
+    imagesToPreload.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
   
   const navItems = [
     { 
@@ -139,7 +155,6 @@ const Navigation = () => {
                     <img 
                       src={image.src}
                       alt={image.alt}
-                      loading="eager"
                       className="w-full h-full object-cover transition-opacity duration-200 group-hover:opacity-90"
                     />
                     {(activeDropdown === "Shop" || activeDropdown === "New in" || activeDropdown === "About") && (
