@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 const EditorialSection = () => {
   return <section className="w-full mb-16 px-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-4">
+        <div className="space-y-4 max-w-[630px]">
           <h2 className="text-2xl font-normal text-foreground leading-tight md:text-xl">
             Jewelry Drawn From Shadows and Lines
           </h2>
