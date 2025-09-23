@@ -81,7 +81,7 @@ const Navigation = () => {
 
   return (
     <nav className="bg-nav relative">
-      <div className="flex items-center justify-between h-16 px-4">
+      <div className="flex items-center justify-between h-16 px-6">
         {/* Mobile hamburger button */}
         <button
           className="md:hidden p-2 mt-0.5 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
