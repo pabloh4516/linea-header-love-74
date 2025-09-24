@@ -1,5 +1,6 @@
 import { ArrowRight, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const Navigation = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -122,13 +123,13 @@ const Navigation = () => {
 
         {/* Center logo */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <a href="/" className="block">
+          <Link to="/" className="block">
             <img 
               src="/LINEA-1.svg" 
               alt="LINEA" 
               className="h-6 w-auto"
             />
-          </a>
+          </Link>
         </div>
 
         {/* Right icons */}
@@ -178,14 +179,14 @@ const Navigation = () => {
                   {navItems
                     .find(item => item.name === activeDropdown)
                     ?.submenuItems.map((subItem, index) => (
-                    <li key={index}>
-                      <a 
-                        href="#"
-                        className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light block py-2"
-                      >
-                        {subItem}
-                      </a>
-                    </li>
+                     <li key={index}>
+                       <Link 
+                         to={`/category/${subItem.toLowerCase()}`}
+                         className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light block py-2"
+                       >
+                         {subItem}
+                       </Link>
+                     </li>
                   ))}
                 </ul>
               </div>
