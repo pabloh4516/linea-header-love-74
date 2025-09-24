@@ -131,7 +131,7 @@ const FilterSortBar = ({ onFiltersToggle, filtersOpen, onFiltersClose }: FilterS
           </Sheet>
 
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-40 border-none bg-transparent text-sm font-light shadow-none">
+            <SelectTrigger className="w-40 border-none bg-transparent text-sm font-light shadow-none rounded-none">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="shadow-none">
