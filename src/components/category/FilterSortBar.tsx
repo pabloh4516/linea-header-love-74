@@ -49,19 +49,9 @@ const FilterSortBar = ({ filtersOpen, setFiltersOpen }: FilterSortBarProps) => {
                   Filters
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-80 bg-background border-none shadow-none">
+              <SheetContent side="right" className="w-80 bg-background border-none shadow-none">
                 <SheetHeader className="mb-6 border-b border-border pb-4">
-                  <div className="flex items-center justify-between">
-                    <SheetTitle className="text-lg font-light">Filters</SheetTitle>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => setFiltersOpen(false)}
-                      className="h-8 w-8 p-0 hover:bg-transparent"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <SheetTitle className="text-lg font-light">Filters</SheetTitle>
                 </SheetHeader>
                 
                 <div className="space-y-8">
@@ -116,12 +106,12 @@ const FilterSortBar = ({ filtersOpen, setFiltersOpen }: FilterSortBarProps) => {
 
                   <Separator className="border-border" />
 
-                  <div className="flex gap-3 pt-4">
-                    <Button variant="ghost" size="sm" className="flex-1 border-none hover:bg-transparent hover:underline font-light">
-                      Clear All
-                    </Button>
-                    <Button variant="ghost" size="sm" className="flex-1 border-none hover:bg-transparent hover:underline font-light">
+                  <div className="flex flex-col gap-2 pt-4">
+                    <Button variant="ghost" size="sm" className="w-full border-none hover:bg-transparent hover:underline font-normal text-left justify-start">
                       Apply Filters
+                    </Button>
+                    <Button variant="ghost" size="sm" className="w-full border-none hover:bg-transparent hover:underline font-light text-left justify-start">
+                      Clear All
                     </Button>
                   </div>
                 </div>
