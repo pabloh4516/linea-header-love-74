@@ -135,8 +135,99 @@ const Checkout = () => {
       <main className="pt-6 pb-12">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Order Summary - First on mobile, last on desktop */}
+            <div className="lg:col-span-1 lg:order-2">
+              <div className="bg-muted/20 p-8 rounded-none sticky top-6">
+                <h2 className="text-lg font-light text-foreground mb-6">Order Summary</h2>
+                
+                <div className="space-y-6">
+                  {cartItems.map((item) => (
+                    <div key={item.id} className="flex gap-4">
+                      <div className="w-20 h-20 bg-muted rounded-none overflow-hidden">
+                        <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-light text-foreground">{item.name}</h3>
+                        {item.size && (
+                          <p className="text-sm text-muted-foreground">Size: {item.size}</p>
+                        )}
+                        
+                        {/* Quantity controls */}
+                        <div className="flex items-center gap-2 mt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            className="h-8 w-8 p-0 rounded-none border-muted-foreground/20"
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="text-sm font-medium text-foreground min-w-[2ch] text-center">
+                            {item.quantity}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="h-8 w-8 p-0 rounded-none border-muted-foreground/20"
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="text-foreground font-medium">
+                        {item.price}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Discount Code Section */}
+                <div className="mt-8 pt-6 border-t border-muted-foreground/20">
+                  {!showDiscountInput ? (
+                    <button 
+                      onClick={() => setShowDiscountInput(true)}
+                      className="text-sm text-foreground underline hover:no-underline transition-all"
+                    >
+                      Discount code
+                    </button>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value)}
+                          placeholder="Enter discount code"
+                          className="flex-1 rounded-none"
+                        />
+                        <button 
+                          onClick={handleDiscountSubmit}
+                          className="text-sm text-foreground underline hover:no-underline transition-all px-2"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t border-muted-foreground/20 mt-4 pt-6">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="text-foreground">€{subtotal.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Left Column - Forms */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 lg:order-1 space-y-8">
 
               {/* Customer Details Form */}
               <div className="bg-muted/20 p-8 rounded-none">
@@ -568,99 +659,9 @@ const Checkout = () => {
                   </div>
                   <h3 className="text-xl font-light text-foreground mb-2">Order Complete!</h3>
                   <p className="text-muted-foreground">Thank you for your purchase. Your order confirmation has been sent to your email.</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-            {/* Right Column - Order Summary */}
-            <div className="lg:col-span-1">
-              <div className="bg-muted/20 p-8 rounded-none sticky top-6">
-                <h2 className="text-lg font-light text-foreground mb-6">Order Summary</h2>
-                
-                <div className="space-y-6">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="flex gap-4">
-                      <div className="w-20 h-20 bg-muted rounded-none overflow-hidden">
-                        <img 
-                          src={item.image} 
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-light text-foreground">{item.name}</h3>
-                        {item.size && (
-                          <p className="text-sm text-muted-foreground">Size: {item.size}</p>
-                        )}
-                        
-                        {/* Quantity controls */}
-                        <div className="flex items-center gap-2 mt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="h-8 w-8 p-0 rounded-none border-muted-foreground/20"
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="text-sm font-medium text-foreground min-w-[2ch] text-center">
-                            {item.quantity}
-                          </span>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="h-8 w-8 p-0 rounded-none border-muted-foreground/20"
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <div className="text-foreground font-medium">
-                        {item.price}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Discount Code Section */}
-                <div className="mt-8 pt-6 border-t border-muted-foreground/20">
-                  {!showDiscountInput ? (
-                    <button 
-                      onClick={() => setShowDiscountInput(true)}
-                      className="text-sm text-foreground underline hover:no-underline transition-all"
-                    >
-                      Discount code
-                    </button>
-                  ) : (
-                    <div className="space-y-3">
-                      <div className="flex gap-2">
-                        <Input
-                          type="text"
-                          value={discountCode}
-                          onChange={(e) => setDiscountCode(e.target.value)}
-                          placeholder="Enter discount code"
-                          className="flex-1 rounded-none"
-                        />
-                        <button 
-                          onClick={handleDiscountSubmit}
-                          className="text-sm text-foreground underline hover:no-underline transition-all px-2"
-                        >
-                          Apply
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="border-t border-muted-foreground/20 mt-4 pt-6">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground">€{subtotal.toLocaleString()}</span>
-                  </div>
-                </div>
-              </div>
+                 </div>
+               )}
+             </div>
             </div>
           </div>
         </div>
