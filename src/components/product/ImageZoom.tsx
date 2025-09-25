@@ -35,7 +35,7 @@ const ImageZoom = ({ images, initialIndex, isOpen, onClose }: ImageZoomProps) =>
     if (isOpen && scrollRef.current) {
       const imageElement = scrollRef.current.children[0]?.children[initialIndex] as HTMLElement;
       if (imageElement) {
-        imageElement.scrollIntoView({ behavior: 'smooth' });
+        imageElement.scrollIntoView();
       }
     }
   }, [isOpen, initialIndex]);
