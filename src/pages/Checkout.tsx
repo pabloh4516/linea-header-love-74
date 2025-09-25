@@ -64,7 +64,18 @@ const Checkout = () => {
     return sum + (price * item.quantity);
   }, 0);
 
-  const shipping = 0; // Free shipping
+  const getShippingCost = () => {
+    switch (shippingOption) {
+      case "express":
+        return 15;
+      case "overnight":
+        return 35;
+      default:
+        return 0; // Standard shipping is free
+    }
+  };
+  
+  const shipping = getShippingCost();
   const total = subtotal + shipping;
 
   const handleDiscountSubmit = () => {
@@ -178,18 +189,10 @@ const Checkout = () => {
                 )}
               </div>
 
-              <div className="border-t border-muted-foreground/20 mt-4 pt-6 space-y-3">
+              <div className="border-t border-muted-foreground/20 mt-4 pt-6">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="text-foreground">€{subtotal.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span className="text-foreground">Free</span>
-                </div>
-                <div className="flex justify-between text-lg font-medium border-t border-muted-foreground/20 pt-3">
-                  <span className="text-foreground">Total</span>
-                  <span className="text-foreground">€{total.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -311,12 +314,6 @@ const Checkout = () => {
               
               {!paymentComplete ? (
                 <div className="space-y-6">
-                  {/* Demo Notice */}
-                  <div className="bg-primary/10 p-4 rounded-none border-l-2 border-primary">
-                    <p className="text-sm text-foreground/80">
-                      Demo Mode: Use test card <code className="bg-muted px-1 py-0.5 rounded text-xs">4242 4242 4242 4242</code> or any future date and 3-digit CVV
-                    </p>
-                  </div>
 
                   <div>
                     <Label htmlFor="cardholderName" className="text-sm font-light text-foreground">
@@ -396,10 +393,28 @@ const Checkout = () => {
                     </div>
                   </div>
 
+                  {/* Order Total Summary */}
+                  <div className="bg-muted/10 p-6 rounded-none border border-muted-foreground/20 space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="text-foreground">€{subtotal.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Shipping</span>
+                      <span className="text-foreground">
+                        {shipping === 0 ? "Free" : `€${shipping}`}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-lg font-medium border-t border-muted-foreground/20 pt-3">
+                      <span className="text-foreground">Total</span>
+                      <span className="text-foreground">€{total.toLocaleString()}</span>
+                    </div>
+                  </div>
+
                   <Button
                     onClick={handleCompleteOrder}
                     disabled={isProcessing || !paymentDetails.cardNumber || !paymentDetails.expiryDate || !paymentDetails.cvv || !paymentDetails.cardholderName}
-                    className="w-full mt-8 rounded-none h-12 text-base"
+                    className="w-full rounded-none h-12 text-base"
                   >
                     {isProcessing ? "Processing..." : `Complete Order • €${total.toLocaleString()}`}
                   </Button>
