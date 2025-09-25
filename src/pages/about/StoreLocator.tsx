@@ -2,6 +2,7 @@ import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
 import PageHeader from "../../components/about/PageHeader";
 import ContentSection from "../../components/about/ContentSection";
+import StoreMap from "../../components/about/StoreMap";
 import { Button } from "../../components/ui/button";
 
 const StoreLocator = () => {
@@ -40,9 +41,7 @@ const StoreLocator = () => {
         />
         
         <ContentSection title="Interactive Store Map">
-          <div className="bg-muted/10 rounded-lg h-96 flex items-center justify-center mb-12">
-            <p className="text-muted-foreground">Interactive map showing all store locations</p>
-          </div>
+          <StoreMap />
         </ContentSection>
 
         <ContentSection title="Our Locations" className="bg-muted/20">
