@@ -237,18 +237,18 @@ const Navigation = () => {
               {/* Left side - Menu items */}
               <div className="flex-1">
                 <ul className="space-y-2">
-                  {navItems
-                    .find(item => item.name === activeDropdown)
-                    ?.submenuItems.map((subItem, index) => (
-                     <li key={index}>
-                       <Link 
-                         to={`/category/${subItem.toLowerCase()}`}
-                         className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light block py-2"
-                       >
-                         {subItem}
-                       </Link>
-                     </li>
-                  ))}
+                   {navItems
+                     .find(item => item.name === activeDropdown)
+                     ?.submenuItems.map((subItem, index) => (
+                      <li key={index}>
+                        <Link 
+                          to={activeDropdown === "About" ? `/about/${subItem.toLowerCase().replace(/\s+/g, '-')}` : `/category/${subItem.toLowerCase()}`}
+                          className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light block py-2"
+                        >
+                          {subItem}
+                        </Link>
+                      </li>
+                   ))}
                 </ul>
               </div>
 
@@ -332,18 +332,18 @@ const Navigation = () => {
                   >
                     {item.name}
                   </a>
-                  <div className="mt-3 pl-4 space-y-2">
-                    {item.submenuItems.map((subItem, subIndex) => (
-                      <a
-                        key={subIndex}
-                        href="#"
-                        className="text-nav-foreground/70 hover:text-nav-hover text-sm font-light block py-1"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        {subItem}
-                      </a>
-                    ))}
-                  </div>
+                   <div className="mt-3 pl-4 space-y-2">
+                     {item.submenuItems.map((subItem, subIndex) => (
+                       <Link
+                         key={subIndex}
+                         to={item.name === "About" ? `/about/${subItem.toLowerCase().replace(/\s+/g, '-')}` : `/category/${subItem.toLowerCase()}`}
+                         className="text-nav-foreground/70 hover:text-nav-hover text-sm font-light block py-1"
+                         onClick={() => setIsMobileMenuOpen(false)}
+                       >
+                         {subItem}
+                       </Link>
+                     ))}
+                   </div>
                 </div>
               ))}
             </div>
