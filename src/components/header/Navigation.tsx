@@ -122,7 +122,7 @@ const Navigation = () => {
     },
     { 
       name: "About", 
-      href: "/about",
+      href: "/about/our-story",
       submenuItems: [
         "Our Story",
         "Sustainability",
