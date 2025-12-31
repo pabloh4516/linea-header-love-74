@@ -72,7 +72,10 @@ const Footer = () => {
       <div className="border-t border-[#e5e5e5] -mx-6 px-6 pt-2">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm font-light text-black mb-1 md:mb-0">
-            © 2024 Linea. All rights reserved.
+            © 2024 Linea. All rights reserved. Template made by{" "}
+            <a href="https://www.liljeros.co" target="_blank" rel="noopener noreferrer" className="hover:text-black/70 transition-colors underline">
+              Rickard Liljeros
+            </a>
           </p>
           <div className="flex space-x-6">
             <a href="/privacy-policy" className="text-sm font-light text-black hover:text-black/70 transition-colors">
