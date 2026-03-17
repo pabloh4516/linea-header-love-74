@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 import Pagination from "./Pagination";
 
 // Fallback imports
@@ -21,6 +23,66 @@ const fallbackProducts = [
   { id: "5", name: "Lintel", category: "Brincos", price: 2250, image: lintelImage },
   { id: "6", name: "Shadowline", category: "Pulseiras", price: 3950, image: shadowlineImage },
 ];
+
+const ProductCard = ({ product, index }: { product: any; index: number }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 60 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{
+        duration: 0.7,
+        delay: (index % 4) * 0.1,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+    >
+      <Link to={`/product/${product.id}`}>
+        <Card className="border-none shadow-none bg-transparent group cursor-pointer">
+          <CardContent className="p-0">
+            <div className="aspect-[3/4] mb-4 overflow-hidden bg-muted/10 relative">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 group-hover:opacity-0"
+              />
+              {product.hoverImage && (
+                <img
+                  src={product.hoverImage}
+                  alt={`${product.name} hover`}
+                  className="absolute inset-0 w-full h-full object-cover transition-all duration-700 opacity-0 group-hover:opacity-100 group-hover:scale-105"
+                />
+              )}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
+              {product.isNew && (
+                <div className="absolute top-3 left-3">
+                  <span className="text-editorial text-[9px] tracking-[0.2em] text-foreground bg-background/80 backdrop-blur-sm px-2 py-1">
+                    NOVO
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="space-y-1">
+              <p className="text-editorial text-[9px] md:text-[10px] text-muted-foreground tracking-[0.15em]">
+                {product.category}
+              </p>
+              <div className="flex justify-between items-center">
+                <h3 className="text-display text-sm md:text-base text-foreground group-hover:opacity-70 transition-opacity duration-300">
+                  {product.name}
+                </h3>
+                <p className="text-sm font-light text-foreground">
+                  R${product.price.toLocaleString('pt-BR')}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </Link>
+    </motion.div>
+  );
+};
 
 const ProductGrid = () => {
   const { category } = useParams();
@@ -44,9 +106,9 @@ const ProductGrid = () => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="space-y-3">
-              <Skeleton className="aspect-square w-full" />
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-32" />
+              <Skeleton className="aspect-[3/4] w-full" />
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-4 w-28" />
             </div>
           ))}
         </div>
@@ -56,39 +118,9 @@ const ProductGrid = () => {
 
   return (
     <section className="w-full px-6 mb-16">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-        {products.map((product) => (
-          <Link key={product.id} to={`/product/${product.id}`}>
-            <Card className="border-none shadow-none bg-transparent group cursor-pointer">
-              <CardContent className="p-0">
-                <div className="aspect-square mb-3 overflow-hidden bg-muted/10 relative">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-all duration-300 group-hover:opacity-0"
-                  />
-                  {product.hoverImage && (
-                    <img
-                      src={product.hoverImage}
-                      alt={`${product.name} hover`}
-                      className="absolute inset-0 w-full h-full object-cover transition-all duration-300 opacity-0 group-hover:opacity-100"
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-black/[0.03]" />
-                  {product.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 text-xs font-medium text-foreground">NOVO</div>
-                  )}
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-light text-foreground">{product.category}</p>
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-sm font-medium text-foreground">{product.name}</h3>
-                    <p className="text-sm font-light text-foreground">R${product.price.toLocaleString('pt-BR')}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+        {products.map((product, index) => (
+          <ProductCard key={product.id} product={product} index={index} />
         ))}
       </div>
       <Pagination />

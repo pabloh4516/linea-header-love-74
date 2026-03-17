@@ -15,7 +15,7 @@ const Category = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-6">
+      <main className="pt-8 md:pt-12">
         <CategoryHeader 
           category={category || 'All Products'} 
         />
