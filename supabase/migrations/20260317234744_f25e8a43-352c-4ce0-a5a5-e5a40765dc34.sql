@@ -1,0 +1,1 @@
+ALTER TABLE public.categories ADD COLUMN grid_layout text NOT NULL DEFAULT 'standard';
