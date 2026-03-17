@@ -14,12 +14,12 @@ import lintelImage from "@/assets/lintel.jpg";
 import shadowlineImage from "@/assets/shadowline.jpg";
 
 const fallbackProducts = [
-  { id: "1", name: "Pantheon", category: "Earrings", price: 2850, image: pantheonImage, isNew: true },
-  { id: "2", name: "Eclipse", category: "Bracelets", price: 3200, image: eclipseImage },
-  { id: "3", name: "Halo", category: "Earrings", price: 1950, image: haloImage, isNew: true },
-  { id: "4", name: "Oblique", category: "Earrings", price: 1650, image: obliqueImage },
-  { id: "5", name: "Lintel", category: "Earrings", price: 2250, image: lintelImage },
-  { id: "6", name: "Shadowline", category: "Bracelets", price: 3950, image: shadowlineImage },
+  { id: "1", name: "Pantheon", category: "Brincos", price: 2850, image: pantheonImage, isNew: true },
+  { id: "2", name: "Eclipse", category: "Pulseiras", price: 3200, image: eclipseImage },
+  { id: "3", name: "Halo", category: "Brincos", price: 1950, image: haloImage, isNew: true },
+  { id: "4", name: "Oblique", category: "Brincos", price: 1650, image: obliqueImage },
+  { id: "5", name: "Lintel", category: "Brincos", price: 2250, image: lintelImage },
+  { id: "6", name: "Shadowline", category: "Pulseiras", price: 3950, image: shadowlineImage },
 ];
 
 const ProductGrid = () => {
