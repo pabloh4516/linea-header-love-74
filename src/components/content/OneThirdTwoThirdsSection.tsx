@@ -11,17 +11,17 @@ const OneThirdTwoThirdsSection = () => {
             <div className="w-full h-[500px] lg:h-[800px] mb-3 overflow-hidden">
               <img 
                 src={organicEarring} 
-                alt="Artisan crafted jewelry" 
+                alt="Joia artesanal" 
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
             </div>
           </Link>
           <div className="">
             <h3 className="text-sm font-normal text-foreground mb-1">
-              Artisan Craft
+              Artesanato
             </h3>
             <p className="text-sm font-light text-foreground">
-              Handcrafted pieces with meticulous attention to detail
+              Peças feitas à mão com atenção meticulosa aos detalhes
             </p>
           </div>
         </div>
@@ -31,17 +31,17 @@ const OneThirdTwoThirdsSection = () => {
             <div className="w-full h-[500px] lg:h-[800px] mb-3 overflow-hidden">
               <img 
                 src={circularCollection} 
-                alt="Circular jewelry collection" 
+                alt="Coleção de joias circulares" 
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
             </div>
           </Link>
           <div className="">
             <h3 className="text-sm font-normal text-foreground mb-1">
-              Circular Elements
+              Elementos Circulares
             </h3>
             <p className="text-sm font-light text-foreground">
-              Geometric perfection meets contemporary minimalism
+              Perfeição geométrica encontra minimalismo contemporâneo
             </p>
           </div>
         </div>
