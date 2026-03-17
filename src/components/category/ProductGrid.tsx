@@ -83,7 +83,7 @@ const ProductGrid = () => {
                   <p className="text-sm font-light text-foreground">{product.category}</p>
                   <div className="flex justify-between items-center">
                     <h3 className="text-sm font-medium text-foreground">{product.name}</h3>
-                    <p className="text-sm font-light text-foreground">€{product.price.toLocaleString()}</p>
+                    <p className="text-sm font-light text-foreground">R${product.price.toLocaleString('pt-BR')}</p>
                   </div>
                 </div>
               </CardContent>
