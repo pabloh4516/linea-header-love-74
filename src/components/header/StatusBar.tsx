@@ -22,7 +22,7 @@ const StatusBar = () => {
       <div className="container mx-auto px-4 text-center">
         <p 
           key={currentIndex}
-          className="text-sm font-light transition-all duration-700 ease-in-out opacity-100 animate-fade-in"
+          className="text-editorial text-[10px] tracking-[0.2em] font-light transition-all duration-700 ease-in-out opacity-100 animate-fade-in"
         >
           {usps[currentIndex]}
         </p>
