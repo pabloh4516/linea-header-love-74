@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import ImageZoom from "./ImageZoom";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
@@ -44,78 +45,100 @@ const ProductImageGallery = () => {
 
   const handleTouchEnd = () => {
     if (!touchStartX.current || !touchEndX.current) return;
-    
     const difference = touchStartX.current - touchEndX.current;
     const minSwipeDistance = 50;
-
     if (Math.abs(difference) > minSwipeDistance) {
-      if (difference > 0) {
-        // Swipe left - next image
-        nextImage();
-      } else {
-        // Swipe right - previous image
-        prevImage();
-      }
+      if (difference > 0) nextImage();
+      else prevImage();
     }
-
     touchStartX.current = null;
     touchEndX.current = null;
   };
 
   return (
     <div className="w-full">
-      {/* Desktop: Vertical scrolling gallery (1024px and above) */}
+      {/* Desktop: Asymmetric 2-column gallery with scroll animations */}
       <div className="hidden lg:block">
-        <div className="space-y-4">
-          {productImages.map((image, index) => (
-            <div 
-              key={index} 
-              className="w-full aspect-square overflow-hidden cursor-pointer group"
-              onClick={() => handleImageClick(index)}
-            >
-              <img
-                src={image}
-                alt={`Product view ${index + 1}`}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-            </div>
-          ))}
+        <div className="grid grid-cols-2 gap-2">
+          {productImages.map((image, index) => {
+            const DesktopImage = ({ img, idx }: { img: string; idx: number }) => {
+              const ref = useRef<HTMLDivElement>(null);
+              const isInView = useInView(ref, { once: true, margin: "-80px" });
+              
+              return (
+                <motion.div
+                  ref={ref}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.7, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                  className={`overflow-hidden cursor-pointer group ${
+                    idx === 0 ? "col-span-2 aspect-[16/10]" : "aspect-square"
+                  }`}
+                  onClick={() => handleImageClick(idx)}
+                >
+                  <img
+                    src={img}
+                    alt={`Vista do produto ${idx + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </motion.div>
+              );
+            };
+            
+            return <DesktopImage key={index} img={image} idx={index} />;
+          })}
         </div>
       </div>
 
-      {/* Tablet/Mobile: Image slider (below 1024px) */}
+      {/* Mobile/Tablet: Full-bleed swipeable slider */}
       <div className="lg:hidden">
         <div className="relative">
-          <div 
-            className="w-full aspect-square overflow-hidden cursor-pointer group touch-pan-y"
+          <div
+            className="w-full aspect-[3/4] overflow-hidden cursor-pointer group touch-pan-y"
             onClick={() => handleImageClick(currentImageIndex)}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            <img
-              src={productImages[currentImageIndex]}
-              alt={`Product view ${currentImageIndex + 1}`}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 select-none"
-            />
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={currentImageIndex}
+                src={productImages[currentImageIndex]}
+                alt={`Vista do produto ${currentImageIndex + 1}`}
+                className="w-full h-full object-cover select-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+            </AnimatePresence>
           </div>
-          
-          {/* Dots indicator */}
-          <div className="flex justify-center mt-4 gap-2">
+
+          {/* Progress bar indicator */}
+          <div className="flex justify-center mt-4 gap-1.5 px-6">
             {productImages.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentImageIndex ? 'bg-foreground' : 'bg-muted'
-                }`}
+                className="h-0.5 flex-1 max-w-8 rounded-full transition-all duration-500"
+                style={{
+                  backgroundColor: index === currentImageIndex 
+                    ? 'hsl(var(--foreground))' 
+                    : 'hsl(var(--border))',
+                }}
               />
             ))}
+          </div>
+
+          {/* Image counter */}
+          <div className="absolute top-4 right-4">
+            <span className="text-editorial text-[9px] tracking-[0.2em] text-foreground/70 bg-background/60 backdrop-blur-sm px-2 py-1">
+              {currentImageIndex + 1} / {productImages.length}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Image Zoom Modal */}
       <ImageZoom
         images={productImages}
         initialIndex={zoomInitialIndex}

@@ -23,49 +23,54 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-6">
-        <section className="w-full px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="lg:hidden mb-6"
-          >
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link to="/" className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors">Início</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link to="/category/earrings" className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors">Brincos</Link>
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="text-editorial text-[10px] tracking-[0.15em]">Pantheon</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </motion.div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+      <main>
+        {/* Mobile breadcrumb */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="lg:hidden px-6 pt-4 pb-3"
+        >
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/" className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors">Início</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link to="/category/earrings" className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors">Brincos</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="text-editorial text-[10px] tracking-[0.15em]">Pantheon</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </motion.div>
+
+        {/* Product section */}
+        <section className="w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
+            {/* Images - takes 7 cols on desktop, full bleed on mobile */}
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6 }}
+              className="lg:col-span-7"
             >
               <ProductImageGallery />
             </motion.div>
             
+            {/* Info - takes 5 cols on desktop, sticky */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:pl-12 mt-8 lg:mt-0 lg:sticky lg:top-6 lg:h-fit"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:col-span-5 px-6 lg:px-10 xl:px-14 mt-6 lg:mt-0 lg:sticky lg:top-24 lg:h-fit lg:py-8"
             >
               <ProductInfo />
               <ProductDescription />
@@ -73,23 +78,36 @@ const ProductDetail = () => {
           </div>
         </section>
         
-        <section className="w-full mt-16 lg:mt-24">
-          <div className="mb-4 px-6">
+        {/* Related products */}
+        <section className="w-full mt-20 lg:mt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="mb-6 px-6"
+          >
             <p className="text-editorial text-[10px] md:text-xs text-muted-foreground tracking-[0.2em] mb-1">
               Sugestões
             </p>
-            <h2 className="text-display text-xl md:text-2xl text-foreground">Você também pode gostar</h2>
-          </div>
+            <h2 className="text-display text-2xl md:text-3xl text-foreground">Você também pode gostar</h2>
+          </motion.div>
           <ProductCarousel />
         </section>
         
         <section className="w-full">
-          <div className="mb-4 px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="mb-6 px-6"
+          >
             <p className="text-editorial text-[10px] md:text-xs text-muted-foreground tracking-[0.2em] mb-1">
               Explore mais
             </p>
-            <h2 className="text-display text-xl md:text-2xl text-foreground">Outros Brincos</h2>
-          </div>
+            <h2 className="text-display text-2xl md:text-3xl text-foreground">Outros Brincos</h2>
+          </motion.div>
           <ProductCarousel />
         </section>
       </main>
