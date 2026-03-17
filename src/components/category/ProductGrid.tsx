@@ -76,7 +76,7 @@ const ProductGrid = () => {
                   )}
                   <div className="absolute inset-0 bg-black/[0.03]" />
                   {product.isNew && (
-                    <div className="absolute top-2 left-2 px-2 py-1 text-xs font-medium text-foreground">NEW</div>
+                    <div className="absolute top-2 left-2 px-2 py-1 text-xs font-medium text-foreground">NOVO</div>
                   )}
                 </div>
                 <div className="space-y-1">
