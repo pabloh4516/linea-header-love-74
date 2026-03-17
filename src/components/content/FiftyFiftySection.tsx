@@ -11,17 +11,17 @@ const FiftyFiftySection = () => {
             <div className="w-full aspect-square mb-3 overflow-hidden">
               <img 
                 src={earringsCollection} 
-                alt="Earrings collection" 
+                alt="Coleção de brincos" 
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
             </div>
           </Link>
           <div className="">
             <h3 className="text-sm font-normal text-foreground mb-1">
-              Organic Forms
+              Formas Orgânicas
             </h3>
             <p className="text-sm font-light text-foreground">
-              Nature-inspired pieces with fluid, sculptural details
+              Peças inspiradas na natureza com detalhes fluidos e esculturais
             </p>
           </div>
         </div>
@@ -31,17 +31,17 @@ const FiftyFiftySection = () => {
             <div className="w-full aspect-square mb-3 overflow-hidden">
               <img 
                 src={linkBracelet} 
-                alt="Chain link bracelet" 
+                alt="Pulseira de elos" 
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
             </div>
           </Link>
           <div className="">
             <h3 className="text-sm font-normal text-foreground mb-1">
-              Chain Collection
+              Coleção Correntes
             </h3>
             <p className="text-sm font-light text-foreground">
-              Refined links and connections in precious metals
+              Elos refinados e conexões em metais preciosos
             </p>
           </div>
         </div>

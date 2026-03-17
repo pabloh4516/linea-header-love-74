@@ -25,8 +25,7 @@ const ReviewProduct = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const submitReview = () => {
-    // Simple submission logic - in a real app this would send to backend
-    console.log("Review submitted:", { rating, review });
+    console.log("Avaliação enviada:", { rating, review });
     setIsOpen(false);
     setRating(0);
     setReview("");
@@ -39,16 +38,16 @@ const ReviewProduct = () => {
           variant="outline" 
           className="w-full h-12 font-light rounded-none border-foreground text-foreground hover:bg-foreground hover:text-background"
         >
-          Review product
+          Avaliar produto
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md !rounded-none">
         <DialogHeader>
-          <DialogTitle className="font-light text-xl">Review product</DialogTitle>
+          <DialogTitle className="font-light text-xl">Avaliar produto</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
           <div className="space-y-3">
-            <label className="text-sm font-light text-foreground">Rating</label>
+            <label className="text-sm font-light text-foreground">Nota</label>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <CustomStar
@@ -61,11 +60,11 @@ const ReviewProduct = () => {
           </div>
           
           <div className="space-y-3">
-            <label className="text-sm font-light text-foreground">Your review</label>
+            <label className="text-sm font-light text-foreground">Sua avaliação</label>
             <Textarea
               value={review}
               onChange={(e) => setReview(e.target.value)}
-              placeholder="Share your thoughts about this product..."
+              placeholder="Compartilhe sua opinião sobre este produto..."
               className="min-h-24 resize-none rounded-none font-light"
             />
           </div>
@@ -75,7 +74,7 @@ const ReviewProduct = () => {
             disabled={rating === 0 || review.trim() === ""}
             className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-light rounded-none"
           >
-            Submit review
+            Enviar avaliação
           </Button>
         </div>
       </DialogContent>

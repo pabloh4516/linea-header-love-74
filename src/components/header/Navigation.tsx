@@ -24,31 +24,30 @@ const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShoppingBagOpen, setIsShoppingBagOpen] = useState(false);
   
-  // Shopping bag state with 3 mock items
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: 1,
       name: "Pantheon",
-      price: "€2,850",
+      price: "R$2.850",
       image: pantheonImage,
       quantity: 1,
-      category: "Earrings"
+      category: "Brincos"
     },
     {
       id: 2,
       name: "Eclipse",
-      price: "€3,200", 
+      price: "R$3.200", 
       image: eclipseImage,
       quantity: 1,
-      category: "Bracelets"
+      category: "Pulseiras"
     },
     {
       id: 3,
       name: "Halo",
-      price: "€1,950",
+      price: "R$1.950",
       image: haloImage, 
       quantity: 1,
-      category: "Earrings"
+      category: "Brincos"
     }
   ]);
 
@@ -66,7 +65,6 @@ const Navigation = () => {
     }
   };
   
-  // Preload dropdown images for faster display
   useEffect(() => {
     const imagesToPreload = [
       "/rings-collection.png",
@@ -83,57 +81,57 @@ const Navigation = () => {
   }, []);
 
   const popularSearches = [
-    "Gold Rings",
-    "Silver Necklaces", 
-    "Pearl Earrings",
-    "Designer Bracelets",
-    "Wedding Rings",
-    "Vintage Collection"
+    "Anéis de Ouro",
+    "Colares de Prata", 
+    "Brincos de Pérola",
+    "Pulseiras Designer",
+    "Alianças",
+    "Coleção Vintage"
   ];
   
   const navItems = [
     { 
-      name: "Shop", 
+      name: "Loja", 
       href: "/category/shop",
       submenuItems: [
-        "Rings",
-        "Necklaces", 
-        "Earrings",
-        "Bracelets",
-        "Watches"
+        "Anéis",
+        "Colares", 
+        "Brincos",
+        "Pulseiras",
+        "Relógios"
       ],
       images: [
-        { src: "/rings-collection.png", alt: "Rings Collection", label: "Rings" },
-        { src: "/earrings-collection.png", alt: "Earrings Collection", label: "Earrings" }
+        { src: "/rings-collection.png", alt: "Coleção de Anéis", label: "Anéis" },
+        { src: "/earrings-collection.png", alt: "Coleção de Brincos", label: "Brincos" }
       ]
     },
     { 
-      name: "New in", 
+      name: "Novidades", 
       href: "/category/new-in",
       submenuItems: [
-        "This Week's Arrivals",
-        "Spring Collection",
-        "Featured Designers",
-        "Limited Edition",
-        "Pre-Orders"
+        "Novidades da Semana",
+        "Coleção Primavera",
+        "Designers em Destaque",
+        "Edição Limitada",
+        "Pré-Venda"
       ],
       images: [
-        { src: "/arcus-bracelet.png", alt: "Arcus Bracelet", label: "Arcus Bracelet" },
-        { src: "/span-bracelet.png", alt: "Span Bracelet", label: "Span Bracelet" }
+        { src: "/arcus-bracelet.png", alt: "Pulseira Arcus", label: "Pulseira Arcus" },
+        { src: "/span-bracelet.png", alt: "Pulseira Span", label: "Pulseira Span" }
       ]
     },
     { 
-      name: "About", 
+      name: "Sobre", 
       href: "/about/our-story",
       submenuItems: [
-        "Our Story",
-        "Sustainability",
-        "Size Guide",
-        "Customer Care",
-        "Store Locator"
+        "Nossa História",
+        "Sustentabilidade",
+        "Guia de Tamanhos",
+        "Atendimento",
+        "Nossas Lojas"
       ],
       images: [
-        { src: "/founders.png", alt: "Company Founders", label: "Read our story" }
+        { src: "/founders.png", alt: "Fundadoras", label: "Conheça nossa história" }
       ]
     }
   ];
@@ -147,11 +145,10 @@ const Navigation = () => {
       }}
     >
       <div className="flex items-center justify-between h-16 px-6">
-        {/* Mobile hamburger button */}
         <button
           className="lg:hidden p-2 mt-0.5 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Toggle menu"
+          aria-label="Abrir menu"
         >
           <div className="w-5 h-5 relative">
             <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 ${
@@ -166,7 +163,6 @@ const Navigation = () => {
           </div>
         </button>
 
-        {/* Left navigation - Hidden on tablets and mobile */}
         <div className="hidden lg:flex space-x-8">
           {navItems.map((item) => (
             <div
@@ -185,7 +181,6 @@ const Navigation = () => {
           ))}
         </div>
 
-        {/* Center logo */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <Link to="/" className="block">
             <img 
@@ -196,11 +191,10 @@ const Navigation = () => {
           </Link>
         </div>
 
-        {/* Right icons */}
         <div className="flex items-center space-x-2">
           <button 
             className="p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
-            aria-label="Search"
+            aria-label="Buscar"
             onClick={() => setIsSearchOpen(!isSearchOpen)}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
@@ -209,7 +203,7 @@ const Navigation = () => {
           </button>
           <button 
             className="hidden lg:block p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
-            aria-label="Favorites"
+            aria-label="Favoritos"
             onClick={() => setOffCanvasType('favorites')}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
@@ -218,7 +212,7 @@ const Navigation = () => {
           </button>
           <button 
             className="p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200 relative"
-            aria-label="Shopping bag"
+            aria-label="Sacola de compras"
             onClick={() => setIsShoppingBagOpen(true)}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
@@ -233,7 +227,6 @@ const Navigation = () => {
         </div>
       </div>
 
-      {/* Full width dropdown */}
       {activeDropdown && (
         <div 
           className="absolute top-full left-0 right-0 bg-nav border-b border-border z-50"
@@ -242,38 +235,35 @@ const Navigation = () => {
         >
           <div className="px-6 py-8">
             <div className="flex justify-between w-full">
-              {/* Left side - Menu items */}
               <div className="flex-1">
                 <ul className="space-y-2">
                    {navItems
                      .find(item => item.name === activeDropdown)
                      ?.submenuItems.map((subItem, index) => (
-                      <li key={index}>
-                        <Link 
-                          to={activeDropdown === "About" ? `/about/${subItem.toLowerCase().replace(/\s+/g, '-')}` : `/category/${subItem.toLowerCase()}`}
-                          className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light block py-2"
-                        >
-                          {subItem}
-                        </Link>
-                      </li>
-                   ))}
+                     <li key={index}>
+                       <Link 
+                         to={activeDropdown === "Sobre" ? `/about/${subItem.toLowerCase().replace(/\s+/g, '-')}` : `/category/${subItem.toLowerCase()}`}
+                         className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light block py-2"
+                       >
+                         {subItem}
+                       </Link>
+                     </li>
+                  ))}
                 </ul>
               </div>
 
-              {/* Right side - Images */}
               <div className="flex space-x-6">
                 {navItems
                   .find(item => item.name === activeDropdown)
                   ?.images.map((image, index) => {
-                    // Determine the link destination based on dropdown and image
                     let linkTo = "/";
-                    if (activeDropdown === "Shop") {
-                      if (image.label === "Rings") linkTo = "/category/rings";
-                      else if (image.label === "Earrings") linkTo = "/category/earrings";
-                    } else if (activeDropdown === "New in") {
-                      if (image.label === "Arcus Bracelet") linkTo = "/product/arcus-bracelet";
-                      else if (image.label === "Span Bracelet") linkTo = "/product/span-bracelet";
-                    } else if (activeDropdown === "About") {
+                    if (activeDropdown === "Loja") {
+                      if (image.label === "Anéis") linkTo = "/category/rings";
+                      else if (image.label === "Brincos") linkTo = "/category/earrings";
+                    } else if (activeDropdown === "Novidades") {
+                      if (image.label === "Pulseira Arcus") linkTo = "/product/arcus-bracelet";
+                      else if (image.label === "Pulseira Span") linkTo = "/product/span-bracelet";
+                    } else if (activeDropdown === "Sobre") {
                       linkTo = "/about/our-story";
                     }
                     
@@ -284,7 +274,7 @@ const Navigation = () => {
                           alt={image.alt}
                           className="w-full h-full object-cover transition-opacity duration-200 group-hover:opacity-90"
                         />
-                        {(activeDropdown === "Shop" || activeDropdown === "New in" || activeDropdown === "About") && (
+                        {(activeDropdown === "Loja" || activeDropdown === "Novidades" || activeDropdown === "Sobre") && (
                           <div className="absolute bottom-2 left-2 text-white text-xs font-light flex items-center gap-1">
                             <span>{image.label}</span>
                             <ArrowRight size={12} />
@@ -299,14 +289,12 @@ const Navigation = () => {
         </div>
       )}
 
-      {/* Search overlay */}
       {isSearchOpen && (
         <div 
           className="absolute top-full left-0 right-0 bg-nav border-b border-border z-50"
         >
           <div className="px-6 py-8">
             <div className="max-w-2xl mx-auto">
-              {/* Search input */}
               <div className="relative mb-8">
                 <div className="flex items-center border-b border-border pb-2">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 text-nav-foreground mr-3">
@@ -314,16 +302,15 @@ const Navigation = () => {
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search for jewelry..."
+                    placeholder="Buscar joias..."
                     className="flex-1 bg-transparent text-nav-foreground placeholder:text-nav-foreground/60 outline-none text-lg"
                     autoFocus
                   />
                 </div>
               </div>
 
-              {/* Popular searches */}
               <div>
-                <h3 className="text-nav-foreground text-sm font-light mb-4">Popular Searches</h3>
+                <h3 className="text-nav-foreground text-sm font-light mb-4">Buscas Populares</h3>
                 <div className="flex flex-wrap gap-3">
                   {popularSearches.map((search, index) => (
                     <button
@@ -340,12 +327,11 @@ const Navigation = () => {
         </div>
       )}
 
-      {/* Mobile navigation menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 right-0 bg-nav border-b border-border z-50">
           <div className="px-6 py-8">
             <div className="space-y-6">
-              {navItems.map((item, index) => (
+              {navItems.map((item) => (
                 <div key={item.name}>
                   <Link
                     to={item.href}
@@ -358,7 +344,7 @@ const Navigation = () => {
                      {item.submenuItems.map((subItem, subIndex) => (
                        <Link
                          key={subIndex}
-                         to={item.name === "About" ? `/about/${subItem.toLowerCase().replace(/\s+/g, '-')}` : `/category/${subItem.toLowerCase()}`}
+                         to={item.name === "Sobre" ? `/about/${subItem.toLowerCase().replace(/\s+/g, '-')}` : `/category/${subItem.toLowerCase()}`}
                          className="text-nav-foreground/70 hover:text-nav-hover text-sm font-light block py-1"
                          onClick={() => setIsMobileMenuOpen(false)}
                        >
@@ -373,7 +359,6 @@ const Navigation = () => {
         </div>
       )}
       
-      {/* Shopping Bag Component */}
       <ShoppingBag 
         isOpen={isShoppingBagOpen}
         onClose={() => setIsShoppingBagOpen(false)}
@@ -385,33 +370,28 @@ const Navigation = () => {
         }}
       />
       
-      {/* Favorites Off-canvas overlay */}
       {offCanvasType === 'favorites' && (
         <div className="fixed inset-0 z-50 h-screen">
-          {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/50 h-screen"
             onClick={() => setOffCanvasType(null)}
           />
           
-          {/* Off-canvas panel */}
           <div className="absolute right-0 top-0 h-screen w-96 bg-background border-l border-border animate-slide-in-right flex flex-col">
-            {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-border">
-              <h2 className="text-lg font-light text-foreground">Your Favorites</h2>
+              <h2 className="text-lg font-light text-foreground">Seus Favoritos</h2>
               <button
                 onClick={() => setOffCanvasType(null)}
                 className="p-2 text-foreground hover:text-muted-foreground transition-colors"
-                aria-label="Close"
+                aria-label="Fechar"
               >
                 <X size={20} />
               </button>
             </div>
             
-            {/* Content */}
             <div className="p-6">
               <p className="text-muted-foreground text-sm mb-6">
-                You haven't added any favorites yet. Browse our collection and click the heart icon to save items you love.
+                Você ainda não adicionou favoritos. Navegue pela nossa coleção e clique no ícone de coração para salvar os itens que você ama.
               </p>
             </div>
           </div>

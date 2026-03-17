@@ -19,19 +19,18 @@ const ProductInfo = () => {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb - Show only on desktop */}
       <div className="hidden lg:block">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/">Home</Link>
+                <Link to="/">Início</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/category/earrings">Earrings</Link>
+                <Link to="/category/earrings">Brincos</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -42,46 +41,43 @@ const ProductInfo = () => {
         </Breadcrumb>
       </div>
 
-      {/* Product title and price */}
       <div className="space-y-2">
         <div className="flex justify-between items-start">
           <div>
-            <p className="text-sm font-light text-muted-foreground mb-1">Earrings</p>
+            <p className="text-sm font-light text-muted-foreground mb-1">Brincos</p>
             <h1 className="text-2xl md:text-3xl font-light text-foreground">Pantheon</h1>
           </div>
           <div className="text-right">
-            <p className="text-xl font-light text-foreground">€2,850</p>
+            <p className="text-xl font-light text-foreground">R$2.850</p>
           </div>
         </div>
       </div>
 
-      {/* Product details */}
       <div className="space-y-4 py-4 border-b border-border">
         <div className="space-y-2">
           <h3 className="text-sm font-light text-foreground">Material</h3>
-          <p className="text-sm font-light text-muted-foreground">18k Gold Plated Sterling Silver</p>
+          <p className="text-sm font-light text-muted-foreground">Prata 925 com Banho de Ouro 18k</p>
         </div>
         
         <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Dimensions</h3>
-          <p className="text-sm font-light text-muted-foreground">2.5cm x 1.2cm</p>
+          <h3 className="text-sm font-light text-foreground">Dimensões</h3>
+          <p className="text-sm font-light text-muted-foreground">2,5cm x 1,2cm</p>
         </div>
         
         <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Weight</h3>
-          <p className="text-sm font-light text-muted-foreground">4.2g per earring</p>
+          <h3 className="text-sm font-light text-foreground">Peso</h3>
+          <p className="text-sm font-light text-muted-foreground">4,2g por brinco</p>
         </div>
         
         <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Editor's notes</h3>
-          <p className="text-sm font-light text-muted-foreground italic">"A modern interpretation of classical architecture, these earrings bridge timeless elegance with contemporary minimalism."</p>
+          <h3 className="text-sm font-light text-foreground">Notas do editor</h3>
+          <p className="text-sm font-light text-muted-foreground italic">"Uma interpretação moderna da arquitetura clássica, estes brincos unem elegância atemporal com minimalismo contemporâneo."</p>
         </div>
       </div>
 
-      {/* Quantity and Add to Cart */}
       <div className="space-y-4">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-light text-foreground">Quantity</span>
+          <span className="text-sm font-light text-foreground">Quantidade</span>
           <div className="flex items-center border border-border">
             <Button
               variant="ghost"
@@ -108,7 +104,7 @@ const ProductInfo = () => {
         <Button 
           className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-light rounded-none"
         >
-          Add to Bag
+          Adicionar à Sacola
         </Button>
       </div>
     </div>

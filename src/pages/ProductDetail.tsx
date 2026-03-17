@@ -24,19 +24,18 @@ const ProductDetail = () => {
       
       <main className="pt-6">
         <section className="w-full px-6">
-          {/* Breadcrumb - Show above image on smaller screens */}
           <div className="lg:hidden mb-6">
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to="/">Home</Link>
+                    <Link to="/">Início</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to="/category/earrings">Earrings</Link>
+                    <Link to="/category/earrings">Brincos</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
@@ -59,14 +58,14 @@ const ProductDetail = () => {
         
         <section className="w-full mt-16 lg:mt-24">
           <div className="mb-4 px-6">
-            <h2 className="text-sm font-light text-foreground">You might also like</h2>
+            <h2 className="text-sm font-light text-foreground">Você também pode gostar</h2>
           </div>
           <ProductCarousel />
         </section>
         
         <section className="w-full">
           <div className="mb-4 px-6">
-            <h2 className="text-sm font-light text-foreground">Our other Earrings</h2>
+            <h2 className="text-sm font-light text-foreground">Outros Brincos</h2>
           </div>
           <ProductCarousel />
         </section>
