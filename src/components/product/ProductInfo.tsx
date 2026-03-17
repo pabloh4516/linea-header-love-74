@@ -24,18 +24,18 @@ const ProductInfo = () => {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/">Início</Link>
+                <Link to="/" className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors">Início</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link to="/category/earrings">Brincos</Link>
+                <Link to="/category/earrings" className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground hover:text-foreground transition-colors">Brincos</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Pantheon</BreadcrumbPage>
+              <BreadcrumbPage className="text-editorial text-[10px] tracking-[0.15em]">Pantheon</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -44,40 +44,40 @@ const ProductInfo = () => {
       <div className="space-y-2">
         <div className="flex justify-between items-start">
           <div>
-            <p className="text-sm font-light text-muted-foreground mb-1">Brincos</p>
-            <h1 className="text-2xl md:text-3xl font-light text-foreground">Pantheon</h1>
+            <p className="text-editorial text-[10px] tracking-[0.2em] text-muted-foreground mb-2">Brincos</p>
+            <h1 className="text-display text-3xl md:text-4xl text-foreground">Pantheon</h1>
           </div>
           <div className="text-right">
-            <p className="text-xl font-light text-foreground">R$2.850</p>
+            <p className="text-display text-xl md:text-2xl text-foreground">R$2.850</p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-4 py-4 border-b border-border">
-        <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Material</h3>
-          <p className="text-sm font-light text-muted-foreground">Prata 925 com Banho de Ouro 18k</p>
+      <div className="space-y-5 py-5 border-b border-border">
+        <div className="space-y-1">
+          <h3 className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground">Material</h3>
+          <p className="text-sm font-light text-foreground">Prata 925 com Banho de Ouro 18k</p>
         </div>
         
-        <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Dimensões</h3>
-          <p className="text-sm font-light text-muted-foreground">2,5cm x 1,2cm</p>
+        <div className="space-y-1">
+          <h3 className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground">Dimensões</h3>
+          <p className="text-sm font-light text-foreground">2,5cm x 1,2cm</p>
         </div>
         
-        <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Peso</h3>
-          <p className="text-sm font-light text-muted-foreground">4,2g por brinco</p>
+        <div className="space-y-1">
+          <h3 className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground">Peso</h3>
+          <p className="text-sm font-light text-foreground">4,2g por brinco</p>
         </div>
         
-        <div className="space-y-2">
-          <h3 className="text-sm font-light text-foreground">Notas do editor</h3>
-          <p className="text-sm font-light text-muted-foreground italic">"Uma interpretação moderna da arquitetura clássica, estes brincos unem elegância atemporal com minimalismo contemporâneo."</p>
+        <div className="space-y-1">
+          <h3 className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground">Notas do Editor</h3>
+          <p className="text-sm font-light text-foreground/80 italic leading-relaxed">"Uma interpretação moderna da arquitetura clássica, estes brincos unem elegância atemporal com minimalismo contemporâneo."</p>
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-light text-foreground">Quantidade</span>
+          <span className="text-editorial text-[10px] tracking-[0.15em] text-muted-foreground">Quantidade</span>
           <div className="flex items-center border border-border">
             <Button
               variant="ghost"
@@ -85,7 +85,7 @@ const ProductInfo = () => {
               onClick={decrementQuantity}
               className="h-10 w-10 p-0 hover:bg-transparent hover:opacity-50 rounded-none border-none"
             >
-              <Minus className="h-4 w-4" />
+              <Minus className="h-3 w-3" />
             </Button>
             <span className="h-10 flex items-center px-4 text-sm font-light min-w-12 justify-center border-l border-r border-border">
               {quantity}
@@ -96,13 +96,13 @@ const ProductInfo = () => {
               onClick={incrementQuantity}
               className="h-10 w-10 p-0 hover:bg-transparent hover:opacity-50 rounded-none border-none"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-3 w-3" />
             </Button>
           </div>
         </div>
 
         <Button 
-          className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-light rounded-none"
+          className="w-full h-12 bg-foreground text-background hover:bg-foreground/90 font-light rounded-none text-editorial text-xs tracking-[0.15em]"
         >
           Adicionar à Sacola
         </Button>
