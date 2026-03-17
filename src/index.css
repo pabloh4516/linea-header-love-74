@@ -2,48 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Linea E-commerce Design System - Minimalist & Modern */
+/* Linea E-commerce Design System - Bold & Immersive */
 
 @layer base {
   :root {
-    /* Core neutral palette */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 9%;
+    /* Core palette - warm sophistication */
+    --background: 30 10% 98%;
+    --foreground: 30 5% 8%;
     
     /* Status bar */
-    --status-bar: 0 0% 0%;
-    --status-bar-foreground: 0 0% 100%;
+    --status-bar: 30 5% 8%;
+    --status-bar-foreground: 30 10% 98%;
     
     /* Navigation */
-    --nav-background: 0 0% 100%;
-    --nav-foreground: 0 0% 20%;
-    --nav-hover: 0 0% 5%;
+    --nav-background: 30 10% 98%;
+    --nav-foreground: 30 5% 20%;
+    --nav-hover: 30 5% 5%;
     
     /* Interactive elements */
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --primary-hover: 0 0% 15%;
+    --primary: 30 5% 8%;
+    --primary-foreground: 30 10% 98%;
+    --primary-hover: 30 5% 15%;
     
     /* Subtle elements */
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 20%;
+    --secondary: 30 8% 95%;
+    --secondary-foreground: 30 5% 20%;
     
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 30 8% 95%;
+    --muted-foreground: 30 5% 45%;
     
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 35 30% 90%;
+    --accent-foreground: 30 5% 8%;
     
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 9%;
+    --border: 30 8% 88%;
+    --input: 30 8% 88%;
+    --ring: 30 5% 8%;
     
     /* Cards and surfaces */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card: 30 10% 98%;
+    --card-foreground: 30 5% 8%;
     
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 30 10% 98%;
+    --popover-foreground: 30 5% 8%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -54,56 +54,49 @@
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
-    --sidebar-background: 0 0% 98%;
-
+    --sidebar-background: 30 8% 97%;
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 0 0% 9%;
-    --foreground: 0 0% 98%;
+    --background: 30 5% 6%;
+    --foreground: 30 10% 95%;
     
-    --status-bar: 0 0% 0%;
-    --status-bar-foreground: 0 0% 100%;
+    --status-bar: 30 5% 3%;
+    --status-bar-foreground: 30 10% 95%;
     
-    --nav-background: 0 0% 9%;
-    --nav-foreground: 0 0% 80%;
-    --nav-hover: 0 0% 95%;
+    --nav-background: 30 5% 6%;
+    --nav-foreground: 30 5% 80%;
+    --nav-hover: 30 10% 95%;
     
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --primary-hover: 0 0% 90%;
+    --primary: 30 10% 95%;
+    --primary-foreground: 30 5% 6%;
+    --primary-hover: 30 5% 85%;
     
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 80%;
+    --secondary: 30 5% 12%;
+    --secondary-foreground: 30 5% 80%;
     
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 30 5% 12%;
+    --muted-foreground: 30 5% 55%;
     
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 30 5% 12%;
+    --accent-foreground: 30 10% 95%;
     
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 98%;
+    --border: 30 5% 18%;
+    --input: 30 5% 18%;
+    --ring: 30 10% 95%;
     
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 98%;
+    --card: 30 5% 6%;
+    --card-foreground: 30 10% 95%;
     
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 30 5% 6%;
+    --popover-foreground: 30 10% 95%;
     
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 98%;
@@ -117,5 +110,21 @@
 
   body {
     @apply bg-background text-foreground font-light;
+  }
+}
+
+/* Custom utility classes for the immersive layout */
+@layer utilities {
+  .text-display {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+  }
+
+  .text-editorial {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 200;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
 }

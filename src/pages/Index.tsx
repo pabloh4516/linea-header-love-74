@@ -1,22 +1,22 @@
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
-import LargeHero from "../components/content/LargeHero";
-import FiftyFiftySection from "../components/content/FiftyFiftySection";
-import OneThirdTwoThirdsSection from "../components/content/OneThirdTwoThirdsSection";
+import ImmersiveHero from "../components/content/ImmersiveHero";
+import AsymmetricGrid from "../components/content/AsymmetricGrid";
 import ProductCarousel from "../components/content/ProductCarousel";
-import EditorialSection from "../components/content/EditorialSection";
+import StorySection from "../components/content/StorySection";
+import FullWidthBanner from "../components/content/FullWidthBanner";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-6">
-        <FiftyFiftySection />
+      <main>
+        <ImmersiveHero />
+        <AsymmetricGrid />
         <ProductCarousel />
-        <LargeHero />
-        <OneThirdTwoThirdsSection />
-        <EditorialSection />
+        <FullWidthBanner />
+        <StorySection />
       </main>
       
       <Footer />
