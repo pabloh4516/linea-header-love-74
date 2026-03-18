@@ -319,11 +319,19 @@ const AdminProducts = () => {
 
             {/* Pricing + Category */}
             <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-4">
-              <h3 className="text-[13px] font-semibold">Preço e Organização</h3>
+              <h3 className="text-[13px] font-semibold">Preço, Estoque e Organização</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-[12px] text-muted-foreground">Preço (R$)</Label>
                   <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))} className="h-9 text-[13px]" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[12px] text-muted-foreground">Preço promocional (R$)</Label>
+                  <Input type="number" step="0.01" value={form.sale_price} onChange={(e) => setForm(f => ({ ...f, sale_price: e.target.value }))} placeholder="Deixe vazio se não houver" className="h-9 text-[13px]" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[12px] text-muted-foreground">Estoque</Label>
+                  <Input type="number" value={form.stock} onChange={(e) => setForm(f => ({ ...f, stock: e.target.value }))} className="h-9 text-[13px]" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[12px] text-muted-foreground">Categoria</Label>
