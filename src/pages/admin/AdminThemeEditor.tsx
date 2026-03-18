@@ -1,7 +1,8 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
 import { useHomepageSections, useUpdateSection, useCreateSection, useDeleteSection } from "@/hooks/useHomepageSections";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { usePageTemplate, useSavePageTemplate } from "@/hooks/usePageTemplates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
