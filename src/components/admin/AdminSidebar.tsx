@@ -102,6 +102,7 @@ export function AdminSidebar() {
 
       <SidebarContent>
         {renderGroup(mainItems)}
+        {renderGroup(marketingItems, "Marketing")}
         {renderGroup(contentItems, "Loja Online")}
         {renderGroup(settingsItems, "Configuração")}
       </SidebarContent>
