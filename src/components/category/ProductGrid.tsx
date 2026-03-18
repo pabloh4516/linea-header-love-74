@@ -89,7 +89,7 @@ const ProductCard = ({
       <Link to={`/product/${product.id}`}>
         <Card className="border-none shadow-none bg-transparent group cursor-pointer">
           <CardContent className="p-0">
-            <div className={`${aspectClass} mb-4 overflow-hidden bg-muted/10 relative`}>
+            <div className="mb-4 overflow-hidden bg-muted/10 relative" style={{ aspectRatio }}>
               <img
                 src={product.image}
                 alt={product.name}
