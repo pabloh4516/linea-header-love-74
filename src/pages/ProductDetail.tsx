@@ -55,7 +55,7 @@ const ProductDetail = () => {
       <Header />
 
       <main>
-        {theme.pdpShowBreadcrumb && !productInfoBlocks && (
+        {theme.pdpShowBreadcrumb && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="lg:hidden px-6 pt-4 pb-3">
             <Breadcrumb>
               <BreadcrumbList>

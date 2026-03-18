@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,8 +73,18 @@ const ProductInfo = ({
     fontWeight: Number(theme.buttonFontWeight),
   };
 
-  // Block visibility resolution: blocks prop > theme defaults > prop overrides
-  const resolvedBlocks = blocks || DEFAULT_BLOCKS;
+  // Block visibility resolution: merge template blocks with defaults to ensure no block type is lost
+  const resolvedBlocks = useMemo(() => {
+    if (!blocks) return DEFAULT_BLOCKS;
+    const blockTypes = new Set(blocks.map(b => b.type));
+    const merged = [...blocks];
+    for (const def of DEFAULT_BLOCKS) {
+      if (!blockTypes.has(def.type)) {
+        merged.push({ ...def, visible: false });
+      }
+    }
+    return merged;
+  }, [blocks]);
 
   const isBlockVisible = (blockType: string): boolean => {
     const block = resolvedBlocks.find(b => b.type === blockType);
