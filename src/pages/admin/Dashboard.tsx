@@ -67,7 +67,7 @@ const Dashboard = () => {
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Receita Total", value: `€${totalRevenue.toFixed(2)}`, icon: DollarSign, color: "hsl(var(--admin-success))" },
+          { label: "Receita Total", value: `R$${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, icon: DollarSign, color: "hsl(var(--admin-success))" },
           { label: "Pedidos", value: orders?.length ?? 0, icon: ShoppingCart, sub: pendingOrders > 0 ? `${pendingOrders} pendentes` : undefined, color: "hsl(var(--admin-info))" },
           { label: "Produtos", value: products?.length ?? 0, icon: Package, sub: `${products?.filter(p => p.is_visible).length ?? 0} ativos`, color: "hsl(var(--admin-warning))" },
           { label: "Clientes", value: customers?.length ?? 0, icon: Users, color: "hsl(152, 56%, 48%)" },

@@ -19,8 +19,8 @@ const SETTINGS_GROUPS = [
   {
     title: "Moeda",
     fields: [
-      { key: "currency", label: "Código da Moeda", placeholder: "EUR" },
-      { key: "currency_symbol", label: "Símbolo", placeholder: "€" },
+      { key: "currency", label: "Código da Moeda", placeholder: "BRL" },
+      { key: "currency_symbol", label: "Símbolo", placeholder: "R$" },
     ],
   },
   {
