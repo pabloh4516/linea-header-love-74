@@ -691,7 +691,7 @@ const AdminThemeEditor = () => {
     }
     if (settingsDrilldown !== null && settingsDrilldown !== undefined) {
       // Check theme registry groups first
-      const themeGroups = themeRegistry.getGlobalSettingsSchema(activeThemeData?.slug);
+      const themeGroups = themeRegistry.getGlobalSettingsSchema(activeThemeId ?? undefined);
       if (themeGroups.length > 0 && typeof settingsDrilldown === "number") {
         return themeGroups[settingsDrilldown]?.name || null;
       }
