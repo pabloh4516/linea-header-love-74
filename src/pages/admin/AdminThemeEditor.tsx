@@ -552,7 +552,7 @@ const PAGE_TYPE_MAP: Record<EditorPage, string> = {
 // ─── Main Component ───────────────────────────────────────
 // ═══════════════════════════════════════════════════════════
 const AdminThemeEditor = () => {
-  const activeThemeData = useActiveThemeSync();
+  const { activeThemeId } = useThemeSync();
   const { data: settings, isLoading } = useSiteSettings();
   const updateSetting = useUpdateSetting();
   const { data: homepageSections } = useHomepageSections();
