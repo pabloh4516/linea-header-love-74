@@ -74,6 +74,7 @@ const App = () => (
               <Route path="coupons" element={<AdminCoupons />} />
               <Route path="order-bumps" element={<AdminOrderBumps />} />
               <Route path="pages" element={<AdminPages />} />
+              <Route path="themes" element={<AdminThemes />} />
             </Route>
             <Route path="/page/:slug" element={<DynamicPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

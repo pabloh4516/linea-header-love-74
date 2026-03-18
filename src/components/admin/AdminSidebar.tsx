@@ -31,6 +31,7 @@ const marketingItems = [
 const contentItems = [
   { title: "Homepage", url: "/admin/homepage", icon: LayoutDashboard },
   { title: "Páginas", url: "/admin/pages", icon: FileText },
+  { title: "Galeria de Temas", url: "/admin/themes", icon: SwatchBook },
   { title: "Editor de Tema", url: "/admin/theme", icon: Palette },
   { title: "Relatórios", url: "/admin/analytics", icon: BarChart3 },
 ];
