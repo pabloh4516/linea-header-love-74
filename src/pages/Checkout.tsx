@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Minus, Plus, CreditCard, Check } from "lucide-react";
+import { Minus, Plus, CreditCard, Check, X, Tag, Loader2 } from "lucide-react";
 import CheckoutHeader from "../components/header/CheckoutHeader";
 import Footer from "../components/footer/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
+
+type AppliedCoupon = {
+  id: string;
+  code: string;
+  discount_type: string;
+  discount_value: number;
+  min_purchase: number;
+};
 
 const Checkout = () => {
   const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
   const [customerDetails, setCustomerDetails] = useState({
     email: "",
     firstName: "",
@@ -83,21 +96,95 @@ const Checkout = () => {
 
   const getShippingCost = () => {
     switch (shippingOption) {
-      case "express":
-        return 25;
-      case "overnight":
-        return 60;
-      default:
-        return 0;
+      case "express": return 25;
+      case "overnight": return 60;
+      default: return 0;
     }
+  };
+
+  const getDiscount = () => {
+    if (!appliedCoupon) return 0;
+    if (appliedCoupon.discount_type === "percentage") {
+      return Math.round(subtotal * (appliedCoupon.discount_value / 100) * 100) / 100;
+    }
+    return Math.min(appliedCoupon.discount_value, subtotal);
   };
   
   const shipping = getShippingCost();
-  const total = subtotal + shipping;
+  const discount = getDiscount();
+  const total = Math.max(0, subtotal - discount + shipping);
 
-  const handleDiscountSubmit = () => {
-    console.log("Código de desconto:", discountCode);
-    setShowDiscountInput(false);
+  const handleApplyCoupon = async () => {
+    const code = discountCode.trim().toUpperCase();
+    if (!code) return;
+
+    setCouponLoading(true);
+    setCouponError("");
+
+    try {
+      const { data, error } = await supabase
+        .from("coupons" as any)
+        .select("*")
+        .eq("code", code)
+        .eq("is_active", true)
+        .single();
+
+      if (error || !data) {
+        setCouponError("Cupom inválido ou não encontrado");
+        setCouponLoading(false);
+        return;
+      }
+
+      const coupon = data as any;
+
+      // Check expiration
+      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+        setCouponError("Este cupom expirou");
+        setCouponLoading(false);
+        return;
+      }
+
+      // Check start date
+      if (coupon.starts_at && new Date(coupon.starts_at) > new Date()) {
+        setCouponError("Este cupom ainda não está ativo");
+        setCouponLoading(false);
+        return;
+      }
+
+      // Check usage limit
+      if (coupon.max_uses && coupon.used_count >= coupon.max_uses) {
+        setCouponError("Este cupom atingiu o limite de usos");
+        setCouponLoading(false);
+        return;
+      }
+
+      // Check minimum purchase
+      if (coupon.min_purchase && subtotal < coupon.min_purchase) {
+        setCouponError(`Compra mínima de R$${Number(coupon.min_purchase).toFixed(2)} para este cupom`);
+        setCouponLoading(false);
+        return;
+      }
+
+      setAppliedCoupon({
+        id: coupon.id,
+        code: coupon.code,
+        discount_type: coupon.discount_type,
+        discount_value: Number(coupon.discount_value),
+        min_purchase: Number(coupon.min_purchase || 0),
+      });
+      setDiscountCode("");
+      setShowDiscountInput(false);
+      setCouponError("");
+      toast.success(`Cupom ${coupon.code} aplicado!`);
+    } catch {
+      setCouponError("Erro ao validar cupom");
+    }
+    setCouponLoading(false);
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    toast.info("Cupom removido");
   };
 
   const handleCustomerDetailsChange = (field: string, value: string) => {
