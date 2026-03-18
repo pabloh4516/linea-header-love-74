@@ -172,7 +172,7 @@ const EditorialGrid = ({ products, cardSettings }: { products: any[]; cardSettin
 };
 
 const MasonryGrid = ({ products, cardSettings, colsDesktop }: { products: any[]; cardSettings: CardSettings; colsDesktop: number }) => {
-  const aspects = ["aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[2/3]"];
+  const aspects = ["3/4", "1/1", "4/5", "2/3"];
   return (
     <div className={`columns-2 md:columns-3 lg:columns-${colsDesktop} gap-4 md:gap-6 space-y-4 md:space-y-6`}>
       {products.map((product, index) => (
