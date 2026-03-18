@@ -191,7 +191,7 @@ const Navigation = () => {
 
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <Link to="/" className="block">
-            <img src="/LINEA-1.svg" alt="LINEA" className="h-6 w-auto" />
+            <img src="/LINEA-1.svg" alt="LINEA" style={{ height: `${logoHeight}px` }} className="w-auto" />
           </Link>
         </div>
 
