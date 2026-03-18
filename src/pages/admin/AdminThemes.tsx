@@ -69,7 +69,11 @@ const ThemeMiniPreview = ({ settings }: { settings: Record<string, string> }) =>
   const colors = getPreviewColors(settings);
   const fontDisplay = settings.theme_font_display || DEFAULTS.theme_font_display;
   const buttonStyle = settings.theme_button_style || DEFAULTS.theme_button_style;
-  const borderRadius = parseFloat(settings.theme_border_radius || DEFAULTS.theme_border_radius) * 16;
+  const borderRadius = parseFloat(settings.theme_button_radius || DEFAULTS.theme_button_radius);
+  const navStyle = settings.theme_nav_style || DEFAULTS.theme_nav_style;
+  const columns = parseInt(settings.theme_card_columns_desktop || DEFAULTS.theme_card_columns_desktop);
+  const footerLayout = settings.theme_footer_layout || DEFAULTS.theme_footer_layout;
+  const headingWeight = settings.theme_heading_weight || DEFAULTS.theme_heading_weight;
 
   return (
     <div
@@ -81,19 +85,26 @@ const ThemeMiniPreview = ({ settings }: { settings: Record<string, string> }) =>
         <div className="w-[40%] h-[3px] rounded-full" style={{ backgroundColor: colors.bg, opacity: 0.6 }} />
       </div>
       {/* Nav */}
-      <div className="h-[10%] w-full flex items-center justify-between px-[8%]" style={{ borderBottom: `1px solid ${colors.fg}15` }}>
+      <div className="h-[10%] w-full flex items-center px-[8%]" style={{ borderBottom: `1px solid ${colors.fg}15`, justifyContent: navStyle === "centered" ? "center" : "flex-start", gap: "8%" }}>
+        {navStyle === "left-aligned" && (
+          <div className="text-[7px] font-bold tracking-[0.15em] shrink-0" style={{ color: colors.fg, fontFamily: fontDisplay, fontWeight: Number(headingWeight) }}>
+            LINEA
+          </div>
+        )}
         <div className="flex gap-[4%]">
           <div className="w-[12%] h-[3px] rounded-full" style={{ backgroundColor: colors.fg, opacity: 0.4 }} />
           <div className="w-[12%] h-[3px] rounded-full" style={{ backgroundColor: colors.fg, opacity: 0.4 }} />
         </div>
-        <div className="text-[7px] font-bold tracking-[0.15em]" style={{ color: colors.fg, fontFamily: fontDisplay }}>
-          LINEA
-        </div>
-        <div className="w-[8%]" />
+        {navStyle === "centered" && (
+          <div className="text-[7px] font-bold tracking-[0.15em]" style={{ color: colors.fg, fontFamily: fontDisplay, fontWeight: Number(headingWeight) }}>
+            LINEA
+          </div>
+        )}
+        {navStyle === "centered" && <div className="w-[8%]" />}
       </div>
       {/* Hero */}
       <div className="h-[45%] w-full flex flex-col items-center justify-center" style={{ backgroundColor: `${colors.primary}15` }}>
-        <div className="text-[9px] font-light tracking-[0.1em] mb-1" style={{ color: colors.fg, fontFamily: fontDisplay }}>
+        <div className="text-[9px] tracking-[0.1em] mb-1" style={{ color: colors.fg, fontFamily: fontDisplay, fontWeight: Number(headingWeight) }}>
           Coleção
         </div>
         <div
@@ -110,15 +121,27 @@ const ThemeMiniPreview = ({ settings }: { settings: Record<string, string> }) =>
           Ver Agora
         </div>
       </div>
-      {/* Product grid */}
+      {/* Product grid - reflects column count */}
       <div className="flex gap-[3%] px-[6%] pt-[4%]">
-        {[0.85, 0.9, 0.8].map((opacity, i) => (
+        {Array.from({ length: Math.min(columns, 4) }).map((_, i) => (
           <div key={i} className="flex-1 space-y-[4px]">
-            <div className="aspect-[3/4] rounded-sm" style={{ backgroundColor: `${colors.fg}${Math.round(opacity * 15).toString(16).padStart(2, "0")}` }} />
+            <div className="rounded-sm" style={{ aspectRatio: settings.theme_card_aspect === "square" ? "1/1" : "3/4", backgroundColor: `${colors.fg}${Math.round((0.85 + i * 0.03) * 15).toString(16).padStart(2, "0")}` }} />
             <div className="h-[2px] w-[70%] rounded-full" style={{ backgroundColor: colors.fg, opacity: 0.3 }} />
             <div className="h-[2px] w-[40%] rounded-full" style={{ backgroundColor: colors.fg, opacity: 0.2 }} />
           </div>
         ))}
+      </div>
+      {/* Footer hint */}
+      <div className="absolute bottom-0 left-0 right-0 h-[6%] flex items-center justify-center" style={{ backgroundColor: colors.fg }}>
+        {footerLayout === "minimal" ? (
+          <div className="w-[30%] h-[2px] rounded-full" style={{ backgroundColor: colors.bg, opacity: 0.4 }} />
+        ) : (
+          <div className="flex gap-[8%]">
+            <div className="w-[15%] h-[2px] rounded-full" style={{ backgroundColor: colors.bg, opacity: 0.4 }} />
+            <div className="w-[15%] h-[2px] rounded-full" style={{ backgroundColor: colors.bg, opacity: 0.4 }} />
+            {footerLayout === "three-column" && <div className="w-[15%] h-[2px] rounded-full" style={{ backgroundColor: colors.bg, opacity: 0.4 }} />}
+          </div>
+        )}
       </div>
     </div>
   );
