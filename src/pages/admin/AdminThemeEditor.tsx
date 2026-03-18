@@ -768,9 +768,9 @@ const AdminThemeEditor = () => {
         </div>
 
         {/* Live preview */}
-        <div className="flex-1 bg-[hsl(var(--admin-bg))] flex items-start justify-center p-4 overflow-auto">
-          <div className="bg-white shadow-lg transition-all duration-300 h-full"
-            style={{ width: viewportWidths[viewport], maxWidth: "100%", borderRadius: viewport !== "desktop" ? "12px" : "0", overflow: "hidden" }}>
+        <div className="flex-1 bg-[hsl(var(--admin-bg))] flex items-stretch justify-center p-4 overflow-auto">
+          <div className="bg-white shadow-lg transition-all duration-300 mx-auto"
+            style={{ width: viewportWidths[viewport], maxWidth: "100%", height: "100%", minHeight: 0, borderRadius: viewport !== "desktop" ? "12px" : "0", overflow: "hidden" }}>
             <iframe ref={iframeRef} src="/" className="w-full h-full border-0" title="Theme Preview" onLoad={handleIframeLoad} />
           </div>
         </div>
