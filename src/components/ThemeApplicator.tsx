@@ -110,6 +110,14 @@ const ThemeApplicator = () => {
       if (e.data?.type === "theme-preview-update" && e.data.theme) {
         applyTheme(e.data.theme);
       }
+      if (e.data?.type === "theme-enable-inline-edit" && e.data.script) {
+        if (!document.getElementById("theme-inline-edit")) {
+          const script = document.createElement("script");
+          script.id = "theme-inline-edit";
+          script.textContent = e.data.script;
+          document.body.appendChild(script);
+        }
+      }
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
