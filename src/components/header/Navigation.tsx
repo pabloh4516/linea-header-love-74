@@ -1,8 +1,6 @@
-import { ArrowRight, X, Minus, Plus } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import ShoppingBag from "./ShoppingBag";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
@@ -17,13 +15,15 @@ interface CartItem {
   category: string;
 }
 
+interface AddToCartDetail extends CartItem {}
+
 const Navigation = () => {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [offCanvasType, setOffCanvasType] = useState<'favorites' | null>(null);
+  const [offCanvasType, setOffCanvasType] = useState<"favorites" | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShoppingBagOpen, setIsShoppingBagOpen] = useState(false);
-  
+
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: 1,
@@ -31,117 +31,126 @@ const Navigation = () => {
       price: "R$2.850",
       image: pantheonImage,
       quantity: 1,
-      category: "Brincos"
+      category: "Brincos",
     },
     {
       id: 2,
       name: "Eclipse",
-      price: "R$3.200", 
+      price: "R$3.200",
       image: eclipseImage,
       quantity: 1,
-      category: "Pulseiras"
+      category: "Pulseiras",
     },
     {
       id: 3,
       name: "Halo",
       price: "R$1.950",
-      image: haloImage, 
+      image: haloImage,
       quantity: 1,
-      category: "Brincos"
-    }
+      category: "Brincos",
+    },
   ]);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  
+
   const updateQuantity = (id: number, newQuantity: number) => {
     if (newQuantity <= 0) {
-      setCartItems(items => items.filter(item => item.id !== id));
+      setCartItems((items) => items.filter((item) => item.id !== id));
     } else {
-      setCartItems(items => 
-        items.map(item => 
-          item.id === id ? { ...item, quantity: newQuantity } : item
-        )
+      setCartItems((items) =>
+        items.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)),
       );
     }
   };
-  
+
   useEffect(() => {
     const imagesToPreload = [
       "/rings-collection.png",
-      "/earrings-collection.png", 
+      "/earrings-collection.png",
       "/arcus-bracelet.png",
       "/span-bracelet.png",
-      "/founders.png"
+      "/founders.png",
     ];
-    
-    imagesToPreload.forEach(src => {
+
+    imagesToPreload.forEach((src) => {
       const img = new Image();
       img.src = src;
     });
   }, []);
 
+  useEffect(() => {
+    const handleAddToCart = (event: Event) => {
+      const { detail } = event as CustomEvent<AddToCartDetail>;
+      if (!detail) return;
+
+      setCartItems((items) => {
+        const existingItem = items.find((item) => item.id === detail.id);
+        if (existingItem) {
+          return items.map((item) =>
+            item.id === detail.id ? { ...item, quantity: item.quantity + detail.quantity } : item,
+          );
+        }
+
+        return [...items, detail];
+      });
+
+      setIsShoppingBagOpen(true);
+    };
+
+    window.addEventListener("linea:add-to-cart", handleAddToCart as EventListener);
+    return () => {
+      window.removeEventListener("linea:add-to-cart", handleAddToCart as EventListener);
+    };
+  }, []);
+
   const popularSearches = [
     "Anéis de Ouro",
-    "Colares de Prata", 
+    "Colares de Prata",
     "Brincos de Pérola",
     "Pulseiras Designer",
     "Alianças",
-    "Coleção Vintage"
+    "Coleção Vintage",
   ];
-  
+
   const navItems = [
-    { 
-      name: "Loja", 
+    {
+      name: "Loja",
       href: "/category/shop",
-      submenuItems: [
-        "Anéis",
-        "Colares", 
-        "Brincos",
-        "Pulseiras",
-        "Relógios"
-      ],
+      submenuItems: ["Anéis", "Colares", "Brincos", "Pulseiras", "Relógios"],
       images: [
         { src: "/rings-collection.png", alt: "Coleção de Anéis", label: "Anéis" },
-        { src: "/earrings-collection.png", alt: "Coleção de Brincos", label: "Brincos" }
-      ]
+        { src: "/earrings-collection.png", alt: "Coleção de Brincos", label: "Brincos" },
+      ],
     },
-    { 
-      name: "Novidades", 
+    {
+      name: "Novidades",
       href: "/category/new-in",
       submenuItems: [
         "Novidades da Semana",
         "Coleção Primavera",
         "Designers em Destaque",
         "Edição Limitada",
-        "Pré-Venda"
+        "Pré-Venda",
       ],
       images: [
         { src: "/arcus-bracelet.png", alt: "Pulseira Arcus", label: "Pulseira Arcus" },
-        { src: "/span-bracelet.png", alt: "Pulseira Span", label: "Pulseira Span" }
-      ]
-    },
-    { 
-      name: "Sobre", 
-      href: "/about/our-story",
-      submenuItems: [
-        "Nossa História",
-        "Sustentabilidade",
-        "Guia de Tamanhos",
-        "Atendimento",
-        "Nossas Lojas"
+        { src: "/span-bracelet.png", alt: "Pulseira Span", label: "Pulseira Span" },
       ],
-      images: [
-        { src: "/founders.png", alt: "Fundadoras", label: "Conheça nossa história" }
-      ]
-    }
+    },
+    {
+      name: "Sobre",
+      href: "/about/our-story",
+      submenuItems: ["Nossa História", "Sustentabilidade", "Guia de Tamanhos", "Atendimento", "Nossas Lojas"],
+      images: [{ src: "/founders.png", alt: "Fundadoras", label: "Conheça nossa história" }],
+    },
   ];
 
   return (
-    <nav 
-      className="relative" 
+    <nav
+      className="relative"
       style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        backdropFilter: 'blur(10px)'
+        backgroundColor: "rgba(255, 255, 255, 0.9)",
+        backdropFilter: "blur(10px)",
       }}
     >
       <div className="flex items-center justify-between h-16 px-6">
@@ -151,15 +160,9 @@ const Navigation = () => {
           aria-label="Abrir menu"
         >
           <div className="w-5 h-5 relative">
-            <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 ${
-              isMobileMenuOpen ? 'rotate-45 top-2.5' : 'top-1.5'
-            }`}></span>
-            <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 top-2.5 ${
-              isMobileMenuOpen ? 'opacity-0' : 'opacity-100'
-            }`}></span>
-            <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 ${
-              isMobileMenuOpen ? '-rotate-45 top-2.5' : 'top-3.5'
-            }`}></span>
+            <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 ${isMobileMenuOpen ? "rotate-45 top-2.5" : "top-1.5"}`}></span>
+            <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 top-2.5 ${isMobileMenuOpen ? "opacity-0" : "opacity-100"}`}></span>
+            <span className={`absolute block w-5 h-px bg-current transform transition-all duration-300 ${isMobileMenuOpen ? "-rotate-45 top-2.5" : "top-3.5"}`}></span>
           </div>
         </button>
 
@@ -171,10 +174,7 @@ const Navigation = () => {
               onMouseEnter={() => setActiveDropdown(item.name)}
               onMouseLeave={() => setActiveDropdown(null)}
             >
-              <Link
-                to={item.href}
-                className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light py-6 block"
-              >
+              <Link to={item.href} className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light py-6 block">
                 {item.name}
               </Link>
             </div>
@@ -183,38 +183,22 @@ const Navigation = () => {
 
         <div className="absolute left-1/2 transform -translate-x-1/2">
           <Link to="/" className="block">
-            <img 
-              src="/LINEA-1.svg" 
-              alt="LINEA" 
-              className="h-6 w-auto"
-            />
+            <img src="/LINEA-1.svg" alt="LINEA" className="h-6 w-auto" />
           </Link>
         </div>
 
         <div className="flex items-center space-x-2">
-          <button 
-            className="p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
-            aria-label="Buscar"
-            onClick={() => setIsSearchOpen(!isSearchOpen)}
-          >
+          <button className="p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200" aria-label="Buscar" onClick={() => setIsSearchOpen(!isSearchOpen)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
           </button>
-          <button 
-            className="hidden lg:block p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
-            aria-label="Favoritos"
-            onClick={() => setOffCanvasType('favorites')}
-          >
+          <button className="hidden lg:block p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200" aria-label="Favoritos" onClick={() => setOffCanvasType("favorites")}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
             </svg>
           </button>
-          <button 
-            className="p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200 relative"
-            aria-label="Sacola de compras"
-            onClick={() => setIsShoppingBagOpen(true)}
-          >
+          <button className="p-2 text-nav-foreground hover:text-nav-hover transition-colors duration-200 relative" aria-label="Sacola de compras" onClick={() => setIsShoppingBagOpen(true)}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
             </svg>
@@ -228,61 +212,49 @@ const Navigation = () => {
       </div>
 
       {activeDropdown && (
-        <div 
-          className="absolute top-full left-0 right-0 bg-nav border-b border-border z-50"
-          onMouseEnter={() => setActiveDropdown(activeDropdown)}
-          onMouseLeave={() => setActiveDropdown(null)}
-        >
+        <div className="absolute top-full left-0 right-0 bg-nav border-b border-border z-50" onMouseEnter={() => setActiveDropdown(activeDropdown)} onMouseLeave={() => setActiveDropdown(null)}>
           <div className="px-6 py-8">
             <div className="flex justify-between w-full">
               <div className="flex-1">
                 <ul className="space-y-2">
-                   {navItems
-                     .find(item => item.name === activeDropdown)
-                     ?.submenuItems.map((subItem, index) => (
-                     <li key={index}>
-                       <Link 
-                         to={activeDropdown === "Sobre" ? `/about/${subItem.toLowerCase().replace(/\s+/g, '-')}` : `/category/${subItem.toLowerCase()}`}
-                         className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light block py-2"
-                       >
-                         {subItem}
-                       </Link>
-                     </li>
+                  {navItems.find((item) => item.name === activeDropdown)?.submenuItems.map((subItem, index) => (
+                    <li key={index}>
+                      <Link
+                        to={activeDropdown === "Sobre" ? `/about/${subItem.toLowerCase().replace(/\s+/g, "-")}` : `/category/${subItem.toLowerCase()}`}
+                        className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-sm font-light block py-2"
+                      >
+                        {subItem}
+                      </Link>
+                    </li>
                   ))}
                 </ul>
               </div>
 
               <div className="flex space-x-6">
-                {navItems
-                  .find(item => item.name === activeDropdown)
-                  ?.images.map((image, index) => {
-                    let linkTo = "/";
-                    if (activeDropdown === "Loja") {
-                      if (image.label === "Anéis") linkTo = "/category/rings";
-                      else if (image.label === "Brincos") linkTo = "/category/earrings";
-                    } else if (activeDropdown === "Novidades") {
-                      if (image.label === "Pulseira Arcus") linkTo = "/product/arcus-bracelet";
-                      else if (image.label === "Pulseira Span") linkTo = "/product/span-bracelet";
-                    } else if (activeDropdown === "Sobre") {
-                      linkTo = "/about/our-story";
-                    }
-                    
-                    return (
-                      <Link key={index} to={linkTo} className="w-[400px] h-[280px] cursor-pointer group relative overflow-hidden block">
-                        <img 
-                          src={image.src}
-                          alt={image.alt}
-                          className="w-full h-full object-cover transition-opacity duration-200 group-hover:opacity-90"
-                        />
-                        {(activeDropdown === "Loja" || activeDropdown === "Novidades" || activeDropdown === "Sobre") && (
-                          <div className="absolute bottom-2 left-2 text-white text-xs font-light flex items-center gap-1">
-                            <span>{image.label}</span>
-                            <ArrowRight size={12} />
-                          </div>
-                        )}
-                      </Link>
-                    );
-                  })}
+                {navItems.find((item) => item.name === activeDropdown)?.images.map((image, index) => {
+                  let linkTo = "/";
+                  if (activeDropdown === "Loja") {
+                    if (image.label === "Anéis") linkTo = "/category/rings";
+                    else if (image.label === "Brincos") linkTo = "/category/earrings";
+                  } else if (activeDropdown === "Novidades") {
+                    if (image.label === "Pulseira Arcus") linkTo = "/product/arcus-bracelet";
+                    else if (image.label === "Pulseira Span") linkTo = "/product/span-bracelet";
+                  } else if (activeDropdown === "Sobre") {
+                    linkTo = "/about/our-story";
+                  }
+
+                  return (
+                    <Link key={index} to={linkTo} className="w-[400px] h-[280px] cursor-pointer group relative overflow-hidden block">
+                      <img src={image.src} alt={image.alt} className="w-full h-full object-cover transition-opacity duration-200 group-hover:opacity-90" />
+                      {(activeDropdown === "Loja" || activeDropdown === "Novidades" || activeDropdown === "Sobre") && (
+                        <div className="absolute bottom-2 left-2 text-white text-xs font-light flex items-center gap-1">
+                          <span>{image.label}</span>
+                          <ArrowRight size={12} />
+                        </div>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -290,9 +262,7 @@ const Navigation = () => {
       )}
 
       {isSearchOpen && (
-        <div 
-          className="absolute top-full left-0 right-0 bg-nav border-b border-border z-50"
-        >
+        <div className="absolute top-full left-0 right-0 bg-nav border-b border-border z-50">
           <div className="px-6 py-8">
             <div className="max-w-2xl mx-auto">
               <div className="relative mb-8">
@@ -300,12 +270,7 @@ const Navigation = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 text-nav-foreground mr-3">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
                   </svg>
-                  <input
-                    type="text"
-                    placeholder="Buscar joias..."
-                    className="flex-1 bg-transparent text-nav-foreground placeholder:text-nav-foreground/60 outline-none text-lg"
-                    autoFocus
-                  />
+                  <input type="text" placeholder="Buscar joias..." className="flex-1 bg-transparent text-nav-foreground placeholder:text-nav-foreground/60 outline-none text-lg" autoFocus />
                 </div>
               </div>
 
@@ -313,10 +278,7 @@ const Navigation = () => {
                 <h3 className="text-nav-foreground text-sm font-light mb-4">Buscas Populares</h3>
                 <div className="flex flex-wrap gap-3">
                   {popularSearches.map((search, index) => (
-                    <button
-                      key={index}
-                      className="text-nav-foreground hover:text-nav-hover text-sm font-light py-2 px-4 border border-border rounded-full transition-colors duration-200 hover:border-nav-hover"
-                    >
+                    <button key={index} className="text-nav-foreground hover:text-nav-hover text-sm font-light py-2 px-4 border border-border rounded-full transition-colors duration-200 hover:border-nav-hover">
                       {search}
                     </button>
                   ))}
@@ -333,62 +295,51 @@ const Navigation = () => {
             <div className="space-y-6">
               {navItems.map((item) => (
                 <div key={item.name}>
-                  <Link
-                    to={item.href}
-                    className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-lg font-light block py-2"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
+                  <Link to={item.href} className="text-nav-foreground hover:text-nav-hover transition-colors duration-200 text-lg font-light block py-2" onClick={() => setIsMobileMenuOpen(false)}>
                     {item.name}
                   </Link>
-                   <div className="mt-3 pl-4 space-y-2">
-                     {item.submenuItems.map((subItem, subIndex) => (
-                       <Link
-                         key={subIndex}
-                         to={item.name === "Sobre" ? `/about/${subItem.toLowerCase().replace(/\s+/g, '-')}` : `/category/${subItem.toLowerCase()}`}
-                         className="text-nav-foreground/70 hover:text-nav-hover text-sm font-light block py-1"
-                         onClick={() => setIsMobileMenuOpen(false)}
-                       >
-                         {subItem}
-                       </Link>
-                     ))}
-                   </div>
+                  <div className="mt-3 pl-4 space-y-2">
+                    {item.submenuItems.map((subItem, subIndex) => (
+                      <Link
+                        key={subIndex}
+                        to={item.name === "Sobre" ? `/about/${subItem.toLowerCase().replace(/\s+/g, "-")}` : `/category/${subItem.toLowerCase()}`}
+                        className="text-nav-foreground/70 hover:text-nav-hover text-sm font-light block py-1"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {subItem}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
       )}
-      
-      <ShoppingBag 
+
+      <ShoppingBag
         isOpen={isShoppingBagOpen}
         onClose={() => setIsShoppingBagOpen(false)}
         cartItems={cartItems}
         updateQuantity={updateQuantity}
         onViewFavorites={() => {
           setIsShoppingBagOpen(false);
-          setOffCanvasType('favorites');
+          setOffCanvasType("favorites");
         }}
       />
-      
-      {offCanvasType === 'favorites' && (
+
+      {offCanvasType === "favorites" && (
         <div className="fixed inset-0 z-50 h-screen">
-          <div 
-            className="absolute inset-0 bg-black/50 h-screen"
-            onClick={() => setOffCanvasType(null)}
-          />
-          
-          <div className="absolute right-0 top-0 h-screen w-96 bg-background border-l border-border animate-slide-in-right flex flex-col">
+          <div className="absolute inset-0 bg-black/50 h-screen" onClick={() => setOffCanvasType(null)} />
+
+          <div className="absolute right-0 top-0 h-screen w-full max-w-96 bg-background border-l border-border animate-slide-in-right flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-border">
               <h2 className="text-lg font-light text-foreground">Seus Favoritos</h2>
-              <button
-                onClick={() => setOffCanvasType(null)}
-                className="p-2 text-foreground hover:text-muted-foreground transition-colors"
-                aria-label="Fechar"
-              >
+              <button onClick={() => setOffCanvasType(null)} className="p-2 text-foreground hover:text-muted-foreground transition-colors" aria-label="Fechar">
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="p-6">
               <p className="text-muted-foreground text-sm mb-6">
                 Você ainda não adicionou favoritos. Navegue pela nossa coleção e clique no ícone de coração para salvar os itens que você ama.
