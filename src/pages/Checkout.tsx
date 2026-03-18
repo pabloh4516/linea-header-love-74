@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Minus, Plus, CreditCard, Check, X, Tag, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Minus, Plus, CreditCard, Check, X, Tag, Loader2, Zap } from "lucide-react";
 import CheckoutHeader from "../components/header/CheckoutHeader";
 import Footer from "../components/footer/Footer";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
+
+type OrderBump = {
+  id: string;
+  product_id: string;
+  bump_product_id: string;
+  discount_percentage: number;
+  title: string | null;
+  description: string | null;
+  bump_product?: {
+    id: string;
+    name: string;
+    price: number;
+    image_url: string | null;
+    currency: string;
+  };
+};
 
 type AppliedCoupon = {
   id: string;
