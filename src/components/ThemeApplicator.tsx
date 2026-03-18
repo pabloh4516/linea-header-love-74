@@ -97,14 +97,16 @@ const applyTheme = (settings: Record<string, string>) => {
 
 const ThemeApplicator = () => {
   const { data: settings } = useSiteSettings();
+  const isAdmin = window.location.pathname.startsWith("/admin");
 
-  // Apply saved settings from database
+  // Apply saved settings from database — only on storefront pages
   useEffect(() => {
-    if (!settings) return;
+    if (!settings || isAdmin) return;
     applyTheme(settings);
-  }, [settings]);
+  }, [settings, isAdmin]);
 
   // Listen for real-time preview updates from the theme editor via postMessage
+  // (this runs inside the iframe preview, which is always "/" — not /admin)
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (e.data?.type === "theme-preview-update" && e.data.theme) {
