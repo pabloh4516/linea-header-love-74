@@ -975,7 +975,13 @@ const SettingsTab = ({
   onChange: (key: string, value: string) => void;
   onApplyPreset: (values: Record<string, string>) => void;
 }) => {
-  const themeGroups = themeRegistry.getGlobalSettingsSchema();
+  // Force re-read when active theme changes (themeRegistry is not reactive)
+  const activeThemeForSettings = useActiveThemeSync();
+  const themeGroups = useMemo(() => {
+    // activeThemeForSettings?.slug dependency forces re-computation
+    return themeRegistry.getGlobalSettingsSchema();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeThemeForSettings?.slug]);
   const useRegistryGroups = themeGroups.length > 0;
   const { upload } = useImageUpload();
   const [uploading, setUploading] = useState(false);
