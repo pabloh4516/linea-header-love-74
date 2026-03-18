@@ -51,14 +51,15 @@ const Checkout = () => {
       try {
         const parsed = JSON.parse(settings.shipping_options) as Array<{
           id: string; name: string; price: number; estimatedDays: string; enabled: boolean;
+          rules?: Array<{ id: string; type: string; min?: number; max?: number; regions?: string[]; price: number }>;
         }>;
         return parsed.filter(o => o.enabled);
       } catch { /* fallback */ }
     }
     return [
-      { id: "standard", name: "Envio Padrão", price: 0, estimatedDays: "5-8 dias úteis", enabled: true },
-      { id: "express", name: "Envio Expresso", price: 25, estimatedDays: "2-3 dias úteis", enabled: true },
-      { id: "overnight", name: "Entrega no Dia Seguinte", price: 60, estimatedDays: "Próximo dia útil", enabled: true },
+      { id: "standard", name: "Envio Padrão", price: 0, estimatedDays: "5-8 dias úteis", enabled: true, rules: [] as any[] },
+      { id: "express", name: "Envio Expresso", price: 25, estimatedDays: "2-3 dias úteis", enabled: true, rules: [] as any[] },
+      { id: "overnight", name: "Entrega no Dia Seguinte", price: 60, estimatedDays: "Próximo dia útil", enabled: true, rules: [] as any[] },
     ];
   }, [settings]);
 
