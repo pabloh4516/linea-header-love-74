@@ -32,6 +32,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminOrderBumps from "./pages/admin/AdminOrderBumps";
 import AdminPages from "./pages/admin/AdminPages";
+import DynamicPage from "./pages/DynamicPage";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="order-bumps" element={<AdminOrderBumps />} />
               <Route path="pages" element={<AdminPages />} />
             </Route>
+            <Route path="/page/:slug" element={<DynamicPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
