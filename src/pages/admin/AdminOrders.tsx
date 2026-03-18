@@ -267,7 +267,7 @@ const AdminOrders = () => {
             <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-3">
               <h3 className="text-[13px] font-semibold">Detalhes</h3>
               <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5"><Label className="text-[12px]">Total (€)</Label><Input type="number" step="0.01" value={form.total} onChange={(e) => setForm(f => ({ ...f, total: e.target.value }))} className="h-9 text-[13px]" /></div>
+                <div className="space-y-1.5"><Label className="text-[12px]">Total (R$)</Label><Input type="number" step="0.01" value={form.total} onChange={(e) => setForm(f => ({ ...f, total: e.target.value }))} className="h-9 text-[13px]" /></div>
                 <div className="space-y-1.5"><Label className="text-[12px]">Status</Label>
                   <Select value={form.status} onValueChange={(v) => setForm(f => ({ ...f, status: v }))}>
                     <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
