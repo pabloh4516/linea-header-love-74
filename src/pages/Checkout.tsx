@@ -45,6 +45,7 @@ const Checkout = () => {
     showCoupon: settings?.theme_checkout_show_coupon !== "false",
     trustText: settings?.theme_checkout_trust_text || "Pagamento 100% seguro",
   }), [settings]);
+  const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
