@@ -576,8 +576,12 @@ const AdminThemeEditor = () => {
   useEffect(() => {
     if (settings) {
       const merged = { ...DEFAULTS };
+      // Load all theme_ keys from settings, not just THEME_KEYS
+      Object.keys(settings).forEach(key => {
+        if (key.startsWith("theme_")) merged[key] = settings[key];
+      });
       THEME_KEYS.forEach(key => {
-        if (settings[key]) merged[key] = settings[key];
+        if (settings[key] && !merged[key]) merged[key] = settings[key];
       });
       setTheme(merged);
     }
