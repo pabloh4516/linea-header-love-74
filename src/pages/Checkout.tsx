@@ -277,6 +277,12 @@ const Checkout = () => {
   const handleCompleteOrder = async () => {
     setIsProcessing(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Increment coupon used_count
+    if (appliedCoupon) {
+      await supabase.rpc("increment_coupon_usage" as any, { coupon_id: appliedCoupon.id });
+    }
+
     setIsProcessing(false);
     setPaymentComplete(true);
   };
