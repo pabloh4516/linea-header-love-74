@@ -13,20 +13,25 @@ class ThemeRegistry {
     if (this.themes.has(id)) this.activeThemeId = id;
   }
 
+  private getTheme(themeId?: string): ThemeRegistration | null {
+    const resolvedId = themeId ?? this.activeThemeId;
+    return resolvedId ? this.themes.get(resolvedId) || null : null;
+  }
+
   getActive(): ThemeRegistration | null {
-    return this.activeThemeId ? this.themes.get(this.activeThemeId) || null : null;
+    return this.getTheme();
   }
 
-  getSection(type: string): SectionRegistration | null {
-    return this.getActive()?.sections[type] || null;
+  getSection(type: string, themeId?: string): SectionRegistration | null {
+    return this.getTheme(themeId)?.sections[type] || null;
   }
 
-  getSectionSchema(type: string): SectionSchema | null {
-    return this.getActive()?.sections[type]?.schema || null;
+  getSectionSchema(type: string, themeId?: string): SectionSchema | null {
+    return this.getTheme(themeId)?.sections[type]?.schema || null;
   }
 
-  getAvailableSections(): Array<{ type: string; name: string; icon?: string; schema: SectionSchema }> {
-    const theme = this.getActive();
+  getAvailableSections(themeId?: string): Array<{ type: string; name: string; icon?: string; schema: SectionSchema }> {
+    const theme = this.getTheme(themeId);
     if (!theme) return [];
     return Object.entries(theme.sections).map(([type, reg]) => ({
       type,
@@ -36,16 +41,16 @@ class ThemeRegistry {
     }));
   }
 
-  getGlobalSettingsSchema() {
-    return this.getActive()?.globalSettingsSchema || [];
+  getGlobalSettingsSchema(themeId?: string) {
+    return this.getTheme(themeId)?.globalSettingsSchema || [];
   }
 
-  getDefaultSettings() {
-    return this.getActive()?.defaultSettings || {};
+  getDefaultSettings(themeId?: string) {
+    return this.getTheme(themeId)?.defaultSettings || {};
   }
 
-  getTemplates() {
-    return this.getActive()?.templates || {};
+  getTemplates(themeId?: string) {
+    return this.getTheme(themeId)?.templates || {};
   }
 
   listThemes() {
