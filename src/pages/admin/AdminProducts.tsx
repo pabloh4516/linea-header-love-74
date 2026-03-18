@@ -338,6 +338,9 @@ const AdminProducts = () => {
               </div>
             </div>
 
+            {/* Variants - only show when editing */}
+            {editId && <VariantManager productId={editId} />}
+
             {/* Status */}
             <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-3">
               <h3 className="text-[13px] font-semibold">Status</h3>
