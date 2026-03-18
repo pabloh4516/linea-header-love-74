@@ -975,7 +975,12 @@ const SettingsTab = ({
 }) => {
   const themeGroups = themeRegistry.getGlobalSettingsSchema();
   const useRegistryGroups = themeGroups.length > 0;
-  const { uploadImage, uploading } = useImageUpload();
+  const { upload } = useImageUpload();
+  const [uploading, setUploading] = useState(false);
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try { return await upload(file, "theme"); } finally { setUploading(false); }
+  };
 
   // Drilldown into a theme-registry group (number index)
   if (useRegistryGroups && typeof drilldown === "number") {
