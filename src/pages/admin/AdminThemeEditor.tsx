@@ -441,7 +441,7 @@ type SectionId =
   | "category" | "cart" | "footer" | "checkout"
   | "effects" | "social" | "seo" | "custom_css";
 
-type EditorPage = "index" | "product" | "collection" | "cart" | "checkout" | "our-story" | "sustainability" | "size-guide" | "customer-care" | "store-locator" | "privacy" | "terms";
+type EditorPage = "index" | "product" | "collection" | "checkout" | "our-story" | "sustainability" | "size-guide" | "customer-care" | "store-locator" | "privacy" | "terms";
 
 interface SectionDef {
   id: SectionId;
