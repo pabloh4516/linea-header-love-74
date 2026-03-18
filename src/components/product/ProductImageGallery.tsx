@@ -7,13 +7,7 @@ import haloImage from "@/assets/halo.jpg";
 import organicEarring from "@/assets/organic-earring.png";
 import linkBracelet from "@/assets/link-bracelet.png";
 
-const productImages = [
-  pantheonImage,
-  organicEarring,
-  eclipseImage,
-  linkBracelet,
-  haloImage,
-];
+const productImages = [pantheonImage, organicEarring, eclipseImage, linkBracelet, haloImage];
 
 const ProductImageGallery = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -44,7 +38,7 @@ const ProductImageGallery = () => {
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
+    if (touchStartX.current === null || touchEndX.current === null) return;
     const difference = touchStartX.current - touchEndX.current;
     const minSwipeDistance = 50;
     if (Math.abs(difference) > minSwipeDistance) {
@@ -56,45 +50,37 @@ const ProductImageGallery = () => {
   };
 
   return (
-    <div className="w-full">
-      {/* Desktop: Asymmetric 2-column gallery with scroll animations */}
+    <div className="w-full overflow-hidden">
       <div className="hidden lg:block">
         <div className="grid grid-cols-2 gap-2">
           {productImages.map((image, index) => {
             const DesktopImage = ({ img, idx }: { img: string; idx: number }) => {
               const ref = useRef<HTMLDivElement>(null);
               const isInView = useInView(ref, { once: true, margin: "-80px" });
-              
+
               return (
                 <motion.div
                   ref={ref}
                   initial={{ opacity: 0, y: 40 }}
                   animate={isInView ? { opacity: 1, y: 0 } : {}}
                   transition={{ duration: 0.7, delay: idx * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                  className={`overflow-hidden cursor-pointer group ${
-                    idx === 0 ? "col-span-2 aspect-[16/10]" : "aspect-square"
-                  }`}
+                  className={`overflow-hidden cursor-pointer group ${idx === 0 ? "col-span-2 aspect-[16/10]" : "aspect-square"}`}
                   onClick={() => handleImageClick(idx)}
                 >
-                  <img
-                    src={img}
-                    alt={`Vista do produto ${idx + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  <img src={img} alt={`Vista do produto ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="eager" />
                 </motion.div>
               );
             };
-            
+
             return <DesktopImage key={index} img={image} idx={index} />;
           })}
         </div>
       </div>
 
-      {/* Mobile/Tablet: Full-bleed swipeable slider */}
       <div className="lg:hidden">
         <div className="relative">
           <div
-            className="w-full aspect-[3/4] overflow-hidden cursor-pointer group touch-pan-y"
+            className="w-full aspect-[3/4] overflow-hidden cursor-pointer group touch-pan-y bg-muted/20"
             onClick={() => handleImageClick(currentImageIndex)}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -110,41 +96,35 @@ const ProductImageGallery = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
+                loading="eager"
               />
             </AnimatePresence>
           </div>
 
-          {/* Progress bar indicator */}
           <div className="flex justify-center mt-4 gap-1.5 px-6">
             {productImages.map((_, index) => (
               <button
                 key={index}
+                type="button"
+                aria-label={`Ver imagem ${index + 1}`}
                 onClick={() => setCurrentImageIndex(index)}
                 className="h-0.5 flex-1 max-w-8 rounded-full transition-all duration-500"
                 style={{
-                  backgroundColor: index === currentImageIndex 
-                    ? 'hsl(var(--foreground))' 
-                    : 'hsl(var(--border))',
+                  backgroundColor: index === currentImageIndex ? "hsl(var(--foreground))" : "hsl(var(--border))",
                 }}
               />
             ))}
           </div>
 
-          {/* Image counter */}
           <div className="absolute top-4 right-4">
-            <span className="text-editorial text-[9px] tracking-[0.2em] text-foreground/70 bg-background/60 backdrop-blur-sm px-2 py-1">
+            <span className="text-editorial text-[9px] tracking-[0.2em] text-foreground bg-background/70 backdrop-blur-sm px-2 py-1">
               {currentImageIndex + 1} / {productImages.length}
             </span>
           </div>
         </div>
       </div>
 
-      <ImageZoom
-        images={productImages}
-        initialIndex={zoomInitialIndex}
-        isOpen={isZoomOpen}
-        onClose={() => setIsZoomOpen(false)}
-      />
+      <ImageZoom images={productImages} initialIndex={zoomInitialIndex} isOpen={isZoomOpen} onClose={() => setIsZoomOpen(false)} />
     </div>
   );
 };

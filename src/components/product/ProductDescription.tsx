@@ -4,16 +4,16 @@ import { ChevronDown } from "lucide-react";
 import ReviewProduct from "./ReviewProduct";
 
 const CustomStar = ({ filled, className }: { filled: boolean; className?: string }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 20 20" 
-    fill="currentColor" 
-    className={`w-3 h-3 ${filled ? 'text-foreground' : 'text-muted-foreground/30'} ${className}`}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    className={`w-3 h-3 ${filled ? "text-foreground" : "text-muted-foreground/30"} ${className}`}
   >
-    <path 
-      fillRule="evenodd" 
-      d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" 
-      clipRule="evenodd" 
+    <path
+      fillRule="evenodd"
+      d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z"
+      clipRule="evenodd"
     />
   </svg>
 );
@@ -29,32 +29,29 @@ interface AccordionItemProps {
 const AccordionItem = ({ title, isOpen, onToggle, children, badge }: AccordionItemProps) => (
   <div className="border-b border-border">
     <button
+      type="button"
       onClick={onToggle}
-      className="w-full h-14 px-0 flex items-center justify-between text-left hover:opacity-70 transition-opacity duration-300"
+      aria-expanded={isOpen}
+      className="w-full min-h-14 py-4 px-0 flex items-center justify-between gap-4 text-left hover:opacity-70 transition-opacity duration-300"
     >
       <div className="flex items-center gap-3">
         <span className="text-sm font-light text-foreground">{title}</span>
         {badge}
       </div>
-      <motion.div
-        animate={{ rotate: isOpen ? 180 : 0 }}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      >
+      <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
         <ChevronDown className="h-4 w-4 text-muted-foreground" />
       </motion.div>
     </button>
-    <AnimatePresence>
+    <AnimatePresence initial={false}>
       {isOpen && (
         <motion.div
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: "auto", opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
           className="overflow-hidden"
         >
-          <div className="pb-6">
-            {children}
-          </div>
+          <div className="pb-6">{children}</div>
         </motion.div>
       )}
     </AnimatePresence>
@@ -62,38 +59,30 @@ const AccordionItem = ({ title, isOpen, onToggle, children, badge }: AccordionIt
 );
 
 const ProductDescription = () => {
-  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isCareOpen, setIsCareOpen] = useState(false);
-  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  const [openSection, setOpenSection] = useState<string>("description");
+  const toggleSection = (section: string) => {
+    setOpenSection((current) => (current === section ? "" : section));
+  };
 
   return (
     <div className="space-y-0 mt-8 border-t border-border">
-      <AccordionItem
-        title="Descrição"
-        isOpen={isDescriptionOpen}
-        onToggle={() => setIsDescriptionOpen(!isDescriptionOpen)}
-      >
+      <AccordionItem title="Descrição" isOpen={openSection === "description"} onToggle={() => toggleSection("description")}>
         <div className="space-y-4">
           <p className="text-sm font-light text-muted-foreground leading-relaxed">
-            Os brincos Pantheon incorporam elegância arquitetônica com seu design limpo e geométrico. 
-            Inspirados na arquitetura clássica romana, estas peças de destaque apresentam uma sofisticada 
+            Os brincos Pantheon incorporam elegância arquitetônica com seu design limpo e geométrico.
+            Inspirados na arquitetura clássica romana, estas peças de destaque apresentam uma sofisticada
             interação de curvas e ângulos que capturam e refletem a luz de forma bela.
           </p>
           <p className="text-sm font-light text-muted-foreground leading-relaxed">
-            Cada brinco é meticulosamente produzido em prata 925 premium com banho de ouro 18k, 
-            garantindo durabilidade e luxo. A estética minimalista os torna perfeitos tanto para 
+            Cada brinco é meticulosamente produzido em prata 925 premium com banho de ouro 18k,
+            garantindo durabilidade e luxo. A estética minimalista os torna perfeitos tanto para
             o uso diário quanto para ocasiões especiais.
           </p>
         </div>
       </AccordionItem>
 
-      <AccordionItem
-        title="Detalhes do Produto"
-        isOpen={isDetailsOpen}
-        onToggle={() => setIsDetailsOpen(!isDetailsOpen)}
-      >
-        <div className="grid grid-cols-2 gap-y-3 gap-x-8">
+      <AccordionItem title="Detalhes do Produto" isOpen={openSection === "details"} onToggle={() => toggleSection("details")}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-8">
           {[
             { label: "SKU", value: "LE-PTH-001" },
             { label: "Coleção", value: "Série Arquitetônica" },
@@ -108,11 +97,7 @@ const ProductDescription = () => {
         </div>
       </AccordionItem>
 
-      <AccordionItem
-        title="Cuidados e Limpeza"
-        isOpen={isCareOpen}
-        onToggle={() => setIsCareOpen(!isCareOpen)}
-      >
+      <AccordionItem title="Cuidados e Limpeza" isOpen={openSection === "care"} onToggle={() => toggleSection("care")}>
         <div className="space-y-4">
           <ul className="space-y-2.5">
             {[
@@ -135,8 +120,8 @@ const ProductDescription = () => {
 
       <AccordionItem
         title="Avaliações"
-        isOpen={isReviewsOpen}
-        onToggle={() => setIsReviewsOpen(!isReviewsOpen)}
+        isOpen={openSection === "reviews"}
+        onToggle={() => toggleSection("reviews")}
         badge={
           <div className="flex items-center gap-1">
             <div className="flex">
@@ -150,7 +135,7 @@ const ProductDescription = () => {
       >
         <div className="space-y-6">
           <ReviewProduct />
-          
+
           {[
             { name: "Ana M.", rating: 5, text: "Brincos absolutamente deslumbrantes! A qualidade é excepcional e combinam com tudo. O design arquitetônico é tão único e recebo elogios toda vez que uso." },
             { name: "Carla T.", rating: 4, text: "Artesanato lindo e confortável para usar o dia todo. O banho de ouro se manteve perfeitamente após meses de uso regular. Super recomendo!" },
