@@ -603,7 +603,50 @@ const SECTION_SCHEMAS: Record<string, SectionSchema> = {
     { key: "link", label: "Link", type: "url" },
   ]}},
   separator: { fields: [] },
+  product_info: { fields: [] },
+  product_gallery: { fields: [
+    { key: "title", label: "Título", type: "text" },
+  ]},
+  product_recommendations: { fields: [
+    { key: "title", label: "Título da Seção", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+    { key: "cta_text", label: "Texto do CTA", type: "text" },
+    { key: "link_url", label: "Link do CTA", type: "url" },
+  ]},
 };
+
+// ─── Product Info Named Blocks ────────────────────────────
+const PRODUCT_INFO_BLOCK_TYPES = [
+  { type: "breadcrumb", label: "Breadcrumb", icon: ChevronRight },
+  { type: "title", label: "Título do Produto", icon: Type },
+  { type: "price", label: "Preço", icon: Tag },
+  { type: "variant_selector", label: "Seletor de Variantes", icon: Layers },
+  { type: "quantity_selector", label: "Seletor de Quantidade", icon: Plus },
+  { type: "add_to_cart", label: "Botão Comprar", icon: ShoppingBag },
+  { type: "details_grid", label: "Detalhes do Produto", icon: Grid3X3 },
+  { type: "editor_notes", label: "Notas do Editor", icon: Star },
+  { type: "sku", label: "SKU", icon: Hash },
+  { type: "trust_badges", label: "Selos de Confiança", icon: Shield },
+  { type: "description", label: "Descrição / Acordeão", icon: FileText },
+];
+
+interface ProductInfoBlock {
+  type: string;
+  visible: boolean;
+}
+
+const DEFAULT_PRODUCT_INFO_BLOCKS: ProductInfoBlock[] = [
+  { type: "breadcrumb", visible: true },
+  { type: "title", visible: true },
+  { type: "price", visible: true },
+  { type: "sku", visible: false },
+  { type: "details_grid", visible: true },
+  { type: "editor_notes", visible: true },
+  { type: "quantity_selector", visible: true },
+  { type: "add_to_cart", visible: true },
+  { type: "trust_badges", visible: true },
+  { type: "description", visible: true },
+];
 
 // ─── Available section types per page ─────────────────────
 const PAGE_AVAILABLE_SECTIONS: Record<EditorPage, string[]> = {
