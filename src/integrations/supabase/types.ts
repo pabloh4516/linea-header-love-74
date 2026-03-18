@@ -284,6 +284,39 @@ export type Database = {
         }
         Relationships: []
       }
+      page_templates: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean
+          name: string
+          page_type: string
+          section_order: Json
+          sections: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          page_type: string
+          section_order?: Json
+          sections?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          page_type?: string
+          section_order?: Json
+          sections?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       page_views: {
         Row: {
           city: string | null
@@ -536,37 +569,43 @@ export type Database = {
       }
       themes: {
         Row: {
+          author: string | null
           created_at: string
           description: string | null
           id: string
           is_active: boolean
-          is_preset: boolean
           name: string
-          preview_colors: Json | null
-          settings: Json
+          settings_data: Json
+          slug: string
+          thumbnail_url: string | null
           updated_at: string
+          version: string
         }
         Insert: {
+          author?: string | null
           created_at?: string
           description?: string | null
           id?: string
           is_active?: boolean
-          is_preset?: boolean
           name: string
-          preview_colors?: Json | null
-          settings?: Json
+          settings_data?: Json
+          slug: string
+          thumbnail_url?: string | null
           updated_at?: string
+          version?: string
         }
         Update: {
+          author?: string | null
           created_at?: string
           description?: string | null
           id?: string
           is_active?: boolean
-          is_preset?: boolean
           name?: string
-          preview_colors?: Json | null
-          settings?: Json
+          settings_data?: Json
+          slug?: string
+          thumbnail_url?: string | null
           updated_at?: string
+          version?: string
         }
         Relationships: []
       }
