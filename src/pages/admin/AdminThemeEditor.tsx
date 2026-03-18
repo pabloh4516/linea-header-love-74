@@ -677,7 +677,16 @@ const AdminThemeEditor = () => {
     );
   }
 
-  const groups = SECTIONS.reduce((acc, s) => {
+  const handlePageChange = (page: EditorPage) => {
+    setSelectedPage(page);
+    iframeRef.current?.setAttribute("src", PAGE_URLS[page]);
+    // Reset to first available section for the new page
+    const firstAvailable = SECTIONS.find(s => !s.pages || s.pages.includes(page));
+    if (firstAvailable) setActiveSection(firstAvailable.id);
+  };
+
+  const filteredSections = SECTIONS.filter(s => !s.pages || s.pages.includes(selectedPage));
+  const groups = filteredSections.reduce((acc, s) => {
     if (!acc[s.group]) acc[s.group] = [];
     acc[s.group].push(s);
     return acc;
@@ -687,12 +696,21 @@ const AdminThemeEditor = () => {
     <div className="flex flex-col h-[calc(100vh-7rem)] -m-4 md:-m-6 lg:-m-8">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] shrink-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-1 rounded hover:bg-[hsl(var(--admin-bg))]">
             {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
-          <h1 className="text-[15px] font-semibold">Editor de Tema</h1>
-          <span className="text-[11px] text-muted-foreground ml-2">
+          <Select value={selectedPage} onValueChange={(v) => handlePageChange(v as EditorPage)}>
+            <SelectTrigger className="h-8 w-[180px] text-[13px] font-semibold border-none bg-transparent shadow-none hover:bg-[hsl(var(--admin-bg))] focus:ring-0 focus:ring-offset-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.entries(PAGE_LABELS) as [EditorPage, string][]).map(([value, label]) => (
+                <SelectItem key={value} value={value} className="text-[12px]">{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span className="text-[11px] text-muted-foreground">
             {SECTIONS.find(s => s.id === activeSection)?.label}
           </span>
         </div>
