@@ -455,9 +455,9 @@ const ThemeCard = ({
           <div>
             <h3 className="text-[14px] font-semibold flex items-center gap-1.5">
               {theme.name}
-              {theme.is_preset && (
+              {theme.is_active && (
                 <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[hsl(var(--admin-info)/0.1)] text-[hsl(var(--admin-info))] font-medium">
-                  PRESET
+                  ATIVO
                 </span>
               )}
             </h3>
