@@ -151,6 +151,15 @@ const SECTION_SCHEMAS: Record<string, SectionSchema> = {
       { key: "link_url", label: "Link do CTA", type: "url" },
       { key: "image_url", label: "Imagem de Fundo", type: "image" },
     ],
+    blocks: {
+      label: "Botões CTA",
+      maxItems: 3,
+      schema: [
+        { key: "text", label: "Texto do Botão", type: "text" },
+        { key: "link", label: "Link", type: "url" },
+        { key: "style", label: "Estilo (primary/outline/text)", type: "text" },
+      ],
+    },
   },
   story: {
     fields: [
@@ -161,6 +170,14 @@ const SECTION_SCHEMAS: Record<string, SectionSchema> = {
       { key: "link_url", label: "Link do CTA", type: "url" },
       { key: "image_url", label: "Imagem", type: "image" },
     ],
+    blocks: {
+      label: "Estatísticas / Números",
+      maxItems: 4,
+      schema: [
+        { key: "number", label: "Número", type: "text" },
+        { key: "label", label: "Descrição", type: "text" },
+      ],
+    },
   },
 };
 
