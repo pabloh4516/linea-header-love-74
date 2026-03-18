@@ -355,9 +355,128 @@ const THEME_PRESETS: ThemePreset[] = [
       theme_checkout_style: "single-page", theme_checkout_show_trust: "true",
       theme_checkout_show_order_bumps: "true", theme_checkout_show_coupon: "true",
     },
+    sections: [
+      {
+        section_type: "slideshow",
+        title: "Slideshow",
+        config: {
+          autoplay_speed: "5",
+          show_arrows: "true",
+          show_dots: "true",
+          height: "full",
+          blocks: [
+            { heading: "Coleção Exclusiva\nOnline", subheading: "Sweater Collection", button_text: "Ver Coleção", button_link: "/category/shop", text_position: "left", image: "" },
+            { heading: "Elegância Pura\nConforto Total", subheading: "Season Collection", button_text: "Ver Coleção", button_link: "/category/shop", text_position: "left", image: "" },
+            { heading: "Visual Clean\nSuper Conforto", subheading: "Look Exclusive", button_text: "Ver Coleção", button_link: "/category/shop", text_position: "left", image: "" },
+          ],
+        },
+      },
+      {
+        section_type: "collection_list",
+        title: "Top Coleções",
+        subtitle: "Expresse seu estilo com nossa coleção destaque — moda e sofisticação.",
+        config: {
+          columns: "3",
+          blocks: [
+            { title: "Anéis", link: "/category/shop", image: "" },
+            { title: "Brincos", link: "/category/shop", image: "" },
+            { title: "Colares", link: "/category/shop", image: "" },
+            { title: "Pulseiras", link: "/category/shop", image: "" },
+            { title: "Conjuntos", link: "/category/shop", image: "" },
+            { title: "Exclusivos", link: "/category/shop", image: "" },
+          ],
+        },
+      },
+      {
+        section_type: "product_carousel",
+        title: "Mais Vendidos",
+        subtitle: "Design incomparável — desempenho superior e satisfação do cliente.",
+      },
+      {
+        section_type: "countdown",
+        title: "Oferta Especial",
+        subtitle: "Até 75% de desconto em itens selecionados. Aproveite!",
+        cta_text: "Ver Promoção",
+        link_url: "/category/shop",
+        config: {
+          end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          show_days: "true",
+          show_hours: "true",
+          show_minutes: "true",
+          show_seconds: "true",
+        },
+      },
+      {
+        section_type: "marquee",
+        config: {
+          speed: "30",
+          size: "medium",
+          blocks: [
+            { content: "Expresse Seu Verdadeiro Estilo", link: "" },
+            { content: "Escolhas Sazonais Exclusivas", link: "" },
+            { content: "Novidades Imperdíveis", link: "" },
+            { content: "Frete Grátis acima de R$250", link: "" },
+          ],
+        },
+      },
+      {
+        section_type: "product_carousel",
+        title: "Em Alta",
+        subtitle: "Design incomparável — desempenho superior e satisfação do cliente.",
+      },
+      {
+        section_type: "testimonials",
+        title: "O que Dizem Nossos Clientes",
+        subtitle: "Nossos clientes amam nossos produtos e nos esforçamos para sempre agradá-los.",
+        config: {
+          blocks: [
+            { author: "Maria G.", quote: "Peças lindas e super confortáveis. A cor perfeita. Adoro usar com looks neutros. Simplesmente maravilhoso! 😍", rating: "5", location: "São Paulo, SP" },
+            { author: "Carlos S.", quote: "Um produto perfeito, mantém você elegante sem exagero. Fiel ao tamanho, não poderia estar mais feliz com a compra! 🤗", rating: "5", location: "Rio de Janeiro, RJ" },
+            { author: "Ana L.", quote: "Compra fantástica! O produto oferece a quantidade certa de elegância sem perder o conforto. Super recomendo! 😊", rating: "5", location: "Belo Horizonte, MG" },
+          ],
+        },
+      },
+      {
+        section_type: "rich_text",
+        title: "Olá! Peças para o Dia a Dia",
+        description: "Descubra uma coleção de essenciais atemporais, transitando perfeitamente do trabalho ao fim de semana. Inspiradas em viagens, nossas peças priorizam sustentabilidade com fibras naturais e práticas conscientes. Explore uma variedade de estilos versáteis com materiais de alta qualidade.\n\nCada peça é elaborada com atenção meticulosa aos detalhes, garantindo uma combinação perfeita de conforto e elegância. Nossos designs enfatizam linhas limpas e silhuetas sofisticadas, adequadas para qualquer ocasião.",
+        cta_text: "Ver Mais",
+        link_url: "/about/our-story",
+      },
+      {
+        section_type: "image_gallery",
+        title: "Shop by Gram",
+        subtitle: "Inspire-se e deixe-se inspirar, de uma moda única para outra.",
+        config: {
+          columns: "4",
+          blocks: [
+            { image: "", alt_text: "Look 1", link: "" },
+            { image: "", alt_text: "Look 2", link: "" },
+            { image: "", alt_text: "Look 3", link: "" },
+            { image: "", alt_text: "Look 4", link: "" },
+          ],
+        },
+      },
+      {
+        section_type: "multi_column",
+        title: "",
+        config: {
+          columns: "3",
+          alignment: "center",
+          blocks: [
+            { title: "Frete Grátis", description: "Aproveite frete grátis para todo o Brasil, com impostos e taxas incluídos.", image: "", button_text: "", button_link: "" },
+            { title: "Devoluções Grátis", description: "Devoluções gratuitas em até 15 dias, garanta que os itens estejam em perfeito estado.", image: "", button_text: "", button_link: "" },
+            { title: "Suporte Online", description: "Atendemos clientes 24/7, envie perguntas e resolveremos imediatamente.", image: "", button_text: "", button_link: "" },
+          ],
+        },
+      },
+      {
+        section_type: "newsletter",
+        title: "Receba 10% de Desconto",
+        subtitle: "Cadastre-se e receba ofertas exclusivas diretamente no seu e-mail.",
+      },
+    ],
   },
-  {
-    name: "Moderno", description: "Contemporâneo, arrojado, cantos arredondados — tech-forward",
     values: {
       theme_primary_h: "220", theme_primary_s: "15", theme_primary_l: "15",
       theme_bg_h: "220", theme_bg_s: "5", theme_bg_l: "98",
