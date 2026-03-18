@@ -88,10 +88,12 @@ const AdminProducts = () => {
   };
 
   const handleSave = async () => {
-    const payload = {
+    const payload: any = {
       name: form.name,
       category_id: form.category_id || null,
       price: parseFloat(form.price),
+      sale_price: form.sale_price ? parseFloat(form.sale_price) : null,
+      stock: parseInt(form.stock) || 0,
       image_url: form.image_url || null,
       hover_image_url: form.hover_image_url || null,
       is_new: form.is_new,
