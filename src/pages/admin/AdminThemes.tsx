@@ -348,36 +348,15 @@ const AdminThemes = () => {
         </div>
       </div>
 
-      {/* Presets */}
-      {presets.length > 0 && (
-        <div>
-          <h2 className="text-[15px] font-semibold mb-3 flex items-center gap-2">
-            <Sparkles className="h-4 w-4" /> Temas Prontos
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {presets.map((theme) => (
-              <ThemeCard
-                key={theme.id}
-                theme={theme}
-                onInstall={handleInstall}
-                onExport={handleExport}
-                onDelete={handleDelete}
-                installing={installing === theme.id}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Custom themes */}
+      {/* All themes */}
       <div>
         <h2 className="text-[15px] font-semibold mb-3 flex items-center gap-2">
-          <Palette className="h-4 w-4" /> Meus Temas
-          {customThemes.length === 0 && (
+          <Palette className="h-4 w-4" /> Todos os Temas
+          {allThemes.length === 0 && (
             <span className="text-[12px] font-normal text-muted-foreground">(nenhum salvo ainda)</span>
           )}
         </h2>
-        {customThemes.length === 0 ? (
+        {allThemes.length === 0 ? (
           <div className="bg-[hsl(var(--admin-surface))] rounded-xl border border-dashed border-[hsl(var(--admin-border))] p-8 text-center">
             <Palette className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
             <p className="text-[13px] text-muted-foreground mb-3">
@@ -394,7 +373,7 @@ const AdminThemes = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {customThemes.map((theme) => (
+            {allThemes.map((theme) => (
               <ThemeCard
                 key={theme.id}
                 theme={theme}
