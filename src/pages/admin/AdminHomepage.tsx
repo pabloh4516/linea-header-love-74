@@ -75,10 +75,10 @@ const SortableItem = ({ section, onEdit, onToggle, onDelete }: {
       <div className="flex-1 min-w-0" onClick={() => onEdit(section)}>
         <div className="flex items-center gap-2">
           <p className="text-[13px] font-medium text-foreground truncate">
-            {section.title || SECTION_TYPES.find(t => t.value === section.section_type)?.label || section.section_type}
+            {section.title || getAvailableSectionTypes().find(t => t.value === section.section_type)?.label || section.section_type}
           </p>
           <span className="text-[11px] text-muted-foreground px-1.5 py-0.5 rounded bg-[hsl(var(--admin-bg))] flex-shrink-0">
-            {SECTION_TYPES.find(t => t.value === section.section_type)?.label || section.section_type}
+            {getAvailableSectionTypes().find(t => t.value === section.section_type)?.label || section.section_type}
           </span>
         </div>
         {section.subtitle && <p className="text-[11px] text-muted-foreground truncate">{section.subtitle}</p>}
