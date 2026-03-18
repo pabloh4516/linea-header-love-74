@@ -41,9 +41,15 @@ import DynamicPage from "./pages/DynamicPage";
 
 const queryClient = new QueryClient();
 
+const ThemeSyncWrapper = ({ children }: { children: React.ReactNode }) => {
+  useActiveThemeSync();
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <ThemeSyncWrapper>
       <TooltipProvider>
         <Toaster />
         <Sonner />
