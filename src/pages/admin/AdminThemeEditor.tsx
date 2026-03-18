@@ -48,6 +48,7 @@ const FONT_OPTIONS = [
   { value: "Source Serif 4", label: "Source Serif 4" },
   { value: "EB Garamond", label: "EB Garamond" },
   { value: "Josefin Sans", label: "Josefin Sans" },
+  { value: "Outfit", label: "Outfit" },
 ];
 
 // ─── All theme keys with defaults ──────────────────────────
