@@ -18,6 +18,9 @@ const routeLabels: Record<string, string> = {
   "/admin/categories": "Categorias",
   "/admin/homepage": "Homepage",
   "/admin/settings": "Configurações",
+  "/admin/orders": "Pedidos",
+  "/admin/customers": "Clientes",
+  "/admin/theme": "Editor de Tema",
 };
 
 const AdminLayout = () => {
