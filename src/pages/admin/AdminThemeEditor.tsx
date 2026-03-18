@@ -651,7 +651,7 @@ const DEFAULT_PRODUCT_INFO_BLOCKS: ProductInfoBlock[] = [
 // ─── Available section types per page ─────────────────────
 const PAGE_AVAILABLE_SECTIONS: Record<EditorPage, string[]> = {
   index: SECTION_TYPES.map(t => t.value),
-  product: ["product_carousel", "rich_text", "newsletter", "testimonials", "collapsible_content", "video", "multicolumn", "full_width_banner", "editorial", "separator", "contact_form"],
+  product: ["product_info", "product_gallery", "product_recommendations", "product_carousel", "rich_text", "newsletter", "testimonials", "collapsible_content", "video", "multicolumn", "full_width_banner", "editorial", "separator", "contact_form"],
   collection: ["rich_text", "newsletter", "full_width_banner", "product_carousel", "editorial", "separator", "testimonials", "video"],
   cart: ["product_carousel", "rich_text", "newsletter", "full_width_banner", "separator", "testimonials"],
   checkout: ["rich_text", "separator"],
