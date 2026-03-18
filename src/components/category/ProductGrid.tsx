@@ -75,7 +75,7 @@ const ProductCard = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const aspectClass = aspectOverride || getAspectClass(cardSettings.aspect);
+  const aspectRatio = aspectOverride || getAspectRatio(cardSettings.aspect);
   const hoverClass = getHoverClasses(cardSettings.hoverEffect);
 
   return (
