@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find \"C:\\\\Users\\\\55319\\\\Downloads\\\\linea-header-love-74-main \\(3\\)\\\\linea-header-love-74-main/src\" -type f -name \"*.ts\" -o -type f -name \"*.tsx\")",
+      "Bash(test -d \"C:\\\\Users\\\\55319\\\\Downloads\\\\linea-header-love-74-main \\(3\\)\\\\linea-header-love-74-main/src/themes/ecommerce-br\")"
+    ]
+  }
+}
