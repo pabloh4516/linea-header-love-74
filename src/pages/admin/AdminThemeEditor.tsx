@@ -576,7 +576,7 @@ const AdminThemeEditor = () => {
   const { data: settings, isLoading } = useSiteSettings();
   const updateSetting = useUpdateSetting();
   const { data: homepageSections } = useHomepageSections();
-  const updateHomepageSection = useUpdateSection();
+  
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [theme, setTheme] = useState<Record<string, string>>(DEFAULTS);
