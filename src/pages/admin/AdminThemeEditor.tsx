@@ -1000,7 +1000,7 @@ const SettingsTab = ({
               setting={setting}
               value={theme[`theme_${setting.id}`] ?? setting.default}
               onChange={(val) => onChange(`theme_${setting.id}`, String(val))}
-              onImageUpload={uploadImage}
+              onImageUpload={handleImageUpload}
               uploading={uploading}
             />
           ))}
