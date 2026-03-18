@@ -402,52 +402,42 @@ const AdminHomepage = () => {
                 <Label className="text-[13px]">Tipo de seção</Label>
                 <Select value={form.section_type} onValueChange={(v) => setForm(f => ({ ...f, section_type: v, blocks: [] }))}>
                   <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>{SECTION_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
+                  <SelectContent>{getAvailableSectionTypes().map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
 
             {/* Dynamic fields based on schema */}
-            {currentSchema && currentSchema.fields.length > 0 && (
+            {currentSchema && currentSchema.settings.length > 0 && (
               <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-4">
                 <h3 className="text-[13px] font-semibold">Conteúdo</h3>
-                {currentSchema.fields.map((field) => (
-                  <div key={field.key} className="space-y-1.5">
-                    <Label className="text-[12px] text-muted-foreground">{field.label}</Label>
-                    {field.type === "textarea" ? (
-                      <Textarea
-                        value={(form as any)[field.key] || ""}
-                        onChange={(e) => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                        className="text-[13px] min-h-[60px]"
-                      />
-                    ) : field.type === "image" ? (
-                      <div className="space-y-2">
-                        <Input type="file" accept="image/*" disabled={uploading} className="h-9 text-[12px]"
-                          onChange={(e) => handleImageUpload(e, field.key as "image_url" | "image_url_2")} />
-                        {(form as any)[field.key] && (
-                          <img src={(form as any)[field.key]} alt="" className="w-16 h-16 object-cover rounded-lg border border-[hsl(var(--admin-border))]" />
-                        )}
-                      </div>
-                    ) : (
-                      <Input
-                        value={(form as any)[field.key] || ""}
-                        onChange={(e) => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                        className="h-9 text-[13px]"
-                      />
-                    )}
-                  </div>
+                {currentSchema.settings.map((setting) => (
+                  <SchemaField
+                    key={setting.id}
+                    setting={setting}
+                    value={(form as any)[setting.id] || ""}
+                    onChange={(v) => setForm(f => ({ ...f, [setting.id]: v }))}
+                    onImageUpload={async (file) => {
+                      setUploading(true);
+                      try {
+                        const url = await upload(file);
+                        return url;
+                      } finally { setUploading(false); }
+                    }}
+                    uploading={uploading}
+                  />
                 ))}
               </div>
             )}
 
             {/* Blocks editor */}
-            {currentSchema?.blocks && (
+            {currentSchema?.blocks && currentSchema.blocks.length > 0 && (
               <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-3">
-                <h3 className="text-[13px] font-semibold">{currentSchema.blocks.label}</h3>
+                <h3 className="text-[13px] font-semibold">{currentSchema.blocks[0].name}</h3>
                 <BlockEditor
                   blocks={form.blocks}
-                  schema={currentSchema.blocks.schema}
-                  maxItems={currentSchema.blocks.maxItems}
+                  schema={currentSchema.blocks[0].settings.map(s => ({ key: s.id, label: s.label, type: s.type }))}
+                  maxItems={currentSchema.blocks[0].limit}
                   onBlocksChange={(blocks) => setForm(f => ({ ...f, blocks }))}
                   onImageUpload={handleBlockImageUpload}
                   uploading={uploading}
