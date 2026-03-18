@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Minus, Plus, CreditCard, Check } from "lucide-react";
+import { Minus, Plus, CreditCard, Check, X, Tag, Loader2 } from "lucide-react";
 import CheckoutHeader from "../components/header/CheckoutHeader";
 import Footer from "../components/footer/Footer";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
+
+type AppliedCoupon = {
+  id: string;
+  code: string;
+  discount_type: string;
+  discount_value: number;
+  min_purchase: number;
+};
 
 const Checkout = () => {
   const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState("");
   const [customerDetails, setCustomerDetails] = useState({
     email: "",
     firstName: "",
@@ -83,21 +96,95 @@ const Checkout = () => {
 
   const getShippingCost = () => {
     switch (shippingOption) {
-      case "express":
-        return 25;
-      case "overnight":
-        return 60;
-      default:
-        return 0;
+      case "express": return 25;
+      case "overnight": return 60;
+      default: return 0;
     }
+  };
+
+  const getDiscount = () => {
+    if (!appliedCoupon) return 0;
+    if (appliedCoupon.discount_type === "percentage") {
+      return Math.round(subtotal * (appliedCoupon.discount_value / 100) * 100) / 100;
+    }
+    return Math.min(appliedCoupon.discount_value, subtotal);
   };
   
   const shipping = getShippingCost();
-  const total = subtotal + shipping;
+  const discount = getDiscount();
+  const total = Math.max(0, subtotal - discount + shipping);
 
-  const handleDiscountSubmit = () => {
-    console.log("Código de desconto:", discountCode);
-    setShowDiscountInput(false);
+  const handleApplyCoupon = async () => {
+    const code = discountCode.trim().toUpperCase();
+    if (!code) return;
+
+    setCouponLoading(true);
+    setCouponError("");
+
+    try {
+      const { data, error } = await supabase
+        .from("coupons" as any)
+        .select("*")
+        .eq("code", code)
+        .eq("is_active", true)
+        .single();
+
+      if (error || !data) {
+        setCouponError("Cupom inválido ou não encontrado");
+        setCouponLoading(false);
+        return;
+      }
+
+      const coupon = data as any;
+
+      // Check expiration
+      if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+        setCouponError("Este cupom expirou");
+        setCouponLoading(false);
+        return;
+      }
+
+      // Check start date
+      if (coupon.starts_at && new Date(coupon.starts_at) > new Date()) {
+        setCouponError("Este cupom ainda não está ativo");
+        setCouponLoading(false);
+        return;
+      }
+
+      // Check usage limit
+      if (coupon.max_uses && coupon.used_count >= coupon.max_uses) {
+        setCouponError("Este cupom atingiu o limite de usos");
+        setCouponLoading(false);
+        return;
+      }
+
+      // Check minimum purchase
+      if (coupon.min_purchase && subtotal < coupon.min_purchase) {
+        setCouponError(`Compra mínima de R$${Number(coupon.min_purchase).toFixed(2)} para este cupom`);
+        setCouponLoading(false);
+        return;
+      }
+
+      setAppliedCoupon({
+        id: coupon.id,
+        code: coupon.code,
+        discount_type: coupon.discount_type,
+        discount_value: Number(coupon.discount_value),
+        min_purchase: Number(coupon.min_purchase || 0),
+      });
+      setDiscountCode("");
+      setShowDiscountInput(false);
+      setCouponError("");
+      toast.success(`Cupom ${coupon.code} aplicado!`);
+    } catch {
+      setCouponError("Erro ao validar cupom");
+    }
+    setCouponLoading(false);
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    toast.info("Cupom removido");
   };
 
   const handleCustomerDetailsChange = (field: string, value: string) => {
@@ -185,7 +272,20 @@ const Checkout = () => {
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-muted-foreground/20">
-                  {!showDiscountInput ? (
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between bg-primary/5 border border-primary/20 px-3 py-2 rounded-sm">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-sm font-mono font-medium text-foreground">{appliedCoupon.code}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({appliedCoupon.discount_type === "percentage" ? `${appliedCoupon.discount_value}%` : `R$${appliedCoupon.discount_value.toFixed(2)}`})
+                        </span>
+                      </div>
+                      <button onClick={handleRemoveCoupon} className="text-muted-foreground hover:text-foreground">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : !showDiscountInput ? (
                     <button 
                       onClick={() => setShowDiscountInput(true)}
                       className="text-sm text-foreground underline hover:no-underline transition-all"
@@ -193,31 +293,41 @@ const Checkout = () => {
                       Cupom de desconto
                     </button>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <div className="flex gap-2">
                         <Input
                           type="text"
                           value={discountCode}
-                          onChange={(e) => setDiscountCode(e.target.value)}
+                          onChange={(e) => { setDiscountCode(e.target.value.toUpperCase()); setCouponError(""); }}
+                          onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
                           placeholder="Digite o cupom"
-                          className="flex-1 rounded-none"
+                          className="flex-1 rounded-none font-mono"
                         />
-                        <button 
-                          onClick={handleDiscountSubmit}
-                          className="text-sm text-foreground underline hover:no-underline transition-all px-2"
+                        <Button 
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoading || !discountCode.trim()}
+                          variant="outline"
+                          className="rounded-none px-4"
                         >
-                          Aplicar
-                        </button>
+                          {couponLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
+                        </Button>
                       </div>
+                      {couponError && <p className="text-xs text-destructive">{couponError}</p>}
                     </div>
                   )}
                 </div>
 
-                <div className="border-t border-muted-foreground/20 mt-4 pt-6">
+                <div className="border-t border-muted-foreground/20 mt-4 pt-6 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="text-foreground">{formatBRL(subtotal)}</span>
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-primary">Desconto</span>
+                      <span className="text-primary">-{formatBRL(discount)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -620,6 +730,12 @@ const Checkout = () => {
                       <span className="text-muted-foreground">Subtotal</span>
                       <span className="text-foreground">{formatBRL(subtotal)}</span>
                     </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-primary">Desconto ({appliedCoupon?.code})</span>
+                        <span className="text-primary">-{formatBRL(discount)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Frete</span>
                       <span className="text-foreground">
