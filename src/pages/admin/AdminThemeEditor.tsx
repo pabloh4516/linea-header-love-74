@@ -817,6 +817,7 @@ const AdminThemeEditor = () => {
   const { data: settings, isLoading } = useSiteSettings();
   const updateSetting = useUpdateSetting();
   const { data: homepageSections } = useHomepageSections();
+  const queryClient = useQueryClient();
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
