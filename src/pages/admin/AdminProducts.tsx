@@ -62,6 +62,8 @@ const AdminProducts = () => {
   const openEdit = (p: any) => {
     setForm({
       name: p.name, category_id: p.category_id || "", price: String(p.price),
+      sale_price: p.sale_price ? String(p.sale_price) : "",
+      stock: String(p.stock ?? 0),
       image_url: p.image_url || "", hover_image_url: p.hover_image_url || "",
       is_new: p.is_new, is_visible: p.is_visible, description: p.description || "",
       material: p.material || "", dimensions: p.dimensions || "", weight: p.weight || "",
