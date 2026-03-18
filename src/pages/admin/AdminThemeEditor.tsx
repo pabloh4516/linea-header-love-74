@@ -625,7 +625,9 @@ const AdminThemeEditor = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const changed = THEME_KEYS.filter(key => theme[key] !== (settings?.[key] || DEFAULTS[key]));
+      // Save all theme_ keys that changed
+      const allThemeKeys = Object.keys(theme).filter(k => k.startsWith("theme_"));
+      const changed = allThemeKeys.filter(key => theme[key] !== (settings?.[key] ?? DEFAULTS[key] ?? ""));
       for (const key of changed) {
         await updateSetting.mutateAsync({ key, value: theme[key] });
       }
