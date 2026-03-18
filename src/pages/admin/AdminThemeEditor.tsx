@@ -174,72 +174,249 @@ interface ThemePreset {
 const THEME_PRESETS: ThemePreset[] = [
   {
     name: "Minimal",
-    description: "Clean, espaçoso, tipografia leve",
+    description: "Clean, espaçoso, tipografia leve — layout arejado e minimalista",
     values: {
+      // Colors
       theme_primary_h: "0", theme_primary_s: "0", theme_primary_l: "10",
       theme_bg_h: "0", theme_bg_s: "0", theme_bg_l: "100",
       theme_fg_h: "0", theme_fg_s: "0", theme_fg_l: "10",
       theme_accent_h: "0", theme_accent_s: "0", theme_accent_l: "95",
       theme_muted_h: "0", theme_muted_s: "0", theme_muted_l: "96",
       theme_border_h: "0", theme_border_s: "0", theme_border_l: "90",
+      // Typography
       theme_font_display: "DM Sans", theme_font_body: "DM Sans",
       theme_heading_weight: "300", theme_body_weight: "300",
-      theme_border_radius: "0", theme_button_style: "outline", theme_button_radius: "0",
-      theme_animation_intensity: "subtle",
+      theme_letter_spacing_editorial: "0.08",
+      // Layout
+      theme_border_radius: "0", theme_spacing_section: "112", theme_max_width: "1440",
+      // Buttons
+      theme_button_style: "outline", theme_button_radius: "0",
+      theme_button_height: "48", theme_button_font_size: "11",
+      theme_button_letter_spacing: "0.2", theme_button_font_weight: "300",
+      // Status Bar
+      theme_statusbar_bg_h: "0", theme_statusbar_bg_s: "0", theme_statusbar_bg_l: "10",
+      theme_statusbar_fg_h: "0", theme_statusbar_fg_s: "0", theme_statusbar_fg_l: "100",
+      theme_statusbar_visible: "true", theme_statusbar_height: "32", theme_statusbar_font_size: "10",
+      // Navigation
+      theme_nav_bg_h: "0", theme_nav_bg_s: "0", theme_nav_bg_l: "100",
+      theme_nav_fg_h: "0", theme_nav_fg_s: "0", theme_nav_fg_l: "10",
+      theme_nav_height: "60", theme_nav_logo_height: "20",
+      theme_nav_style: "centered", theme_nav_sticky: "true",
+      theme_nav_transparent_hero: "false",
+      theme_nav_show_search: "false", theme_nav_show_wishlist: "false",
+      // Product Card
+      theme_card_aspect: "3/4", theme_card_hover_effect: "fade",
+      theme_card_show_category: "false", theme_card_show_badge: "false",
+      theme_card_badge_style: "outline", theme_card_price_weight: "300",
+      theme_card_name_size: "13", theme_card_gap: "24",
+      theme_card_columns_desktop: "3", theme_card_columns_mobile: "2",
+      // Product Page
+      theme_pdp_layout: "side-by-side", theme_pdp_gallery_style: "scroll",
+      theme_pdp_show_breadcrumb: "true", theme_pdp_show_editor_notes: "false",
+      theme_pdp_show_details_grid: "true", theme_pdp_show_trust_badges: "false",
+      theme_pdp_sticky_info: "true", theme_pdp_show_related: "true", theme_pdp_show_sku: "false",
+      // Category
+      theme_category_layout: "standard", theme_category_show_filters: "false",
+      theme_category_show_count: "false", theme_category_show_sort: "false",
+      // Cart
+      theme_cart_style: "drawer", theme_cart_width: "360",
+      // Footer
+      theme_footer_bg_h: "0", theme_footer_bg_s: "0", theme_footer_bg_l: "10",
+      theme_footer_fg_h: "0", theme_footer_fg_s: "0", theme_footer_fg_l: "95",
+      theme_footer_layout: "minimal", theme_footer_show_social: "false",
+      theme_footer_show_newsletter: "false", theme_footer_show_payment_icons: "false",
+      // Effects
+      theme_animation_enabled: "true", theme_animation_intensity: "subtle",
+      theme_hover_scale: "1.02", theme_transition_speed: "500", theme_overlay_opacity: "0.03",
+      // Checkout
+      theme_checkout_style: "single-page", theme_checkout_show_trust: "false",
     },
   },
   {
     name: "Luxo",
-    description: "Elegante, tons dourados, serif refinada",
+    description: "Elegante, tons dourados, serif refinada — experiência premium",
     values: {
+      // Colors
       theme_primary_h: "38", theme_primary_s: "60", theme_primary_l: "45",
       theme_bg_h: "30", theme_bg_s: "15", theme_bg_l: "97",
       theme_fg_h: "30", theme_fg_s: "10", theme_fg_l: "12",
       theme_accent_h: "38", theme_accent_s: "40", theme_accent_l: "90",
       theme_muted_h: "30", theme_muted_s: "10", theme_muted_l: "94",
       theme_border_h: "30", theme_border_s: "15", theme_border_l: "85",
+      // Typography
       theme_font_display: "Cormorant Garamond", theme_font_body: "Raleway",
       theme_heading_weight: "400", theme_body_weight: "300",
-      theme_border_radius: "0", theme_button_style: "solid", theme_button_radius: "0",
-      theme_animation_intensity: "medium",
+      theme_letter_spacing_editorial: "0.06",
+      // Layout
+      theme_border_radius: "0", theme_spacing_section: "96", theme_max_width: "1440",
+      // Buttons
+      theme_button_style: "solid", theme_button_radius: "0",
+      theme_button_height: "52", theme_button_font_size: "11",
+      theme_button_letter_spacing: "0.18", theme_button_font_weight: "400",
+      // Status Bar
       theme_statusbar_bg_h: "38", theme_statusbar_bg_s: "60", theme_statusbar_bg_l: "45",
       theme_statusbar_fg_h: "0", theme_statusbar_fg_s: "0", theme_statusbar_fg_l: "100",
+      theme_statusbar_visible: "true", theme_statusbar_height: "36", theme_statusbar_font_size: "10",
+      // Navigation
+      theme_nav_bg_h: "30", theme_nav_bg_s: "15", theme_nav_bg_l: "97",
+      theme_nav_fg_h: "30", theme_nav_fg_s: "10", theme_nav_fg_l: "12",
+      theme_nav_height: "72", theme_nav_logo_height: "28",
+      theme_nav_style: "centered", theme_nav_sticky: "true",
+      theme_nav_transparent_hero: "true",
+      theme_nav_show_search: "true", theme_nav_show_wishlist: "true",
+      // Product Card
+      theme_card_aspect: "4/5", theme_card_hover_effect: "zoom",
+      theme_card_show_category: "true", theme_card_show_badge: "true",
+      theme_card_badge_style: "filled", theme_card_price_weight: "400",
+      theme_card_name_size: "14", theme_card_gap: "20",
+      theme_card_columns_desktop: "3", theme_card_columns_mobile: "2",
+      // Product Page
+      theme_pdp_layout: "side-by-side", theme_pdp_gallery_style: "thumbnails",
+      theme_pdp_show_breadcrumb: "true", theme_pdp_show_editor_notes: "true",
+      theme_pdp_show_details_grid: "true", theme_pdp_show_trust_badges: "true",
+      theme_pdp_sticky_info: "true", theme_pdp_show_related: "true", theme_pdp_show_sku: "false",
+      // Category
+      theme_category_layout: "editorial", theme_category_show_filters: "true",
+      theme_category_filter_position: "top",
+      theme_category_show_count: "true", theme_category_show_sort: "true",
+      theme_category_products_per_page: "12",
+      // Cart
+      theme_cart_style: "drawer", theme_cart_width: "420",
+      // Footer
+      theme_footer_bg_h: "30", theme_footer_bg_s: "10", theme_footer_bg_l: "8",
+      theme_footer_fg_h: "30", theme_footer_fg_s: "15", theme_footer_fg_l: "90",
+      theme_footer_layout: "three-column", theme_footer_show_social: "true",
+      theme_footer_show_newsletter: "true", theme_footer_show_payment_icons: "true",
+      // Effects
+      theme_animation_enabled: "true", theme_animation_intensity: "medium",
+      theme_hover_scale: "1.05", theme_transition_speed: "700", theme_overlay_opacity: "0.05",
+      // Checkout
+      theme_checkout_style: "single-page", theme_checkout_show_trust: "true",
+      theme_checkout_show_order_bumps: "true", theme_checkout_show_coupon: "true",
     },
   },
   {
     name: "Moderno",
-    description: "Contemporâneo, arrojado, contrastes fortes",
+    description: "Contemporâneo, arrojado, cantos arredondados — tech-forward",
     values: {
+      // Colors
       theme_primary_h: "220", theme_primary_s: "15", theme_primary_l: "15",
       theme_bg_h: "220", theme_bg_s: "5", theme_bg_l: "98",
       theme_fg_h: "220", theme_fg_s: "15", theme_fg_l: "10",
       theme_accent_h: "220", theme_accent_s: "20", theme_accent_l: "92",
       theme_muted_h: "220", theme_muted_s: "8", theme_muted_l: "95",
       theme_border_h: "220", theme_border_s: "10", theme_border_l: "88",
+      // Typography
       theme_font_display: "Montserrat", theme_font_body: "Inter",
-      theme_heading_weight: "500", theme_body_weight: "400",
-      theme_border_radius: "0.5", theme_button_style: "solid", theme_button_radius: "8",
-      theme_animation_intensity: "medium",
+      theme_heading_weight: "600", theme_body_weight: "400",
+      theme_letter_spacing_editorial: "0.03",
+      // Layout
+      theme_border_radius: "0.75", theme_spacing_section: "80", theme_max_width: "1280",
+      // Buttons
+      theme_button_style: "solid", theme_button_radius: "8",
+      theme_button_height: "48", theme_button_font_size: "13",
+      theme_button_letter_spacing: "0.05", theme_button_font_weight: "500",
+      // Status Bar
+      theme_statusbar_bg_h: "220", theme_statusbar_bg_s: "15", theme_statusbar_bg_l: "15",
+      theme_statusbar_fg_h: "0", theme_statusbar_fg_s: "0", theme_statusbar_fg_l: "100",
+      theme_statusbar_visible: "true", theme_statusbar_height: "36", theme_statusbar_font_size: "11",
+      // Navigation
+      theme_nav_bg_h: "220", theme_nav_bg_s: "5", theme_nav_bg_l: "98",
+      theme_nav_fg_h: "220", theme_nav_fg_s: "15", theme_nav_fg_l: "10",
+      theme_nav_height: "64", theme_nav_logo_height: "24",
+      theme_nav_style: "left-aligned", theme_nav_sticky: "true",
+      theme_nav_transparent_hero: "false",
+      theme_nav_show_search: "true", theme_nav_show_wishlist: "true",
+      // Product Card
+      theme_card_aspect: "square", theme_card_hover_effect: "slide",
+      theme_card_show_category: "true", theme_card_show_badge: "true",
+      theme_card_badge_style: "filled", theme_card_price_weight: "500",
+      theme_card_name_size: "14", theme_card_gap: "16",
+      theme_card_columns_desktop: "4", theme_card_columns_mobile: "2",
+      // Product Page
+      theme_pdp_layout: "side-by-side", theme_pdp_gallery_style: "scroll",
+      theme_pdp_show_breadcrumb: "true", theme_pdp_show_editor_notes: "true",
+      theme_pdp_show_details_grid: "true", theme_pdp_show_trust_badges: "true",
+      theme_pdp_sticky_info: "true", theme_pdp_show_related: "true", theme_pdp_show_sku: "true",
+      // Category
+      theme_category_layout: "masonry", theme_category_show_filters: "true",
+      theme_category_filter_position: "sidebar",
+      theme_category_show_count: "true", theme_category_show_sort: "true",
+      theme_category_products_per_page: "16",
+      // Cart
+      theme_cart_style: "drawer", theme_cart_width: "400",
+      // Footer
+      theme_footer_bg_h: "220", theme_footer_bg_s: "15", theme_footer_bg_l: "10",
+      theme_footer_fg_h: "220", theme_footer_fg_s: "5", theme_footer_fg_l: "90",
+      theme_footer_layout: "three-column", theme_footer_show_social: "true",
+      theme_footer_show_newsletter: "true", theme_footer_show_payment_icons: "true",
+      // Effects
+      theme_animation_enabled: "true", theme_animation_intensity: "medium",
+      theme_hover_scale: "1.05", theme_transition_speed: "600", theme_overlay_opacity: "0.06",
+      // Checkout
+      theme_checkout_style: "single-page", theme_checkout_show_trust: "true",
+      theme_checkout_show_order_bumps: "true",
     },
   },
   {
     name: "Bold",
-    description: "Ousado, escuro, impactante",
+    description: "Ousado, modo escuro, impactante — drama e contraste máximo",
     values: {
+      // Colors
       theme_primary_h: "0", theme_primary_s: "0", theme_primary_l: "95",
       theme_bg_h: "0", theme_bg_s: "0", theme_bg_l: "5",
       theme_fg_h: "0", theme_fg_s: "0", theme_fg_l: "95",
       theme_accent_h: "0", theme_accent_s: "0", theme_accent_l: "15",
       theme_muted_h: "0", theme_muted_s: "0", theme_muted_l: "12",
       theme_border_h: "0", theme_border_s: "0", theme_border_l: "20",
+      // Typography
       theme_font_display: "Playfair Display", theme_font_body: "DM Sans",
       theme_heading_weight: "700", theme_body_weight: "300",
-      theme_border_radius: "0", theme_button_style: "solid", theme_button_radius: "0",
-      theme_animation_intensity: "dramatic",
+      theme_letter_spacing_editorial: "0.04",
+      // Layout
+      theme_border_radius: "0", theme_spacing_section: "80", theme_max_width: "1600",
+      // Buttons
+      theme_button_style: "solid", theme_button_radius: "0",
+      theme_button_height: "56", theme_button_font_size: "13",
+      theme_button_letter_spacing: "0.12", theme_button_font_weight: "500",
+      // Status Bar
       theme_statusbar_bg_h: "0", theme_statusbar_bg_s: "0", theme_statusbar_bg_l: "95",
       theme_statusbar_fg_h: "0", theme_statusbar_fg_s: "0", theme_statusbar_fg_l: "5",
-      theme_footer_bg_h: "0", theme_footer_bg_s: "0", theme_footer_bg_l: "10",
-      theme_footer_fg_h: "0", theme_footer_fg_s: "0", theme_footer_fg_l: "90",
+      theme_statusbar_visible: "true", theme_statusbar_height: "40", theme_statusbar_font_size: "11",
+      // Navigation
+      theme_nav_bg_h: "0", theme_nav_bg_s: "0", theme_nav_bg_l: "5",
+      theme_nav_fg_h: "0", theme_nav_fg_s: "0", theme_nav_fg_l: "95",
+      theme_nav_height: "72", theme_nav_logo_height: "26",
+      theme_nav_style: "left-aligned", theme_nav_sticky: "true",
+      theme_nav_transparent_hero: "true",
+      theme_nav_show_search: "true", theme_nav_show_wishlist: "false",
+      // Product Card
+      theme_card_aspect: "3/4", theme_card_hover_effect: "zoom",
+      theme_card_show_category: "false", theme_card_show_badge: "true",
+      theme_card_badge_style: "filled", theme_card_price_weight: "500",
+      theme_card_name_size: "15", theme_card_gap: "12",
+      theme_card_columns_desktop: "2", theme_card_columns_mobile: "1",
+      // Product Page
+      theme_pdp_layout: "stacked", theme_pdp_gallery_style: "scroll",
+      theme_pdp_show_breadcrumb: "false", theme_pdp_show_editor_notes: "true",
+      theme_pdp_show_details_grid: "true", theme_pdp_show_trust_badges: "false",
+      theme_pdp_sticky_info: "false", theme_pdp_show_related: "true", theme_pdp_show_sku: "false",
+      // Category
+      theme_category_layout: "highlight", theme_category_show_filters: "false",
+      theme_category_show_count: "false", theme_category_show_sort: "true",
+      theme_category_products_per_page: "8",
+      // Cart
+      theme_cart_style: "drawer", theme_cart_width: "440",
+      // Footer
+      theme_footer_bg_h: "0", theme_footer_bg_s: "0", theme_footer_bg_l: "3",
+      theme_footer_fg_h: "0", theme_footer_fg_s: "0", theme_footer_fg_l: "80",
+      theme_footer_layout: "two-column", theme_footer_show_social: "true",
+      theme_footer_show_newsletter: "false", theme_footer_show_payment_icons: "false",
+      // Effects
+      theme_animation_enabled: "true", theme_animation_intensity: "dramatic",
+      theme_hover_scale: "1.08", theme_transition_speed: "800", theme_overlay_opacity: "0.08",
+      // Checkout
+      theme_checkout_style: "single-page", theme_checkout_show_trust: "true",
     },
   },
 ];
