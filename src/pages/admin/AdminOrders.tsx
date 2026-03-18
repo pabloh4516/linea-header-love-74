@@ -235,7 +235,7 @@ const AdminOrders = () => {
               </div>
               <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4">
                 <div className="flex justify-between text-[15px] font-semibold">
-                  <span>Total</span><span>€{Number(viewOrder.total).toFixed(2)}</span>
+                  <span>Total</span><span>R${Number(viewOrder.total).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
               {viewOrder.notes && (
