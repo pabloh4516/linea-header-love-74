@@ -662,16 +662,17 @@ const Checkout = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="shippingCountry" className="text-sm font-light text-foreground">
+                        <Label htmlFor="shippingState" className="text-sm font-light text-foreground">
                           Estado *
                         </Label>
                         <Input
-                          id="shippingCountry"
+                          id="shippingState"
                           type="text"
-                          value={shippingAddress.country}
-                          onChange={(e) => handleShippingAddressChange("country", e.target.value)}
+                          value={shippingAddress.state}
+                          onChange={(e) => handleShippingAddressChange("state", e.target.value)}
                           className="mt-2 rounded-none"
-                          placeholder="Estado"
+                          placeholder="SP"
+                          maxLength={2}
                         />
                       </div>
                     </div>
