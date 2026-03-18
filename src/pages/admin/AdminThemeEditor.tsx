@@ -571,7 +571,7 @@ const AdminThemeEditor = () => {
   const [sectionDrilldown, setSectionDrilldown] = useState<string | null>(null);
 
   // Drill-down state for settings tab
-  const [settingsDrilldown, setSettingsDrilldown] = useState<SettingsGroupId | null>(null);
+  const [settingsDrilldown, setSettingsDrilldown] = useState<string | number | null>(null);
 
   useEffect(() => {
     if (settings) {
