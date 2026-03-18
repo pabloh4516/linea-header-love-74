@@ -9,6 +9,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import PageViewTracker from "./components/PageViewTracker";
 import ThemeApplicator from "./components/ThemeApplicator";
 import { AuthProvider } from "./hooks/useAuth";
+import { useActiveThemeSync } from "./hooks/useActiveThemeSync";
 import Index from "./pages/Index";
 import Category from "./pages/Category";
 import ProductDetail from "./pages/ProductDetail";
