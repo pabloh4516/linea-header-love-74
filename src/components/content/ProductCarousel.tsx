@@ -38,7 +38,10 @@ const ProductCarousel = ({ section, showHeader = true }: Props) => {
   const ctaText = section?.cta_text || "Ver Tudo";
   const linkUrl = section?.link_url || "/category/shop";
 
-  const products = dbProducts && dbProducts.length > 0
+  // Use DB products only if they have images, otherwise fall back to static data
+  const dbHasImages = dbProducts && dbProducts.length > 0 && dbProducts.some(p => p.image_url);
+
+  const products = dbHasImages
     ? dbProducts.map((p) => ({
         id: p.id, name: p.name, category: (p as any).categories?.name || "",
         price: Number(p.price), image: p.image_url || "", hoverImage: p.hover_image_url || "", isNew: p.is_new,
