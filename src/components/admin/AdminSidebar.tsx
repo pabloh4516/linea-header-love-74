@@ -30,7 +30,6 @@ const marketingItems = [
 
 const lojaOnlineItems = [
   { title: "Temas", url: "/admin/themes", icon: Layers },
-  { title: "Personalizar", url: "/admin/theme", icon: Palette },
   { title: "Páginas", url: "/admin/pages", icon: FileText },
 ];
 
