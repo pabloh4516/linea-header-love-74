@@ -604,6 +604,7 @@ const AdminThemeEditor = () => {
   const [activeSection, setActiveSection] = useState<SectionId>("presets");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [inlineEditMode, setInlineEditMode] = useState(true);
+  const [selectedPage, setSelectedPage] = useState<EditorPage>("index");
 
   useEffect(() => {
     if (settings) {
