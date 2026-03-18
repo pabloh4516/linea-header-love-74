@@ -980,10 +980,10 @@ const SettingsTab = ({
   onApplyPreset: (values: Record<string, string>) => void;
 }) => {
   // Force re-read when active theme changes (themeRegistry is not reactive)
-  const activeThemeForSettings = useActiveThemeSync();
+  const { activeThemeId: syncedThemeId } = useThemeSync();
   const themeGroups = useMemo(() => {
-    return themeRegistry.getGlobalSettingsSchema(activeThemeForSettings?.slug);
-  }, [activeThemeForSettings?.slug]);
+    return themeRegistry.getGlobalSettingsSchema(syncedThemeId ?? undefined);
+  }, [syncedThemeId]);
   const useRegistryGroups = themeGroups.length > 0;
   const { upload } = useImageUpload();
   const [uploading, setUploading] = useState(false);
