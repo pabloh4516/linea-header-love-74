@@ -39,20 +39,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    // Set up listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
+        console.log("[Auth] event:", event);
         setSession(session);
         setUser(session?.user ?? null);
+
         if (session?.user) {
-          const admin = await checkAdminRole(session.user.id);
-          setIsAdmin(admin);
+          // Use setTimeout to avoid Supabase auth deadlock
+          setTimeout(async () => {
+            const admin = await checkAdminRole(session.user.id);
+            setIsAdmin(admin);
+            setIsLoading(false);
+          }, 0);
         } else {
           setIsAdmin(false);
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
     );
 
+    // Then check existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
