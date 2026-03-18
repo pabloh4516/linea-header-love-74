@@ -19,11 +19,17 @@ interface CartItem {
 interface AddToCartDetail extends CartItem {}
 
 const Navigation = () => {
+  const { data: settings } = useSiteSettings();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [offCanvasType, setOffCanvasType] = useState<"favorites" | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isShoppingBagOpen, setIsShoppingBagOpen] = useState(false);
+
+  const showSearch = settings?.theme_nav_show_search !== "false";
+  const showWishlist = settings?.theme_nav_show_wishlist !== "false";
+  const navHeight = settings?.theme_nav_height || "64";
+  const logoHeight = settings?.theme_nav_logo_height || "24";
 
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
