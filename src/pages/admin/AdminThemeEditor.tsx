@@ -602,6 +602,38 @@ const SECTION_SCHEMAS: Record<string, SectionSchema> = {
   separator: { fields: [] },
 };
 
+// ─── Available section types per page ─────────────────────
+const PAGE_AVAILABLE_SECTIONS: Record<EditorPage, string[]> = {
+  index: SECTION_TYPES.map(t => t.value),
+  product: ["product_carousel", "rich_text", "newsletter", "testimonials", "collapsible_content", "video", "multicolumn", "full_width_banner", "editorial", "separator", "contact_form"],
+  collection: ["rich_text", "newsletter", "full_width_banner", "product_carousel", "editorial", "separator", "testimonials", "video"],
+  cart: ["product_carousel", "rich_text", "newsletter", "full_width_banner", "separator", "testimonials"],
+  checkout: ["rich_text", "separator"],
+  "our-story": SECTION_TYPES.map(t => t.value),
+  sustainability: SECTION_TYPES.map(t => t.value),
+  "size-guide": SECTION_TYPES.map(t => t.value),
+  "customer-care": SECTION_TYPES.map(t => t.value),
+  "store-locator": SECTION_TYPES.map(t => t.value),
+  privacy: ["rich_text", "separator", "contact_form"],
+  terms: ["rich_text", "separator", "contact_form"],
+};
+
+// Map EditorPage to page_templates page_type
+const PAGE_TYPE_MAP: Record<EditorPage, string> = {
+  index: "homepage",
+  product: "product",
+  collection: "collection",
+  cart: "cart",
+  checkout: "checkout",
+  "our-story": "our-story",
+  sustainability: "sustainability",
+  "size-guide": "size-guide",
+  "customer-care": "customer-care",
+  "store-locator": "store-locator",
+  privacy: "privacy",
+  terms: "terms",
+};
+
 // ═══════════════════════════════════════════════════════════
 // ─── Main Component ───────────────────────────────────────
 // ═══════════════════════════════════════════════════════════
