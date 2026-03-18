@@ -576,7 +576,7 @@ const AdminThemeEditor = () => {
   const [settingsDrilldown, setSettingsDrilldown] = useState<string | number | null>(null);
 
   const registryDefaults = useMemo(() => {
-    const current = themeRegistry.getDefaultSettings();
+    const current = themeRegistry.getDefaultSettings(activeThemeData?.slug);
     const normalized = Object.fromEntries(
       Object.entries(current || {}).map(([key, value]) => [`theme_${key}`, String(value)])
     );
