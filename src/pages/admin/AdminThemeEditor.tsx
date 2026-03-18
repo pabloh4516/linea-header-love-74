@@ -469,7 +469,7 @@ const SECTIONS: SectionDef[] = [
   { id: "product_card", label: "Card de Produto", icon: ShoppingBag, group: "Componentes", pages: ["index", "collection"] },
   { id: "product_page", label: "Página de Produto", icon: Eye, group: "Componentes", pages: ["product"] },
   { id: "category", label: "Página de Categoria", icon: Grid3X3, group: "Componentes", pages: ["collection"] },
-  { id: "cart", label: "Carrinho / Sacola", icon: ShoppingBag, group: "Componentes", pages: ["checkout"] },
+  { id: "cart", label: "Carrinho / Sacola", icon: ShoppingBag, group: "Componentes", pages: ["cart"] },
   { id: "checkout", label: "Checkout", icon: CreditCard, group: "Componentes", pages: ["checkout"] },
   // Settings
   { id: "social", label: "Redes Sociais", icon: Share2, group: "Configurações" },
