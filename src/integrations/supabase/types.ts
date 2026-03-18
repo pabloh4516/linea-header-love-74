@@ -632,6 +632,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_theme_settings: {
+        Args: { new_keys: string[] }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
