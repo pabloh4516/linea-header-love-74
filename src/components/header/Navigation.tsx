@@ -1,7 +1,8 @@
 import { ArrowRight, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import ShoppingBag from "./ShoppingBag";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
 import haloImage from "@/assets/halo.jpg";
