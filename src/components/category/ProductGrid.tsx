@@ -27,13 +27,13 @@ const fallbackProducts = [
 
 export type GridLayout = "standard" | "editorial" | "masonry" | "highlight";
 
-const getAspectClass = (aspect: string) => {
+const getAspectRatio = (aspect: string): string => {
   switch (aspect) {
-    case "square": return "aspect-square";
-    case "4/5": return "aspect-[4/5]";
-    case "2/3": return "aspect-[2/3]";
+    case "square": return "1/1";
+    case "4/5": return "4/5";
+    case "2/3": return "2/3";
     case "3/4":
-    default: return "aspect-[3/4]";
+    default: return "3/4";
   }
 };
 
