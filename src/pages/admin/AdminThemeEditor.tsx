@@ -689,8 +689,8 @@ const AdminThemeEditor = () => {
 
   const handlePageChange = (page: EditorPage) => {
     setSelectedPage(page);
-    iframeRef.current?.setAttribute("src", PAGE_URLS[page]);
-    // Reset to first available section for the new page
+    const pageOpt = PAGE_OPTIONS.find(p => p.value === page);
+    if (pageOpt) iframeRef.current?.setAttribute("src", pageOpt.url);
     const firstAvailable = SECTIONS.find(s => !s.pages || s.pages.includes(page));
     if (firstAvailable) setActiveSection(firstAvailable.id);
   };
@@ -702,6 +702,12 @@ const AdminThemeEditor = () => {
     return acc;
   }, {} as Record<string, SectionDef[]>);
 
+  const pageGroups = PAGE_OPTIONS.reduce((acc, p) => {
+    if (!acc[p.group]) acc[p.group] = [];
+    acc[p.group].push(p);
+    return acc;
+  }, {} as Record<string, PageOption[]>);
+
   return (
     <div className="flex flex-col h-[calc(100vh-7rem)] -m-4 md:-m-6 lg:-m-8">
       {/* Top bar */}
@@ -711,12 +717,17 @@ const AdminThemeEditor = () => {
             {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
           <Select value={selectedPage} onValueChange={(v) => handlePageChange(v as EditorPage)}>
-            <SelectTrigger className="h-8 w-[180px] text-[13px] font-semibold border-none bg-transparent shadow-none hover:bg-[hsl(var(--admin-bg))] focus:ring-0 focus:ring-offset-0">
+            <SelectTrigger className="h-8 w-[200px] text-[13px] font-semibold border-none bg-transparent shadow-none hover:bg-[hsl(var(--admin-bg))] focus:ring-0 focus:ring-offset-0">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {(Object.entries(PAGE_LABELS) as [EditorPage, string][]).map(([value, label]) => (
-                <SelectItem key={value} value={value} className="text-[12px]">{label}</SelectItem>
+              {Object.entries(pageGroups).map(([group, pages]) => (
+                <SelectGroup key={group}>
+                  <SelectLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">{group}</SelectLabel>
+                  {pages.map(p => (
+                    <SelectItem key={p.value} value={p.value} className="text-[12px]">{p.label}</SelectItem>
+                  ))}
+                </SelectGroup>
               ))}
             </SelectContent>
           </Select>
