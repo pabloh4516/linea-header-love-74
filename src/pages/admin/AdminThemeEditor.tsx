@@ -591,7 +591,7 @@ const AdminThemeEditor = () => {
       });
       setTheme(merged);
     }
-  }, [settings]);
+  }, [settings, registryDefaults]);
 
   // Listen for postMessage from iframe
   useEffect(() => {
