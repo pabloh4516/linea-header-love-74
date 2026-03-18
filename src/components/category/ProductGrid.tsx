@@ -162,7 +162,7 @@ const EditorialGrid = ({ products, cardSettings }: { products: any[]; cardSettin
           <div key={rowIndex} className={isLarge ? "grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8" : "grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"}>
             {chunk.map((product, idx) => (
               <ProductCard key={product.id} product={product} index={rowIndex * 3 + idx}
-                aspectOverride={isLarge ? "aspect-[4/5]" : getAspectClass(cardSettings.aspect)} cardSettings={cardSettings} />
+                aspectOverride={isLarge ? "4/5" : undefined} cardSettings={cardSettings} />
             ))}
           </div>
         );
