@@ -10,6 +10,7 @@ import { AuthProvider } from "./hooks/useAuth";
 import Index from "./pages/Index";
 import Category from "./pages/Category";
 import ProductDetail from "./pages/ProductDetail";
+import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import OurStory from "./pages/about/OurStory";
