@@ -1911,24 +1911,6 @@ const HomepageSectionsPanel = ({ sections, iframeRef }: {
     <>
       <SectionTitle>Seções da Homepage</SectionTitle>
 
-      {/* Page selector */}
-      <div className="mt-2">
-        <Label className="text-[10px] text-muted-foreground">Página</Label>
-        <Select defaultValue="index" onValueChange={(val) => {
-          const urls: Record<string, string> = { index: "/", product: "/product/1", collection: "/category/shop" };
-          iframeRef.current?.setAttribute("src", urls[val] || "/");
-        }}>
-          <SelectTrigger className="h-7 text-[11px] mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="index">Página Inicial</SelectItem>
-            <SelectItem value="product">Página de Produto</SelectItem>
-            <SelectItem value="collection">Página de Categoria</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       {/* Drag-and-drop list */}
       <div className="mt-3 border border-[hsl(var(--admin-border))] rounded-lg overflow-hidden">
         {localSections.length === 0 ? (
