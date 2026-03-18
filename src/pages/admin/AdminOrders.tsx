@@ -174,7 +174,7 @@ const AdminOrders = () => {
                       </span>
                     </td>
                     <td className="px-4 py-2.5 text-right">
-                      <span className="text-[13px] font-medium">€{Number(o.total).toFixed(2)}</span>
+                      <span className="text-[13px] font-medium">R${Number(o.total).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                     </td>
                     <td className="px-4 py-2.5" onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
