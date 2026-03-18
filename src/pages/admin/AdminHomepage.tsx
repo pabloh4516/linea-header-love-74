@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Eye, EyeOff, MoreHorizontal, GripVertical, LayoutDashboard } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, MoreHorizontal, GripVertical, LayoutDashboard, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -20,44 +20,178 @@ import {
   arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import type { Json } from "@/integrations/supabase/types";
 
+// ─── Section Types ─────────────────────────────────────────
 const SECTION_TYPES = [
-  { value: "hero", label: "Hero Grande" },
+  { value: "hero", label: "Hero Imersivo" },
+  { value: "large_hero", label: "Hero Grande" },
+  { value: "asymmetric_grid", label: "Grid Assimétrico" },
   { value: "fifty_fifty", label: "50/50" },
   { value: "one_third_two_thirds", label: "1/3 + 2/3" },
   { value: "product_carousel", label: "Carrossel de Produtos" },
   { value: "editorial", label: "Editorial" },
+  { value: "full_width_banner", label: "Banner Full Width" },
+  { value: "story", label: "Nossa História" },
 ];
 
-type SectionForm = {
-  section_type: string; title: string; subtitle: string; description: string;
-  cta_text: string; link_url: string; image_url: string; image_url_2: string;
-  sort_order: string; is_visible: boolean;
+// ─── Section Schema ────────────────────────────────────────
+interface FieldDef {
+  key: string;
+  label: string;
+  type: "text" | "textarea" | "image" | "url";
+}
+
+interface BlockFieldDef {
+  key: string;
+  label: string;
+  type: "text" | "url" | "image";
+}
+
+interface SectionSchema {
+  fields: FieldDef[];
+  blocks?: {
+    label: string;
+    maxItems?: number;
+    schema: BlockFieldDef[];
+  };
+}
+
+const SECTION_SCHEMAS: Record<string, SectionSchema> = {
+  hero: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+      { key: "cta_text", label: "Texto do CTA", type: "text" },
+      { key: "link_url", label: "Link do CTA", type: "url" },
+      { key: "image_url", label: "Imagem de Fundo", type: "image" },
+    ],
+  },
+  large_hero: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+      { key: "image_url", label: "Imagem", type: "image" },
+    ],
+  },
+  asymmetric_grid: {
+    fields: [
+      { key: "title", label: "Título da Seção", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+    ],
+    blocks: {
+      label: "Cards do Grid",
+      maxItems: 5,
+      schema: [
+        { key: "image", label: "Imagem", type: "image" },
+        { key: "title", label: "Título", type: "text" },
+        { key: "subtitle", label: "Subtítulo", type: "text" },
+        { key: "link", label: "Link", type: "url" },
+      ],
+    },
+  },
+  fifty_fifty: {
+    fields: [],
+    blocks: {
+      label: "Items (2 colunas)",
+      maxItems: 2,
+      schema: [
+        { key: "image", label: "Imagem", type: "image" },
+        { key: "title", label: "Título", type: "text" },
+        { key: "subtitle", label: "Descrição", type: "text" },
+        { key: "link", label: "Link", type: "url" },
+      ],
+    },
+  },
+  one_third_two_thirds: {
+    fields: [],
+    blocks: {
+      label: "Items (1/3 + 2/3)",
+      maxItems: 2,
+      schema: [
+        { key: "image", label: "Imagem", type: "image" },
+        { key: "title", label: "Título", type: "text" },
+        { key: "subtitle", label: "Descrição", type: "text" },
+        { key: "link", label: "Link", type: "url" },
+      ],
+    },
+  },
+  product_carousel: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+      { key: "cta_text", label: "Texto do CTA", type: "text" },
+      { key: "link_url", label: "Link do CTA", type: "url" },
+    ],
+  },
+  editorial: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "description", label: "Descrição", type: "textarea" },
+      { key: "cta_text", label: "Texto do CTA", type: "text" },
+      { key: "link_url", label: "Link do CTA", type: "url" },
+      { key: "image_url", label: "Imagem", type: "image" },
+    ],
+  },
+  full_width_banner: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+      { key: "description", label: "Descrição", type: "textarea" },
+      { key: "cta_text", label: "Texto do CTA", type: "text" },
+      { key: "link_url", label: "Link do CTA", type: "url" },
+      { key: "image_url", label: "Imagem de Fundo", type: "image" },
+    ],
+  },
+  story: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+      { key: "description", label: "Descrição", type: "textarea" },
+      { key: "cta_text", label: "Texto do CTA", type: "text" },
+      { key: "link_url", label: "Link do CTA", type: "url" },
+      { key: "image_url", label: "Imagem", type: "image" },
+    ],
+  },
 };
 
-const empty: SectionForm = {
-  section_type: "hero", title: "", subtitle: "", description: "",
+// ─── Types ─────────────────────────────────────────────────
+interface BlockData {
+  [key: string]: string;
+}
+
+interface SectionFormData {
+  section_type: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  cta_text: string;
+  link_url: string;
+  image_url: string;
+  image_url_2: string;
+  sort_order: string;
+  is_visible: boolean;
+  blocks: BlockData[];
+}
+
+const emptyForm: SectionFormData = {
+  section_type: "hero",
+  title: "", subtitle: "", description: "",
   cta_text: "", link_url: "", image_url: "", image_url_2: "",
   sort_order: "0", is_visible: true,
+  blocks: [],
 };
 
+// ─── Sortable Row ──────────────────────────────────────────
 const SortableItem = ({ section, onEdit, onToggle, onDelete }: {
   section: any; onEdit: (s: any) => void; onToggle: (s: any) => void; onDelete: (id: string) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="flex items-center gap-3 px-4 py-3 hover:bg-[hsl(var(--admin-surface-hover))] transition-colors cursor-pointer group border-b border-[hsl(var(--admin-border))] last:border-b-0"
-    >
+    <div ref={setNodeRef} style={style}
+      className="flex items-center gap-3 px-4 py-3 hover:bg-[hsl(var(--admin-surface-hover))] transition-colors cursor-pointer group border-b border-[hsl(var(--admin-border))] last:border-b-0">
       <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none">
         <GripVertical className="h-4 w-4 text-muted-foreground/40" />
       </button>
@@ -97,6 +231,122 @@ const SortableItem = ({ section, onEdit, onToggle, onDelete }: {
   );
 };
 
+// ─── Block Editor ──────────────────────────────────────────
+const BlockEditor = ({ blocks, schema, maxItems, onBlocksChange, onImageUpload, uploading }: {
+  blocks: BlockData[];
+  schema: BlockFieldDef[];
+  maxItems?: number;
+  onBlocksChange: (blocks: BlockData[]) => void;
+  onImageUpload: (file: File) => Promise<string>;
+  uploading: boolean;
+}) => {
+  const [expandedBlock, setExpandedBlock] = useState<number | null>(0);
+
+  const addBlock = () => {
+    if (maxItems && blocks.length >= maxItems) return;
+    const newBlock: BlockData = {};
+    schema.forEach(f => { newBlock[f.key] = ""; });
+    onBlocksChange([...blocks, newBlock]);
+    setExpandedBlock(blocks.length);
+  };
+
+  const removeBlock = (index: number) => {
+    onBlocksChange(blocks.filter((_, i) => i !== index));
+  };
+
+  const updateBlock = (index: number, key: string, value: string) => {
+    const updated = [...blocks];
+    updated[index] = { ...updated[index], [key]: value };
+    onBlocksChange(updated);
+  };
+
+  const moveBlock = (index: number, direction: "up" | "down") => {
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= blocks.length) return;
+    const updated = [...blocks];
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+    onBlocksChange(updated);
+    setExpandedBlock(newIndex);
+  };
+
+  return (
+    <div className="space-y-2">
+      {blocks.map((block, index) => (
+        <div key={index} className="border border-[hsl(var(--admin-border))] rounded-lg overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2 bg-[hsl(var(--admin-bg))] cursor-pointer"
+            onClick={() => setExpandedBlock(expandedBlock === index ? null : index)}>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-medium text-muted-foreground">#{index + 1}</span>
+              <span className="text-[12px] font-medium text-foreground truncate">
+                {block.title || `Item ${index + 1}`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              {index > 0 && (
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); moveBlock(index, "up"); }}>
+                  <ChevronUp className="h-3 w-3" />
+                </Button>
+              )}
+              {index < blocks.length - 1 && (
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); moveBlock(index, "down"); }}>
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={(e) => { e.stopPropagation(); removeBlock(index); }}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+              {expandedBlock === index ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
+            </div>
+          </div>
+          {expandedBlock === index && (
+            <div className="p-3 space-y-3">
+              {schema.map((field) => (
+                <div key={field.key} className="space-y-1">
+                  <Label className="text-[11px] text-muted-foreground">{field.label}</Label>
+                  {field.type === "image" ? (
+                    <div className="space-y-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        disabled={uploading}
+                        className="h-8 text-[11px]"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            const url = await onImageUpload(file);
+                            updateBlock(index, field.key, url);
+                          } catch { toast.error("Erro ao enviar imagem"); }
+                        }}
+                      />
+                      {block[field.key] && (
+                        <img src={block[field.key]} alt="" className="w-14 h-14 object-cover rounded-lg border border-[hsl(var(--admin-border))]" />
+                      )}
+                    </div>
+                  ) : (
+                    <Input
+                      value={block[field.key] || ""}
+                      onChange={(e) => updateBlock(index, field.key, e.target.value)}
+                      className="h-8 text-[12px]"
+                      placeholder={field.label}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+      {(!maxItems || blocks.length < maxItems) && (
+        <Button variant="outline" size="sm" onClick={addBlock} className="w-full h-8 text-[12px] rounded-lg">
+          <Plus className="h-3 w-3 mr-1" /> Adicionar Item
+        </Button>
+      )}
+    </div>
+  );
+};
+
+// ─── Main Component ────────────────────────────────────────
 const AdminHomepage = () => {
   const { data: sections, isLoading } = useHomepageSections();
   const updateSection = useUpdateSection();
@@ -106,7 +356,7 @@ const AdminHomepage = () => {
 
   const [open, setOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [form, setForm] = useState<SectionForm>(empty);
+  const [form, setForm] = useState<SectionFormData>(emptyForm);
   const [uploading, setUploading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -115,13 +365,19 @@ const AdminHomepage = () => {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const openNew = () => { setForm(empty); setEditId(null); setOpen(true); };
+  const openNew = () => { setForm(emptyForm); setEditId(null); setOpen(true); };
+
   const openEdit = (s: any) => {
+    const config = (s.config && typeof s.config === "object" && !Array.isArray(s.config)) ? s.config as Record<string, Json | undefined> : {};
+    const blocks = Array.isArray(config.blocks) ? (config.blocks as BlockData[]) : [];
+
     setForm({
-      section_type: s.section_type, title: s.title || "", subtitle: s.subtitle || "",
-      description: s.description || "", cta_text: s.cta_text || "", link_url: s.link_url || "",
-      image_url: s.image_url || "", image_url_2: s.image_url_2 || "",
-      sort_order: String(s.sort_order), is_visible: s.is_visible,
+      section_type: s.section_type,
+      title: s.title || "", subtitle: s.subtitle || "",
+      description: s.description || "", cta_text: s.cta_text || "",
+      link_url: s.link_url || "", image_url: s.image_url || "",
+      image_url_2: s.image_url_2 || "", sort_order: String(s.sort_order),
+      is_visible: s.is_visible, blocks,
     });
     setEditId(s.id);
     setOpen(true);
@@ -135,13 +391,27 @@ const AdminHomepage = () => {
       const url = await upload(file);
       setForm((f) => ({ ...f, [field]: url }));
       toast.success("Imagem enviada!");
-    } catch {
-      toast.error("Erro ao enviar imagem");
-    }
+    } catch { toast.error("Erro ao enviar imagem"); }
     setUploading(false);
   };
 
+  const handleBlockImageUpload = async (file: File): Promise<string> => {
+    setUploading(true);
+    try {
+      const url = await upload(file);
+      toast.success("Imagem enviada!");
+      return url;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
+    const config: Record<string, Json> = {};
+    if (form.blocks.length > 0) {
+      config.blocks = form.blocks as unknown as Json;
+    }
+
     const payload = {
       section_type: form.section_type,
       title: form.title || null, subtitle: form.subtitle || null,
@@ -149,7 +419,9 @@ const AdminHomepage = () => {
       link_url: form.link_url || null, image_url: form.image_url || null,
       image_url_2: form.image_url_2 || null,
       sort_order: parseInt(form.sort_order) || 0, is_visible: form.is_visible,
+      config: Object.keys(config).length > 0 ? config : null,
     };
+
     try {
       if (editId) {
         await updateSection.mutateAsync({ id: editId, ...payload });
@@ -159,9 +431,7 @@ const AdminHomepage = () => {
         toast.success("Seção criada!");
       }
       setOpen(false);
-    } catch {
-      toast.error("Erro ao salvar");
-    }
+    } catch { toast.error("Erro ao salvar"); }
   };
 
   const toggleVisibility = async (s: any) => {
@@ -173,20 +443,15 @@ const AdminHomepage = () => {
     try {
       await deleteSection.mutateAsync(id);
       toast.success("Seção deletada!");
-    } catch {
-      toast.error("Erro ao deletar");
-    }
+    } catch { toast.error("Erro ao deletar"); }
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id || !sections) return;
-
     const oldIndex = sections.findIndex(s => s.id === active.id);
     const newIndex = sections.findIndex(s => s.id === over.id);
     const reordered = arrayMove(sections, oldIndex, newIndex);
-
-    // Update sort_order for all affected sections
     for (let i = 0; i < reordered.length; i++) {
       if (reordered[i].sort_order !== i) {
         await updateSection.mutateAsync({ id: reordered[i].id, sort_order: i });
@@ -200,6 +465,7 @@ const AdminHomepage = () => {
   }
 
   const sortedSections = sections ? [...sections].sort((a, b) => a.sort_order - b.sort_order) : [];
+  const currentSchema = SECTION_SCHEMAS[form.section_type];
 
   return (
     <div className={`${showPreview ? "flex gap-4 h-[calc(100vh-7rem)] -m-4 md:-m-6 lg:-m-8" : "space-y-5"}`}>
@@ -242,60 +508,91 @@ const AdminHomepage = () => {
         </div>
       </div>
 
-      {/* Live preview */}
       {showPreview && (
         <div className="flex-1 bg-[hsl(var(--admin-bg))] rounded-xl overflow-hidden border border-[hsl(var(--admin-border))]">
           <iframe src="/" className="w-full h-full border-0" title="Homepage Preview" />
         </div>
       )}
 
-      {/* Section form dialog */}
+      {/* Section form dialog with dynamic schema */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl">
           <DialogHeader>
             <DialogTitle className="text-[15px] font-semibold">{editId ? "Editar Seção" : "Adicionar Seção"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-5">
-            <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-4">
+            {/* Section type selector */}
+            <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-3">
               <div className="space-y-1.5">
                 <Label className="text-[13px]">Tipo de seção</Label>
-                <Select value={form.section_type} onValueChange={(v) => setForm(f => ({ ...f, section_type: v }))}>
+                <Select value={form.section_type} onValueChange={(v) => setForm(f => ({ ...f, section_type: v, blocks: [] }))}>
                   <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
                   <SelectContent>{SECTION_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5"><Label className="text-[12px] text-muted-foreground">Título</Label><Input value={form.title} onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))} className="h-9 text-[13px]" /></div>
-                <div className="space-y-1.5"><Label className="text-[12px] text-muted-foreground">Subtítulo</Label><Input value={form.subtitle} onChange={(e) => setForm(f => ({ ...f, subtitle: e.target.value }))} className="h-9 text-[13px]" /></div>
-              </div>
-              <div className="space-y-1.5"><Label className="text-[12px] text-muted-foreground">Descrição</Label><Textarea value={form.description} onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))} className="text-[13px] min-h-[60px]" /></div>
             </div>
-            <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-4">
-              <h3 className="text-[13px] font-semibold">Mídia e Links</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5"><Label className="text-[12px] text-muted-foreground">Texto do CTA</Label><Input value={form.cta_text} onChange={(e) => setForm(f => ({ ...f, cta_text: e.target.value }))} className="h-9 text-[13px]" /></div>
-                <div className="space-y-1.5"><Label className="text-[12px] text-muted-foreground">Link URL</Label><Input value={form.link_url} onChange={(e) => setForm(f => ({ ...f, link_url: e.target.value }))} className="h-9 text-[13px]" /></div>
+
+            {/* Dynamic fields based on schema */}
+            {currentSchema && currentSchema.fields.length > 0 && (
+              <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-4">
+                <h3 className="text-[13px] font-semibold">Conteúdo</h3>
+                {currentSchema.fields.map((field) => (
+                  <div key={field.key} className="space-y-1.5">
+                    <Label className="text-[12px] text-muted-foreground">{field.label}</Label>
+                    {field.type === "textarea" ? (
+                      <Textarea
+                        value={(form as any)[field.key] || ""}
+                        onChange={(e) => setForm(f => ({ ...f, [field.key]: e.target.value }))}
+                        className="text-[13px] min-h-[60px]"
+                      />
+                    ) : field.type === "image" ? (
+                      <div className="space-y-2">
+                        <Input type="file" accept="image/*" disabled={uploading} className="h-9 text-[12px]"
+                          onChange={(e) => handleImageUpload(e, field.key as "image_url" | "image_url_2")} />
+                        {(form as any)[field.key] && (
+                          <img src={(form as any)[field.key]} alt="" className="w-16 h-16 object-cover rounded-lg border border-[hsl(var(--admin-border))]" />
+                        )}
+                      </div>
+                    ) : (
+                      <Input
+                        value={(form as any)[field.key] || ""}
+                        onChange={(e) => setForm(f => ({ ...f, [field.key]: e.target.value }))}
+                        className="h-9 text-[13px]"
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-[12px] text-muted-foreground">Imagem 1</Label>
-                  <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "image_url")} disabled={uploading} className="h-9 text-[12px]" />
-                  {form.image_url && <img src={form.image_url} alt="" className="w-16 h-16 object-cover rounded-lg border border-[hsl(var(--admin-border))]" />}
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-[12px] text-muted-foreground">Imagem 2</Label>
-                  <Input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "image_url_2")} disabled={uploading} className="h-9 text-[12px]" />
-                  {form.image_url_2 && <img src={form.image_url_2} alt="" className="w-16 h-16 object-cover rounded-lg border border-[hsl(var(--admin-border))]" />}
-                </div>
+            )}
+
+            {/* Blocks editor */}
+            {currentSchema?.blocks && (
+              <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-3">
+                <h3 className="text-[13px] font-semibold">{currentSchema.blocks.label}</h3>
+                <BlockEditor
+                  blocks={form.blocks}
+                  schema={currentSchema.blocks.schema}
+                  maxItems={currentSchema.blocks.maxItems}
+                  onBlocksChange={(blocks) => setForm(f => ({ ...f, blocks }))}
+                  onImageUpload={handleBlockImageUpload}
+                  uploading={uploading}
+                />
               </div>
-            </div>
+            )}
+
+            {/* Visibility toggle */}
             <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-3">
-              <div className="flex items-center justify-between"><Label className="text-[13px]">Visível na homepage</Label><Switch checked={form.is_visible} onCheckedChange={(v) => setForm(f => ({ ...f, is_visible: v }))} /></div>
+              <div className="flex items-center justify-between">
+                <Label className="text-[13px]">Visível na homepage</Label>
+                <Switch checked={form.is_visible} onCheckedChange={(v) => setForm(f => ({ ...f, is_visible: v }))} />
+              </div>
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-4 border-t border-[hsl(var(--admin-border))]">
             <Button variant="outline" onClick={() => setOpen(false)} className="h-8 text-[13px] rounded-lg">Descartar</Button>
-            <Button onClick={handleSave} disabled={createSection.isPending || updateSection.isPending} className="h-8 text-[13px] rounded-lg">{editId ? "Salvar" : "Adicionar"}</Button>
+            <Button onClick={handleSave} disabled={createSection.isPending || updateSection.isPending} className="h-8 text-[13px] rounded-lg">
+              {editId ? "Salvar" : "Adicionar"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
