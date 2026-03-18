@@ -18,7 +18,7 @@ import {
   Globe, Menu, AlignCenter, Layers, Eye, EyeOff, ArrowUp, Megaphone, Grid3X3, Search,
   Share2, Code, MousePointer, Sparkles, Home, Plus, Trash2, GripVertical, ArrowLeft,
   ChevronDown, ChevronUp, FileText, Video, MessageSquare, Mail, Columns, HelpCircle,
-  SeparatorHorizontal, Star, LayoutGrid, Settings,
+  SeparatorHorizontal, Star, LayoutGrid, Settings, Shield, Tag, Hash,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Link } from "react-router-dom";
