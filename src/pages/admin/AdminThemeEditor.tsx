@@ -441,33 +441,53 @@ type SectionId =
   | "category" | "cart" | "footer" | "checkout"
   | "effects" | "social" | "seo" | "custom_css";
 
+type EditorPage = "index" | "product" | "collection";
+
 interface SectionDef {
   id: SectionId;
   label: string;
   icon: typeof Palette;
   group: string;
+  pages?: EditorPage[]; // if undefined, show on all pages
 }
 
 const SECTIONS: SectionDef[] = [
-  { id: "presets", label: "Presets de Tema", icon: Sparkles, group: "Início Rápido" },
-  { id: "homepage_sections", label: "Seções da Homepage", icon: Home, group: "Início Rápido" },
+  // Homepage-only
+  { id: "presets", label: "Presets de Tema", icon: Sparkles, group: "Início Rápido", pages: ["index"] },
+  { id: "homepage_sections", label: "Seções da Homepage", icon: Home, group: "Início Rápido", pages: ["index"] },
+  // Global design
   { id: "colors", label: "Cores", icon: Palette, group: "Design" },
   { id: "typography", label: "Tipografia", icon: Type, group: "Design" },
   { id: "layout", label: "Layout & Espaçamento", icon: Layout, group: "Design" },
   { id: "buttons", label: "Botões", icon: Square, group: "Design" },
   { id: "effects", label: "Animações & Efeitos", icon: Layers, group: "Design" },
-  { id: "statusbar", label: "Barra de Anúncio", icon: Megaphone, group: "Seções" },
-  { id: "header", label: "Cabeçalho / Navegação", icon: Menu, group: "Seções" },
-  { id: "product_card", label: "Card de Produto", icon: ShoppingBag, group: "Seções" },
-  { id: "product_page", label: "Página de Produto", icon: Eye, group: "Seções" },
-  { id: "category", label: "Página de Categoria", icon: Grid3X3, group: "Seções" },
-  { id: "cart", label: "Carrinho / Sacola", icon: ShoppingBag, group: "Seções" },
-  { id: "footer", label: "Rodapé", icon: ArrowUp, group: "Seções" },
-  { id: "checkout", label: "Checkout", icon: CreditCard, group: "Seções" },
+  // Global sections
+  { id: "statusbar", label: "Barra de Anúncio", icon: Megaphone, group: "Seções Globais" },
+  { id: "header", label: "Cabeçalho / Navegação", icon: Menu, group: "Seções Globais" },
+  { id: "footer", label: "Rodapé", icon: ArrowUp, group: "Seções Globais" },
+  // Page-specific
+  { id: "product_card", label: "Card de Produto", icon: ShoppingBag, group: "Componentes", pages: ["index", "collection"] },
+  { id: "product_page", label: "Página de Produto", icon: Eye, group: "Componentes", pages: ["product"] },
+  { id: "category", label: "Página de Categoria", icon: Grid3X3, group: "Componentes", pages: ["collection"] },
+  { id: "cart", label: "Carrinho / Sacola", icon: ShoppingBag, group: "Componentes" },
+  { id: "checkout", label: "Checkout", icon: CreditCard, group: "Componentes" },
+  // Settings
   { id: "social", label: "Redes Sociais", icon: Share2, group: "Configurações" },
   { id: "seo", label: "SEO & Meta Tags", icon: Search, group: "Configurações" },
   { id: "custom_css", label: "CSS Personalizado", icon: Code, group: "Configurações" },
 ];
+
+const PAGE_LABELS: Record<EditorPage, string> = {
+  index: "Página Inicial",
+  product: "Página de Produto",
+  collection: "Página de Categoria",
+};
+
+const PAGE_URLS: Record<EditorPage, string> = {
+  index: "/",
+  product: "/product/1",
+  collection: "/category/shop",
+};
 
 // Map iframe section clicks to editor sections
 const INLINE_SECTION_MAP: Record<string, SectionId> = {
@@ -584,6 +604,7 @@ const AdminThemeEditor = () => {
   const [activeSection, setActiveSection] = useState<SectionId>("presets");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [inlineEditMode, setInlineEditMode] = useState(true);
+  const [selectedPage, setSelectedPage] = useState<EditorPage>("index");
 
   useEffect(() => {
     if (settings) {
@@ -656,7 +677,16 @@ const AdminThemeEditor = () => {
     );
   }
 
-  const groups = SECTIONS.reduce((acc, s) => {
+  const handlePageChange = (page: EditorPage) => {
+    setSelectedPage(page);
+    iframeRef.current?.setAttribute("src", PAGE_URLS[page]);
+    // Reset to first available section for the new page
+    const firstAvailable = SECTIONS.find(s => !s.pages || s.pages.includes(page));
+    if (firstAvailable) setActiveSection(firstAvailable.id);
+  };
+
+  const filteredSections = SECTIONS.filter(s => !s.pages || s.pages.includes(selectedPage));
+  const groups = filteredSections.reduce((acc, s) => {
     if (!acc[s.group]) acc[s.group] = [];
     acc[s.group].push(s);
     return acc;
@@ -666,12 +696,21 @@ const AdminThemeEditor = () => {
     <div className="flex flex-col h-[calc(100vh-7rem)] -m-4 md:-m-6 lg:-m-8">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] shrink-0">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-1 rounded hover:bg-[hsl(var(--admin-bg))]">
             {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
-          <h1 className="text-[15px] font-semibold">Editor de Tema</h1>
-          <span className="text-[11px] text-muted-foreground ml-2">
+          <Select value={selectedPage} onValueChange={(v) => handlePageChange(v as EditorPage)}>
+            <SelectTrigger className="h-8 w-[180px] text-[13px] font-semibold border-none bg-transparent shadow-none hover:bg-[hsl(var(--admin-bg))] focus:ring-0 focus:ring-offset-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.entries(PAGE_LABELS) as [EditorPage, string][]).map(([value, label]) => (
+                <SelectItem key={value} value={value} className="text-[12px]">{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span className="text-[11px] text-muted-foreground">
             {SECTIONS.find(s => s.id === activeSection)?.label}
           </span>
         </div>
@@ -1871,24 +1910,6 @@ const HomepageSectionsPanel = ({ sections, iframeRef }: {
   return (
     <>
       <SectionTitle>Seções da Homepage</SectionTitle>
-
-      {/* Page selector */}
-      <div className="mt-2">
-        <Label className="text-[10px] text-muted-foreground">Página</Label>
-        <Select defaultValue="index" onValueChange={(val) => {
-          const urls: Record<string, string> = { index: "/", product: "/product/1", collection: "/category/shop" };
-          iframeRef.current?.setAttribute("src", urls[val] || "/");
-        }}>
-          <SelectTrigger className="h-7 text-[11px] mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="index">Página Inicial</SelectItem>
-            <SelectItem value="product">Página de Produto</SelectItem>
-            <SelectItem value="collection">Página de Categoria</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
 
       {/* Drag-and-drop list */}
       <div className="mt-3 border border-[hsl(var(--admin-border))] rounded-lg overflow-hidden">
