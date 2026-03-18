@@ -683,7 +683,12 @@ const AdminThemeEditor = () => {
       if (sectionDrilldown) return "Editar Seção";
       return null;
     }
-    if (settingsDrilldown) {
+    if (settingsDrilldown !== null && settingsDrilldown !== undefined) {
+      // Check theme registry groups first
+      const themeGroups = themeRegistry.getGlobalSettingsSchema();
+      if (themeGroups.length > 0 && typeof settingsDrilldown === "number") {
+        return themeGroups[settingsDrilldown]?.name || null;
+      }
       return SETTINGS_GROUPS.find(s => s.id === settingsDrilldown)?.label || null;
     }
     return null;
