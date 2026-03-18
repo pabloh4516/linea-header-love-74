@@ -182,7 +182,8 @@ const Checkout = () => {
   
   const shipping = getShippingCost();
   const discount = getDiscount();
-  const total = Math.max(0, subtotal - discount + shipping);
+  const bumpsTotal = getBumpsTotal();
+  const total = Math.max(0, subtotal + bumpsTotal - discount + shipping);
 
   const handleApplyCoupon = async () => {
     const code = discountCode.trim().toUpperCase();
