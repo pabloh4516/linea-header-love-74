@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
 import { useHomepageSections, useUpdateSection, useCreateSection, useDeleteSection } from "@/hooks/useHomepageSections";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { useActiveThemeSync } from "@/hooks/useActiveThemeSync";
+import { useThemeSync } from "@/hooks/useActiveThemeSync";
 import { usePageTemplate, useSavePageTemplate } from "@/hooks/usePageTemplates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
