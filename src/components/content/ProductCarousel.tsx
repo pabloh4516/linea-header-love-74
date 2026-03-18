@@ -70,7 +70,7 @@ const ProductCarousel = ({ showHeader = true }: ProductCarouselProps) => {
   }
 
   return (
-    <section className={sectionClassName}>
+    <section data-theme-section="product-carousel" className={sectionClassName}>
       {showHeader && (
         <motion.div
           ref={titleRef}
