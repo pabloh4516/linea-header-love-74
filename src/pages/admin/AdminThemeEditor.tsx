@@ -337,9 +337,11 @@ const AdminThemeEditor = () => {
   const applyToIframe = useCallback((t: Record<string, string>) => {
     const iframe = iframeRef.current;
     if (!iframe?.contentWindow) return;
-    // Send theme data via postMessage so the ThemeApplicator inside the iframe can apply it
     iframe.contentWindow.postMessage({ type: "theme-preview-update", theme: t }, "*");
-  }, []);
+    if (inlineEditMode) {
+      iframe.contentWindow.postMessage({ type: "theme-enable-inline-edit", script: INLINE_EDIT_SCRIPT }, "*");
+    }
+  }, [inlineEditMode]);
 
   const updateTheme = (key: string, value: string) => {
     const newTheme = { ...theme, [key]: value };
