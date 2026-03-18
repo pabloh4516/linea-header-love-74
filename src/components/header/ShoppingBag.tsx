@@ -130,7 +130,7 @@ const ShoppingBag = ({ isOpen, onClose, cartItems, updateQuantity, onViewFavorit
                 <p className="text-xs text-muted-foreground">Frete e impostos calculados no checkout</p>
 
                 <Button asChild className="w-full" size="lg" onClick={onClose} style={btnStyle}>
-                  <Link to="/checkout">{theme.cartCtaText}</Link>
+                  <Link to="/cart">{theme.cartCtaText}</Link>
                 </Button>
 
                 {theme.cartShowContinue && (
