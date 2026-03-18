@@ -445,7 +445,7 @@ const ThemeCard = ({
   onDelete: (t: Theme) => void;
   installing: boolean;
 }) => {
-  const settings = (theme.settings || {}) as Record<string, string>;
+  const settings = (theme.settings_data || {}) as Record<string, string>;
 
   return (
     <div className="bg-[hsl(var(--admin-surface))] rounded-xl border border-[hsl(var(--admin-border))] overflow-hidden hover:border-foreground/20 transition-colors group">
