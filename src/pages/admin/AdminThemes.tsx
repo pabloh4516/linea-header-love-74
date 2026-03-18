@@ -145,6 +145,10 @@ const AdminThemes = () => {
         ...themeDefaults,
         ...((theme.settings_data || {}) as Record<string, string>),
       };
+      // Clean up legacy theme_* keys that don't belong to the new theme
+      const newKeys = Object.keys(settings);
+      await supabase.rpc("cleanup_theme_settings" as any, { new_keys: newKeys });
+      // Apply new theme settings
       for (const [key, value] of Object.entries(settings)) {
         await updateSetting.mutateAsync({ key, value });
       }
