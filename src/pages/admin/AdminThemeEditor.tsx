@@ -645,8 +645,8 @@ const AdminThemeEditor = () => {
   };
 
   const handleReset = () => {
-    setTheme(DEFAULTS);
-    applyToIframe(DEFAULTS);
+    setTheme(registryDefaults);
+    applyToIframe(registryDefaults);
   };
 
   const handleIframeLoad = () => applyToIframe(theme);

@@ -145,6 +145,9 @@ const AdminThemes = () => {
         ...themeDefaults,
         ...((theme.settings_data || {}) as Record<string, string>),
       };
+      for (const [key, value] of Object.entries(settings)) {
+        await updateSetting.mutateAsync({ key, value });
+      }
       await activateTheme.mutateAsync(theme.id);
       toast.success(`Tema "${theme.name}" ativado com sucesso!`);
       // Force reload to re-sync theme registry
