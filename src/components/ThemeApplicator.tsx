@@ -1,19 +1,7 @@
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
-/**
- * Reads saved theme settings from the database and applies them
- * as CSS custom properties on the document root element.
- * This makes the theme editor changes take effect on the live store.
- */
-const THEME_CSS_MAP: Record<string, (value: string, set: (prop: string, val: string) => void) => void> = {
-  // Core colors
-  theme_primary_h: (v, s) => s("--primary", `${v} VAR_S VAR_L`),
-  theme_bg_h: (v, s) => s("--background", `${v} VAR_S VAR_L`),
-  // We handle color groups specially below
-};
-
-// Color groups: setting key prefix → CSS variable name
 const COLOR_GROUPS = [
   { prefix: "theme_primary", cssVar: "--primary", fgVar: "--primary-foreground" },
   { prefix: "theme_bg", cssVar: "--background", cardVar: "--card", popoverVar: "--popover" },
@@ -30,6 +18,30 @@ const COLOR_GROUPS = [
   { prefix: "theme_footer_fg", cssVar: "--footer-fg" },
 ];
 
+const SIMPLE_VAR_MAP: Record<string, { prop: string; unit: string }> = {
+  theme_nav_height: { prop: "--nav-height", unit: "px" },
+  theme_nav_logo_height: { prop: "--nav-logo-height", unit: "px" },
+  theme_statusbar_height: { prop: "--status-bar-height", unit: "px" },
+  theme_statusbar_font_size: { prop: "--status-bar-font-size", unit: "px" },
+  theme_spacing_section: { prop: "--section-spacing", unit: "px" },
+  theme_max_width: { prop: "--max-width", unit: "px" },
+  theme_button_radius: { prop: "--button-radius", unit: "px" },
+  theme_button_height: { prop: "--button-height", unit: "px" },
+  theme_button_font_size: { prop: "--button-font-size", unit: "px" },
+  theme_button_letter_spacing: { prop: "--button-letter-spacing", unit: "em" },
+  theme_button_font_weight: { prop: "--button-font-weight", unit: "" },
+  theme_card_gap: { prop: "--card-gap", unit: "px" },
+  theme_card_columns_desktop: { prop: "--card-columns-desktop", unit: "" },
+  theme_card_columns_mobile: { prop: "--card-columns-mobile", unit: "" },
+  theme_cart_width: { prop: "--cart-width", unit: "px" },
+  theme_heading_weight: { prop: "--heading-weight", unit: "" },
+  theme_body_weight: { prop: "--body-weight", unit: "" },
+  theme_letter_spacing_editorial: { prop: "--letter-spacing-editorial", unit: "em" },
+  theme_transition_speed: { prop: "--transition-speed", unit: "ms" },
+  theme_hover_scale: { prop: "--hover-scale", unit: "" },
+  theme_overlay_opacity: { prop: "--overlay-opacity", unit: "" },
+};
+
 const applyTheme = (settings: Record<string, string>) => {
   const root = document.documentElement;
   const set = (prop: string, val: string) => root.style.setProperty(prop, val);
@@ -42,12 +54,9 @@ const applyTheme = (settings: Record<string, string>) => {
     if (h && s && l) {
       const hslVal = `${h} ${s}% ${l}%`;
       set(group.cssVar, hslVal);
-
       if ("fgVar" in group && group.fgVar) {
         if (group.prefix === "theme_primary") {
-          const bgH = settings.theme_bg_h;
-          const bgS = settings.theme_bg_s;
-          const bgL = settings.theme_bg_l;
+          const bgH = settings.theme_bg_h, bgS = settings.theme_bg_s, bgL = settings.theme_bg_l;
           if (bgH && bgS && bgL) set(group.fgVar, `${bgH} ${bgS}% ${bgL}%`);
         } else if (group.prefix === "theme_muted") {
           set(group.fgVar, `${h} ${s}% 45%`);
@@ -62,12 +71,19 @@ const applyTheme = (settings: Record<string, string>) => {
     }
   }
 
+  // Simple CSS variable mappings
+  for (const [key, { prop, unit }] of Object.entries(SIMPLE_VAR_MAP)) {
+    if (settings[key]) {
+      set(prop, `${settings[key]}${unit}`);
+    }
+  }
+
   // Border radius
   if (settings.theme_border_radius) {
     set("--radius", `${settings.theme_border_radius}rem`);
   }
 
-  // Typography - load Google Fonts and apply
+  // Font families
   const fontDisplay = settings.theme_font_display;
   const fontBody = settings.theme_font_body;
   if (fontDisplay || fontBody) {
@@ -80,7 +96,9 @@ const applyTheme = (settings: Record<string, string>) => {
     link.href = `https://fonts.googleapis.com/css2?${fonts.map(f => `family=${f!.replace(/ /g, "+")}:wght@200;300;400;500;600;700`).join("&")}&display=swap`;
     document.head.appendChild(link);
   }
+  if (fontDisplay) set("--font-display", `'${fontDisplay}', sans-serif`);
   if (fontBody) {
+    set("--font-body", `'${fontBody}', sans-serif`);
     root.style.fontFamily = `'${fontBody}', sans-serif`;
   }
 
@@ -97,20 +115,21 @@ const applyTheme = (settings: Record<string, string>) => {
 
 const ThemeApplicator = () => {
   const { data: settings } = useSiteSettings();
+  const queryClient = useQueryClient();
   const isAdmin = window.location.pathname.startsWith("/admin");
 
-  // Apply saved settings from database — only on storefront pages
   useEffect(() => {
     if (!settings || isAdmin) return;
     applyTheme(settings);
   }, [settings, isAdmin]);
 
-  // Listen for real-time preview updates from the theme editor via postMessage
-  // (this runs inside the iframe preview, which is always "/" — not /admin)
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (e.data?.type === "theme-preview-update" && e.data.theme) {
         applyTheme(e.data.theme);
+      }
+      if (e.data?.type === "theme-content-refresh") {
+        queryClient.invalidateQueries({ queryKey: ["homepage-sections"] });
       }
       if (e.data?.type === "theme-enable-inline-edit" && e.data.script) {
         if (!document.getElementById("theme-inline-edit")) {
@@ -123,7 +142,7 @@ const ThemeApplicator = () => {
     };
     window.addEventListener("message", handler);
     return () => window.removeEventListener("message", handler);
-  }, []);
+  }, [queryClient]);
 
   return null;
 };

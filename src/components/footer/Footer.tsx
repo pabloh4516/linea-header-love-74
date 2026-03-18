@@ -1,9 +1,40 @@
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const Footer = () => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const { data: settings } = useSiteSettings();
+
+  const s = useMemo(() => ({
+    tagline: settings?.theme_footer_tagline || "Joias minimalistas feitas para o indivíduo moderno",
+    address1: settings?.theme_footer_address_line1 || "Rua Oscar Freire, 123",
+    address2: settings?.theme_footer_address_line2 || "São Paulo, SP 01426-001",
+    phone: settings?.theme_footer_phone || "+55 (11) 3456-7890",
+    email: settings?.theme_footer_email || "contato@lineajewelry.com.br",
+    copyright: settings?.theme_footer_copyright || "© 2024 Linea. Todos os direitos reservados.",
+    showSocial: settings?.theme_footer_show_social !== "false",
+    showNewsletter: settings?.theme_footer_show_newsletter === "true",
+    showPayment: settings?.theme_footer_show_payment_icons === "true",
+    instagram: settings?.theme_social_instagram || "",
+    pinterest: settings?.theme_social_pinterest || "",
+    facebook: settings?.theme_social_facebook || "",
+    tiktok: settings?.theme_social_tiktok || "",
+    twitter: settings?.theme_social_twitter || "",
+    youtube: settings?.theme_social_youtube || "",
+  }), [settings]);
+
+  const socialLinks = useMemo(() => {
+    const links: { name: string; url: string }[] = [];
+    if (s.instagram) links.push({ name: "Instagram", url: s.instagram });
+    if (s.pinterest) links.push({ name: "Pinterest", url: s.pinterest });
+    if (s.facebook) links.push({ name: "Facebook", url: s.facebook });
+    if (s.tiktok) links.push({ name: "TikTok", url: s.tiktok });
+    if (s.twitter) links.push({ name: "Twitter", url: s.twitter });
+    if (s.youtube) links.push({ name: "YouTube", url: s.youtube });
+    return links;
+  }, [s]);
 
   return (
     <footer data-theme-section="footer" className="w-full bg-foreground text-background pt-16 pb-4 px-6 md:px-12 mt-0">
@@ -15,25 +46,25 @@ const Footer = () => {
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
           <div>
-            <img 
-              src="/Linea_Jewelry_Inc-2.svg" 
-              alt="Linea Jewelry Inc." 
+            <img
+              src="/Linea_Jewelry_Inc-2.svg"
+              alt="Linea Jewelry Inc."
               className="mb-6 h-6 w-auto invert"
             />
             <p className="text-sm font-light text-background/60 leading-relaxed max-w-md mb-8">
-              Joias minimalistas feitas para o indivíduo moderno
+              {s.tagline}
             </p>
-            
+
             <div className="space-y-2 text-sm font-light text-background/60">
               <div>
                 <p className="font-normal text-background/80 mb-1">Visite-nos</p>
-                <p>Rua Oscar Freire, 123</p>
-                <p>São Paulo, SP 01426-001</p>
+                <p>{s.address1}</p>
+                <p>{s.address2}</p>
               </div>
               <div>
                 <p className="font-normal text-background/80 mb-1 mt-4">Contato</p>
-                <p>+55 (11) 3456-7890</p>
-                <p>contato@lineajewelry.com.br</p>
+                <p>{s.phone}</p>
+                <p>{s.email}</p>
               </div>
             </div>
           </div>
@@ -64,9 +95,23 @@ const Footer = () => {
             <div>
               <h4 className="text-editorial text-[10px] tracking-[0.15em] text-background/80 mb-5">Conecte-se</h4>
               <ul className="space-y-3">
-                <li><a href="#" className="text-sm font-light text-background/50 hover:text-background transition-colors duration-300">Instagram</a></li>
-                <li><a href="#" className="text-sm font-light text-background/50 hover:text-background transition-colors duration-300">Pinterest</a></li>
-                <li><a href="#" className="text-sm font-light text-background/50 hover:text-background transition-colors duration-300">Newsletter</a></li>
+                {s.showSocial && socialLinks.length > 0 ? (
+                  socialLinks.map((link) => (
+                    <li key={link.name}>
+                      <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm font-light text-background/50 hover:text-background transition-colors duration-300">
+                        {link.name}
+                      </a>
+                    </li>
+                  ))
+                ) : (
+                  <>
+                    <li><a href="#" className="text-sm font-light text-background/50 hover:text-background transition-colors duration-300">Instagram</a></li>
+                    <li><a href="#" className="text-sm font-light text-background/50 hover:text-background transition-colors duration-300">Pinterest</a></li>
+                  </>
+                )}
+                {s.showNewsletter && (
+                  <li><a href="#" className="text-sm font-light text-background/50 hover:text-background transition-colors duration-300">Newsletter</a></li>
+                )}
               </ul>
             </div>
           </div>
@@ -76,7 +121,7 @@ const Footer = () => {
       <div className="border-t border-background/10 pt-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <p className="text-xs font-light text-background/40 mb-2 md:mb-0">
-            © 2024 Linea. Todos os direitos reservados. Template por{" "}
+            {s.copyright} Template por{" "}
             <a href="https://www.liljeros.co" target="_blank" rel="noopener noreferrer" className="hover:text-background/70 transition-colors underline">
               Rickard Liljeros
             </a>
