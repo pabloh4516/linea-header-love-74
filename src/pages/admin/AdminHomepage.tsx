@@ -340,7 +340,7 @@ const AdminHomepage = () => {
   }
 
   const sortedSections = sections ? [...sections].sort((a, b) => a.sort_order - b.sort_order) : [];
-  const currentSchema = SECTION_SCHEMAS[form.section_type];
+  const currentSchema = getSectionSchema(form.section_type);
 
   return (
     <div className={`${showPreview ? "flex gap-4 h-[calc(100vh-7rem)] -m-4 md:-m-6 lg:-m-8" : "space-y-5"}`}>
