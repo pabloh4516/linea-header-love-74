@@ -1076,38 +1076,54 @@ const AdminThemeEditor = () => {
                         const newTheme = { ...theme, ...preset.values };
                         setTheme(newTheme);
                         applyToIframe(newTheme);
-                        // If preset has sections, replace homepage sections
+
                         if (preset.sections && preset.sections.length > 0) {
                           try {
-                            // Delete all existing sections
-                            const { data: existing } = await supabase.from("homepage_sections").select("id");
-                            if (existing) {
-                              for (const s of existing) {
-                                await supabase.from("homepage_sections").delete().eq("id", s.id);
-                              }
-                            }
-                            // Create preset sections
-                            for (let i = 0; i < preset.sections.length; i++) {
-                              const ps = preset.sections[i];
-                              await supabase.from("homepage_sections").insert({
-                                section_type: ps.section_type,
-                                title: ps.title || null,
-                                subtitle: ps.subtitle || null,
-                                description: ps.description || null,
-                                cta_text: ps.cta_text || null,
-                                link_url: ps.link_url || null,
-                                image_url: ps.image_url || null,
-                                image_url_2: ps.image_url_2 || null,
-                                config: ps.config ? (ps.config as unknown as Json) : null,
-                                sort_order: i,
+                            const availableSectionTypes = new Set(
+                              themeRegistry.getAvailableSections(activeThemeId ?? undefined).map((section) => section.type)
+                            );
+
+                            const normalizedSections = preset.sections
+                              .filter((section) => availableSectionTypes.size === 0 || availableSectionTypes.has(section.section_type))
+                              .map((section, index) => ({
+                                section_type: section.section_type,
+                                title: section.title || null,
+                                subtitle: section.subtitle || null,
+                                description: section.description || null,
+                                cta_text: section.cta_text || null,
+                                link_url: section.link_url || null,
+                                image_url: section.image_url || null,
+                                image_url_2: section.image_url_2 || null,
+                                config: section.config ? (section.config as unknown as Json) : null,
+                                sort_order: index,
                                 is_visible: true,
-                              });
+                              }));
+
+                            const { data: existing, error: selectError } = await supabase.from("homepage_sections").select("id");
+                            if (selectError) throw selectError;
+
+                            if (existing && existing.length > 0) {
+                              const { error: deleteError } = await supabase
+                                .from("homepage_sections")
+                                .delete()
+                                .in("id", existing.map((section) => section.id));
+                              if (deleteError) throw deleteError;
                             }
-                            queryClient.invalidateQueries({ queryKey: ["homepage-sections"] });
+
+                            if (normalizedSections.length > 0) {
+                              const { error: insertError } = await supabase.from("homepage_sections").insert(normalizedSections);
+                              if (insertError) throw insertError;
+                            }
+
+                            await queryClient.invalidateQueries({ queryKey: ["homepage-sections"] });
+                            iframeRef.current?.contentWindow?.postMessage({ type: "theme-content-refresh" }, "*");
                           } catch (e) {
                             console.error("Error applying preset sections:", e);
+                            toast.error("Não foi possível aplicar o layout do preset.");
+                            return;
                           }
                         }
+
                         toast.success("Preset aplicado! Clique 'Salvar tema' para persistir.");
                       }}
                     />
