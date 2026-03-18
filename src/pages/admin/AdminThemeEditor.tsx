@@ -575,19 +575,23 @@ const AdminThemeEditor = () => {
   // Drill-down state for settings tab
   const [settingsDrilldown, setSettingsDrilldown] = useState<string | number | null>(null);
 
+  const registryDefaults = useMemo(() => {
+    const current = themeRegistry.getDefaultSettings(activeThemeData?.slug);
+    const normalized = Object.fromEntries(
+      Object.entries(current || {}).map(([key, value]) => [`theme_${key}`, String(value)])
+    );
+    return Object.keys(normalized).length > 0 ? { ...DEFAULTS, ...normalized } : DEFAULTS;
+  }, [activeThemeData?.slug]);
+
   useEffect(() => {
     if (settings) {
-      const merged = { ...DEFAULTS };
-      // Load all theme_ keys from settings, not just THEME_KEYS
+      const merged = { ...registryDefaults };
       Object.keys(settings).forEach(key => {
         if (key.startsWith("theme_")) merged[key] = settings[key];
       });
-      THEME_KEYS.forEach(key => {
-        if (settings[key] && !merged[key]) merged[key] = settings[key];
-      });
       setTheme(merged);
     }
-  }, [settings]);
+  }, [settings, registryDefaults]);
 
   // Listen for postMessage from iframe
   useEffect(() => {
@@ -629,7 +633,7 @@ const AdminThemeEditor = () => {
     try {
       // Save all theme_ keys that changed
       const allThemeKeys = Object.keys(theme).filter(k => k.startsWith("theme_"));
-      const changed = allThemeKeys.filter(key => theme[key] !== (settings?.[key] ?? DEFAULTS[key] ?? ""));
+      const changed = allThemeKeys.filter(key => theme[key] !== (settings?.[key] ?? registryDefaults[key] ?? ""));
       for (const key of changed) {
         await updateSetting.mutateAsync({ key, value: theme[key] });
       }
@@ -641,8 +645,8 @@ const AdminThemeEditor = () => {
   };
 
   const handleReset = () => {
-    setTheme(DEFAULTS);
-    applyToIframe(DEFAULTS);
+    setTheme(registryDefaults);
+    applyToIframe(registryDefaults);
   };
 
   const handleIframeLoad = () => applyToIframe(theme);
@@ -687,7 +691,7 @@ const AdminThemeEditor = () => {
     }
     if (settingsDrilldown !== null && settingsDrilldown !== undefined) {
       // Check theme registry groups first
-      const themeGroups = themeRegistry.getGlobalSettingsSchema();
+      const themeGroups = themeRegistry.getGlobalSettingsSchema(activeThemeData?.slug);
       if (themeGroups.length > 0 && typeof settingsDrilldown === "number") {
         return themeGroups[settingsDrilldown]?.name || null;
       }
@@ -978,9 +982,7 @@ const SettingsTab = ({
   // Force re-read when active theme changes (themeRegistry is not reactive)
   const activeThemeForSettings = useActiveThemeSync();
   const themeGroups = useMemo(() => {
-    // activeThemeForSettings?.slug dependency forces re-computation
-    return themeRegistry.getGlobalSettingsSchema();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return themeRegistry.getGlobalSettingsSchema(activeThemeForSettings?.slug);
   }, [activeThemeForSettings?.slug]);
   const useRegistryGroups = themeGroups.length > 0;
   const { upload } = useImageUpload();

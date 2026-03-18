@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAllThemes, useActivateTheme, Theme } from "@/hooks/useThemes";
+import { themeRegistry } from "@/theme-engine";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
@@ -137,7 +138,13 @@ const AdminThemes = () => {
   const handleActivate = async (theme: Theme) => {
     setInstalling(theme.id);
     try {
-      const settings = (theme.settings_data || {}) as Record<string, string>;
+      const themeDefaults = Object.fromEntries(
+        Object.entries(themeRegistry.getDefaultSettings(theme.slug) || {}).map(([key, value]) => [`theme_${key}`, String(value)])
+      ) as Record<string, string>;
+      const settings = {
+        ...themeDefaults,
+        ...((theme.settings_data || {}) as Record<string, string>),
+      };
       for (const [key, value] of Object.entries(settings)) {
         await updateSetting.mutateAsync({ key, value });
       }
