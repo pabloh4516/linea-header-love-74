@@ -342,6 +342,72 @@ const Checkout = () => {
                   ))}
                 </div>
 
+                {orderBumps.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-muted-foreground/20 space-y-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap className="h-4 w-4 text-amber-500" />
+                      <span className="text-sm font-medium text-foreground">Ofertas Especiais</span>
+                    </div>
+                    {orderBumps.map((bump) => {
+                      if (!bump.bump_product) return null;
+                      const originalPrice = bump.bump_product.price;
+                      const finalPrice = originalPrice * (1 - bump.discount_percentage / 100);
+                      const isAccepted = acceptedBumps.has(bump.id);
+                      return (
+                        <div
+                          key={bump.id}
+                          onClick={() => toggleBump(bump.id)}
+                          className={`flex items-start gap-3 p-3 border rounded-sm cursor-pointer transition-all ${
+                            isAccepted
+                              ? "border-primary bg-primary/5"
+                              : "border-muted-foreground/20 hover:border-muted-foreground/40"
+                          }`}
+                        >
+                          <Checkbox
+                            checked={isAccepted}
+                            onCheckedChange={() => toggleBump(bump.id)}
+                            className="mt-0.5"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">
+                              {bump.title || `Adicione ${bump.bump_product.name}`}
+                            </p>
+                            {bump.description && (
+                              <p className="text-xs text-muted-foreground mt-0.5">{bump.description}</p>
+                            )}
+                            <div className="flex items-center gap-2 mt-1">
+                              {bump.discount_percentage > 0 ? (
+                                <>
+                                  <span className="text-xs text-muted-foreground line-through">
+                                    {formatBRL(originalPrice)}
+                                  </span>
+                                  <span className="text-sm font-medium text-primary">
+                                    {formatBRL(finalPrice)}
+                                  </span>
+                                  <span className="text-[11px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-sm font-medium">
+                                    -{bump.discount_percentage}%
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-sm font-medium text-foreground">
+                                  {formatBRL(originalPrice)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {bump.bump_product.image_url && (
+                            <img
+                              src={bump.bump_product.image_url}
+                              alt={bump.bump_product.name}
+                              className="w-12 h-12 object-cover rounded-sm"
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="mt-8 pt-6 border-t border-muted-foreground/20">
                   {appliedCoupon ? (
                     <div className="flex items-center justify-between bg-primary/5 border border-primary/20 px-3 py-2 rounded-sm">
