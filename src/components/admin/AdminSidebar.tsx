@@ -26,6 +26,7 @@ const mainItems = [
 const contentItems = [
   { title: "Homepage", url: "/admin/homepage", icon: LayoutDashboard },
   { title: "Editor de Tema", url: "/admin/theme", icon: Palette },
+  { title: "Relatórios", url: "/admin/analytics", icon: BarChart3 },
 ];
 
 const settingsItems = [
