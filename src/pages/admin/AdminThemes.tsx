@@ -169,10 +169,11 @@ const AdminThemes = () => {
   const handleInstall = async (theme: Theme) => {
     setInstalling(theme.id);
     try {
-      const settings = theme.settings as Record<string, string>;
+      const settings = (theme.settings_data || {}) as Record<string, string>;
       for (const [key, value] of Object.entries(settings)) {
         await updateSetting.mutateAsync({ key, value });
       }
+      await activateTheme.mutateAsync(theme.id);
       toast.success(`Tema "${theme.name}" instalado com sucesso!`);
     } catch {
       toast.error("Erro ao instalar tema");
@@ -193,13 +194,17 @@ const AdminThemes = () => {
           if (key.startsWith("theme_")) settings[key] = value;
         });
       }
-      await createTheme.mutateAsync({
-        name: saveName.trim(),
-        description: saveDesc.trim() || undefined,
-        settings,
-        preview_colors: getPreviewColors(settings),
-        is_preset: false,
-      });
+      const slug = saveName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+      const { error } = await supabase
+        .from("themes" as any)
+        .insert({
+          name: saveName.trim(),
+          slug,
+          description: saveDesc.trim() || null,
+          settings_data: settings,
+        } as any);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["themes"] });
       toast.success("Tema salvo!");
       setSaveDialogOpen(false);
       setSaveName("");
@@ -213,7 +218,7 @@ const AdminThemes = () => {
   const handleExport = (theme?: Theme) => {
     const settings: Record<string, string> = {};
     if (theme) {
-      Object.assign(settings, theme.settings);
+      Object.assign(settings, theme.settings_data);
     } else if (currentSettings) {
       Object.entries(currentSettings).forEach(([key, value]) => {
         if (key.startsWith("theme_")) settings[key] = value;
@@ -222,7 +227,7 @@ const AdminThemes = () => {
     const exportData = {
       name: theme?.name || "Meu Tema",
       description: theme?.description || "",
-      version: "1.0",
+      version: theme?.version || "1.0",
       exported_at: new Date().toISOString(),
       settings,
     };
@@ -230,7 +235,7 @@ const AdminThemes = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `tema-${(theme?.name || "custom").toLowerCase().replace(/\s+/g, "-")}.json`;
+    a.download = `tema-${(theme?.slug || theme?.name || "custom").toLowerCase().replace(/\s+/g, "-")}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Tema exportado!");
@@ -248,13 +253,17 @@ const AdminThemes = () => {
           toast.error("Arquivo de tema inválido");
           return;
         }
-        await createTheme.mutateAsync({
-          name: data.name || "Tema Importado",
-          description: data.description || `Importado em ${new Date().toLocaleDateString("pt-BR")}`,
-          settings: data.settings,
-          preview_colors: getPreviewColors(data.settings),
-          is_preset: false,
-        });
+        const slug = (data.name || "importado").toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") + "-" + Date.now();
+        const { error } = await supabase
+          .from("themes" as any)
+          .insert({
+            name: data.name || "Tema Importado",
+            slug,
+            description: data.description || `Importado em ${new Date().toLocaleDateString("pt-BR")}`,
+            settings_data: data.settings,
+          } as any);
+        if (error) throw error;
+        queryClient.invalidateQueries({ queryKey: ["themes"] });
         toast.success(`Tema "${data.name || "Importado"}" adicionado à galeria!`);
       } catch {
         toast.error("Erro ao importar tema. Verifique o formato do arquivo.");
@@ -266,12 +275,17 @@ const AdminThemes = () => {
 
   // ─── Delete ─────────────────────────────────────────────
   const handleDelete = async (theme: Theme) => {
-    if (theme.is_preset) {
-      toast.error("Presets não podem ser excluídos");
+    if (theme.is_active) {
+      toast.error("Não é possível excluir o tema ativo");
       return;
     }
     try {
-      await deleteTheme.mutateAsync(theme.id);
+      const { error } = await supabase
+        .from("themes" as any)
+        .delete()
+        .eq("id", theme.id);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["themes"] });
       toast.success("Tema excluído");
     } catch {
       toast.error("Erro ao excluir tema");
