@@ -147,6 +147,7 @@ const Navigation = () => {
 
   return (
     <nav
+      data-theme-section="navigation"
       className="relative"
       style={{
         backgroundColor: "rgba(255, 255, 255, 0.9)",

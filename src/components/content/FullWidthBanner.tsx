@@ -16,7 +16,7 @@ const FullWidthBanner = () => {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
 
   return (
-    <section ref={ref} className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden my-8 md:my-16">
+    <section data-theme-section="full-width-banner" ref={ref} className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden my-8 md:my-16">
       {/* Parallax image */}
       <motion.div style={{ y }} className="absolute inset-0 -top-[15%] h-[130%]">
         <img
