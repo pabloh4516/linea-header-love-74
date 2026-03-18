@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, FolderOpen, Home, Settings, LogOut, Store, Search, ShoppingCart, Users, Palette } from "lucide-react";
+import { LayoutDashboard, Package, FolderOpen, Home, Settings, LogOut, Store, Search, ShoppingCart, Users, Palette, BarChart3 } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -26,6 +26,7 @@ const mainItems = [
 const contentItems = [
   { title: "Homepage", url: "/admin/homepage", icon: LayoutDashboard },
   { title: "Editor de Tema", url: "/admin/theme", icon: Palette },
+  { title: "Relatórios", url: "/admin/analytics", icon: BarChart3 },
 ];
 
 const settingsItems = [
