@@ -9,6 +9,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import PageViewTracker from "./components/PageViewTracker";
 import ThemeApplicator from "./components/ThemeApplicator";
 import { AuthProvider } from "./hooks/useAuth";
+import { useActiveThemeSync } from "./hooks/useActiveThemeSync";
 import Index from "./pages/Index";
 import Category from "./pages/Category";
 import ProductDetail from "./pages/ProductDetail";
@@ -41,9 +42,15 @@ import DynamicPage from "./pages/DynamicPage";
 
 const queryClient = new QueryClient();
 
+const ThemeSyncWrapper = ({ children }: { children: React.ReactNode }) => {
+  useActiveThemeSync();
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <ThemeSyncWrapper>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -86,6 +93,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </ThemeSyncWrapper>
     </AuthProvider>
   </QueryClientProvider>
 );

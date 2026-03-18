@@ -143,6 +143,9 @@ const AdminThemes = () => {
       }
       await activateTheme.mutateAsync(theme.id);
       toast.success(`Tema "${theme.name}" ativado com sucesso!`);
+      // Force reload to re-sync theme registry
+      window.location.reload();
+      return;
     } catch {
       toast.error("Erro ao ativar tema");
     }
