@@ -292,7 +292,7 @@ const AdminProducts = () => {
               <h3 className="text-[13px] font-semibold">Preço e Organização</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-[12px] text-muted-foreground">Preço (€)</Label>
+                  <Label className="text-[12px] text-muted-foreground">Preço (R$)</Label>
                   <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))} className="h-9 text-[13px]" />
                 </div>
                 <div className="space-y-1.5">
