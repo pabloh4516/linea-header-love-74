@@ -29,7 +29,8 @@ export type GridLayout = "standard" | "editorial" | "masonry" | "highlight";
 
 const getAspectRatio = (aspect: string): string => {
   switch (aspect) {
-    case "square": return "1/1";
+    case "square":
+    case "1/1": return "1/1";
     case "4/5": return "4/5";
     case "2/3": return "2/3";
     case "3/4":
