@@ -51,14 +51,15 @@ const Checkout = () => {
       try {
         const parsed = JSON.parse(settings.shipping_options) as Array<{
           id: string; name: string; price: number; estimatedDays: string; enabled: boolean;
+          rules?: Array<{ id: string; type: string; min?: number; max?: number; regions?: string[]; price: number }>;
         }>;
         return parsed.filter(o => o.enabled);
       } catch { /* fallback */ }
     }
     return [
-      { id: "standard", name: "Envio Padrão", price: 0, estimatedDays: "5-8 dias úteis", enabled: true },
-      { id: "express", name: "Envio Expresso", price: 25, estimatedDays: "2-3 dias úteis", enabled: true },
-      { id: "overnight", name: "Entrega no Dia Seguinte", price: 60, estimatedDays: "Próximo dia útil", enabled: true },
+      { id: "standard", name: "Envio Padrão", price: 0, estimatedDays: "5-8 dias úteis", enabled: true, rules: [] as any[] },
+      { id: "express", name: "Envio Expresso", price: 25, estimatedDays: "2-3 dias úteis", enabled: true, rules: [] as any[] },
+      { id: "overnight", name: "Entrega no Dia Seguinte", price: 60, estimatedDays: "Próximo dia útil", enabled: true, rules: [] as any[] },
     ];
   }, [settings]);
 
@@ -78,6 +79,7 @@ const Checkout = () => {
   const [shippingAddress, setShippingAddress] = useState({
     address: "",
     city: "",
+    state: "",
     postalCode: "",
     country: ""
   });
@@ -192,10 +194,41 @@ const Checkout = () => {
   }, 0);
 
   const getShippingCost = () => {
-    // Free shipping threshold check
     if (freeShippingEnabled && subtotal >= freeShippingThreshold) return 0;
     const selected = shippingOptions.find(o => o.id === shippingOption);
-    return selected?.price ?? 0;
+    if (!selected) return 0;
+
+    // Evaluate rules — first matching rule wins
+    const rules = selected.rules || [];
+    const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const customerState = shippingAddress.state?.toUpperCase?.() || "";
+
+    for (const rule of rules) {
+      let matches = false;
+      switch (rule.type) {
+        case "subtotal":
+          matches =
+            (rule.min == null || subtotal >= rule.min) &&
+            (rule.max == null || subtotal <= rule.max);
+          break;
+        case "quantity":
+          matches =
+            (rule.min == null || itemCount >= rule.min) &&
+            (rule.max == null || itemCount <= rule.max);
+          break;
+        case "weight":
+          // Weight not tracked per-item yet, skip
+          break;
+        case "region":
+          if (customerState && rule.regions?.length) {
+            matches = rule.regions.includes(customerState);
+          }
+          break;
+      }
+      if (matches) return rule.price;
+    }
+
+    return selected.price;
   };
 
   const getDiscount = () => {
@@ -629,16 +662,17 @@ const Checkout = () => {
                       </div>
 
                       <div>
-                        <Label htmlFor="shippingCountry" className="text-sm font-light text-foreground">
+                        <Label htmlFor="shippingState" className="text-sm font-light text-foreground">
                           Estado *
                         </Label>
                         <Input
-                          id="shippingCountry"
+                          id="shippingState"
                           type="text"
-                          value={shippingAddress.country}
-                          onChange={(e) => handleShippingAddressChange("country", e.target.value)}
+                          value={shippingAddress.state}
+                          onChange={(e) => handleShippingAddressChange("state", e.target.value)}
                           className="mt-2 rounded-none"
-                          placeholder="Estado"
+                          placeholder="SP"
+                          maxLength={2}
                         />
                       </div>
                     </div>
