@@ -419,9 +419,9 @@ const AdminThemes = () => {
               <Button variant="outline" size="sm" onClick={() => setSaveDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button size="sm" onClick={handleSaveCurrent} disabled={createTheme.isPending}>
+              <Button size="sm" onClick={handleSaveCurrent}>
                 <Save className="h-3.5 w-3.5 mr-1" />
-                {createTheme.isPending ? "Salvando..." : "Salvar"}
+                Salvar
               </Button>
             </div>
           </div>
