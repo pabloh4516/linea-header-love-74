@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
-import { useHomepageSections, useUpdateSection } from "@/hooks/useHomepageSections";
+import { useHomepageSections, useUpdateSection, useCreateSection, useDeleteSection } from "@/hooks/useHomepageSections";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,15 +9,26 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   Save, Monitor, Smartphone, Tablet, RotateCcw, Palette, Type, Layout, Square,
   ChevronLeft, ChevronRight, Minus, Image as ImageIcon, ShoppingBag, CreditCard,
-  Globe, Menu, AlignCenter, Layers, Eye, ArrowUp, Megaphone, Grid3X3, Search,
-  Share2, Code, MousePointer, Sparkles, Home,
+  Globe, Menu, AlignCenter, Layers, Eye, EyeOff, ArrowUp, Megaphone, Grid3X3, Search,
+  Share2, Code, MousePointer, Sparkles, Home, Plus, Trash2, GripVertical, ArrowLeft,
+  ChevronDown, ChevronUp, FileText, Video, MessageSquare, Mail, Columns, HelpCircle,
+  SeparatorHorizontal, Star, LayoutGrid,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Link } from "react-router-dom";
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { Json } from "@/integrations/supabase/types";
 
 // ─── Font Options ──────────────────────────────────────────
 const FONT_OPTIONS = [
