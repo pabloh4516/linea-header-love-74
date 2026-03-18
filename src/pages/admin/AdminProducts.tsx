@@ -175,6 +175,7 @@ const AdminProducts = () => {
                 <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-2.5">Produto</th>
                 <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-2.5 hidden md:table-cell">Status</th>
                 <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-2.5 hidden sm:table-cell">Categoria</th>
+                <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-2.5 hidden lg:table-cell">Estoque</th>
                 <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-2.5">Preço</th>
                 <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-2.5 w-12"></th>
               </tr>
