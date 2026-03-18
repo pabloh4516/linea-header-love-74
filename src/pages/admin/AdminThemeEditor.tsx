@@ -31,6 +31,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { Json } from "@/integrations/supabase/types";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 // ─── Font Options ──────────────────────────────────────────
 const FONT_OPTIONS = [
@@ -197,7 +199,24 @@ const DEFAULTS: Record<string, string> = {
 const THEME_KEYS = Object.keys(DEFAULTS);
 
 // ─── Theme Presets ────────────────────────────────────────
-interface ThemePreset { name: string; description: string; values: Record<string, string>; }
+interface PresetSection {
+  section_type: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  cta_text?: string;
+  link_url?: string;
+  image_url?: string;
+  image_url_2?: string;
+  config?: Record<string, unknown>;
+}
+
+interface ThemePreset {
+  name: string;
+  description: string;
+  values: Record<string, string>;
+  sections?: PresetSection[];
+}
 
 const THEME_PRESETS: ThemePreset[] = [
   {
@@ -338,6 +357,127 @@ const THEME_PRESETS: ThemePreset[] = [
       theme_checkout_style: "single-page", theme_checkout_show_trust: "true",
       theme_checkout_show_order_bumps: "true", theme_checkout_show_coupon: "true",
     },
+    sections: [
+      {
+        section_type: "slideshow",
+        title: "Slideshow",
+        config: {
+          autoplay_speed: "5",
+          show_arrows: "true",
+          show_dots: "true",
+          height: "full",
+          blocks: [
+            { heading: "Coleção Exclusiva\nOnline", subheading: "Sweater Collection", button_text: "Ver Coleção", button_link: "/category/shop", text_position: "left", image: "" },
+            { heading: "Elegância Pura\nConforto Total", subheading: "Season Collection", button_text: "Ver Coleção", button_link: "/category/shop", text_position: "left", image: "" },
+            { heading: "Visual Clean\nSuper Conforto", subheading: "Look Exclusive", button_text: "Ver Coleção", button_link: "/category/shop", text_position: "left", image: "" },
+          ],
+        },
+      },
+      {
+        section_type: "collection_list",
+        title: "Top Coleções",
+        subtitle: "Expresse seu estilo com nossa coleção destaque — moda e sofisticação.",
+        config: {
+          columns: "3",
+          blocks: [
+            { title: "Anéis", link: "/category/shop", image: "" },
+            { title: "Brincos", link: "/category/shop", image: "" },
+            { title: "Colares", link: "/category/shop", image: "" },
+            { title: "Pulseiras", link: "/category/shop", image: "" },
+            { title: "Conjuntos", link: "/category/shop", image: "" },
+            { title: "Exclusivos", link: "/category/shop", image: "" },
+          ],
+        },
+      },
+      {
+        section_type: "product_carousel",
+        title: "Mais Vendidos",
+        subtitle: "Design incomparável — desempenho superior e satisfação do cliente.",
+      },
+      {
+        section_type: "countdown",
+        title: "Oferta Especial",
+        subtitle: "Até 75% de desconto em itens selecionados. Aproveite!",
+        cta_text: "Ver Promoção",
+        link_url: "/category/shop",
+        config: {
+          end_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          show_days: "true",
+          show_hours: "true",
+          show_minutes: "true",
+          show_seconds: "true",
+        },
+      },
+      {
+        section_type: "marquee",
+        config: {
+          speed: "30",
+          size: "medium",
+          blocks: [
+            { content: "Expresse Seu Verdadeiro Estilo", link: "" },
+            { content: "Escolhas Sazonais Exclusivas", link: "" },
+            { content: "Novidades Imperdíveis", link: "" },
+            { content: "Frete Grátis acima de R$250", link: "" },
+          ],
+        },
+      },
+      {
+        section_type: "product_carousel",
+        title: "Em Alta",
+        subtitle: "Design incomparável — desempenho superior e satisfação do cliente.",
+      },
+      {
+        section_type: "testimonials",
+        title: "O que Dizem Nossos Clientes",
+        subtitle: "Nossos clientes amam nossos produtos e nos esforçamos para sempre agradá-los.",
+        config: {
+          blocks: [
+            { author: "Maria G.", quote: "Peças lindas e super confortáveis. A cor perfeita. Adoro usar com looks neutros. Simplesmente maravilhoso! 😍", rating: "5", location: "São Paulo, SP" },
+            { author: "Carlos S.", quote: "Um produto perfeito, mantém você elegante sem exagero. Fiel ao tamanho, não poderia estar mais feliz com a compra! 🤗", rating: "5", location: "Rio de Janeiro, RJ" },
+            { author: "Ana L.", quote: "Compra fantástica! O produto oferece a quantidade certa de elegância sem perder o conforto. Super recomendo! 😊", rating: "5", location: "Belo Horizonte, MG" },
+          ],
+        },
+      },
+      {
+        section_type: "rich_text",
+        title: "Olá! Peças para o Dia a Dia",
+        description: "Descubra uma coleção de essenciais atemporais, transitando perfeitamente do trabalho ao fim de semana. Inspiradas em viagens, nossas peças priorizam sustentabilidade com fibras naturais e práticas conscientes. Explore uma variedade de estilos versáteis com materiais de alta qualidade.\n\nCada peça é elaborada com atenção meticulosa aos detalhes, garantindo uma combinação perfeita de conforto e elegância. Nossos designs enfatizam linhas limpas e silhuetas sofisticadas, adequadas para qualquer ocasião.",
+        cta_text: "Ver Mais",
+        link_url: "/about/our-story",
+      },
+      {
+        section_type: "image_gallery",
+        title: "Shop by Gram",
+        subtitle: "Inspire-se e deixe-se inspirar, de uma moda única para outra.",
+        config: {
+          columns: "4",
+          blocks: [
+            { image: "", alt_text: "Look 1", link: "" },
+            { image: "", alt_text: "Look 2", link: "" },
+            { image: "", alt_text: "Look 3", link: "" },
+            { image: "", alt_text: "Look 4", link: "" },
+          ],
+        },
+      },
+      {
+        section_type: "multi_column",
+        title: "",
+        config: {
+          columns: "3",
+          alignment: "center",
+          blocks: [
+            { title: "Frete Grátis", description: "Aproveite frete grátis para todo o Brasil, com impostos e taxas incluídos.", image: "", button_text: "", button_link: "" },
+            { title: "Devoluções Grátis", description: "Devoluções gratuitas em até 15 dias, garanta que os itens estejam em perfeito estado.", image: "", button_text: "", button_link: "" },
+            { title: "Suporte Online", description: "Atendemos clientes 24/7, envie perguntas e resolveremos imediatamente.", image: "", button_text: "", button_link: "" },
+          ],
+        },
+      },
+      {
+        section_type: "newsletter",
+        title: "Receba 10% de Desconto",
+        subtitle: "Cadastre-se e receba ofertas exclusivas diretamente no seu e-mail.",
+      },
+    ],
   },
   {
     name: "Moderno", description: "Contemporâneo, arrojado, cantos arredondados — tech-forward",
@@ -677,6 +817,7 @@ const AdminThemeEditor = () => {
   const { data: settings, isLoading } = useSiteSettings();
   const updateSetting = useUpdateSetting();
   const { data: homepageSections } = useHomepageSections();
+  const queryClient = useQueryClient();
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
@@ -931,10 +1072,42 @@ const AdminThemeEditor = () => {
                       settingsGrouped={settingsGrouped}
                       theme={theme}
                       onChange={updateTheme}
-                      onApplyPreset={(preset) => {
-                        const newTheme = { ...theme, ...preset };
+                      onApplyPreset={async (preset) => {
+                        const newTheme = { ...theme, ...preset.values };
                         setTheme(newTheme);
                         applyToIframe(newTheme);
+                        // If preset has sections, replace homepage sections
+                        if (preset.sections && preset.sections.length > 0) {
+                          try {
+                            // Delete all existing sections
+                            const { data: existing } = await supabase.from("homepage_sections").select("id");
+                            if (existing) {
+                              for (const s of existing) {
+                                await supabase.from("homepage_sections").delete().eq("id", s.id);
+                              }
+                            }
+                            // Create preset sections
+                            for (let i = 0; i < preset.sections.length; i++) {
+                              const ps = preset.sections[i];
+                              await supabase.from("homepage_sections").insert({
+                                section_type: ps.section_type,
+                                title: ps.title || null,
+                                subtitle: ps.subtitle || null,
+                                description: ps.description || null,
+                                cta_text: ps.cta_text || null,
+                                link_url: ps.link_url || null,
+                                image_url: ps.image_url || null,
+                                image_url_2: ps.image_url_2 || null,
+                                config: ps.config ? (ps.config as unknown as Json) : null,
+                                sort_order: i,
+                                is_visible: true,
+                              });
+                            }
+                            queryClient.invalidateQueries({ queryKey: ["homepage-sections"] });
+                          } catch (e) {
+                            console.error("Error applying preset sections:", e);
+                          }
+                        }
                         toast.success("Preset aplicado! Clique 'Salvar tema' para persistir.");
                       }}
                     />
@@ -1098,7 +1271,7 @@ const SettingsTab = ({
   settingsGrouped: Record<string, SettingsGroupDef[]>;
   theme: Record<string, string>;
   onChange: (key: string, value: string) => void;
-  onApplyPreset: (values: Record<string, string>) => void;
+  onApplyPreset: (preset: ThemePreset) => void;
 }) => {
   // Force re-read when active theme changes (themeRegistry is not reactive)
   const { activeThemeId: syncedThemeId } = useThemeSync();
@@ -2555,7 +2728,7 @@ const CustomCssSection = ({ theme, onChange }: FieldProps) => (
 );
 
 // ─── Presets Section ──────────────────────────────────────
-const PresetsSection = ({ theme, onApply }: { theme: Record<string, string>; onApply: (values: Record<string, string>) => void }) => (
+const PresetsSection = ({ theme, onApply }: { theme: Record<string, string>; onApply: (preset: ThemePreset) => void }) => (
   <>
     <SectionTitle>Presets de Tema</SectionTitle>
     <p className="text-[11px] text-muted-foreground">Escolha um tema base para começar. Você pode personalizar tudo depois.</p>
@@ -2577,7 +2750,7 @@ const PresetsSection = ({ theme, onApply }: { theme: Record<string, string>; onA
           parseInt(preset.values.theme_primary_l || DEFAULTS.theme_primary_l),
         );
         return (
-          <button key={preset.name} onClick={() => onApply(preset.values)}
+          <button key={preset.name} onClick={() => onApply(preset)}
             className="w-full p-3 rounded-lg border border-[hsl(var(--admin-border))] hover:border-foreground/30 transition-colors text-left">
             <div className="flex items-center gap-3 mb-2">
               <div className="flex gap-1">
