@@ -1,6 +1,7 @@
 import { X, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useThemeConfig } from "@/hooks/useThemeConfig";
 
 interface CartItem {
   id: number;
@@ -20,6 +21,8 @@ interface ShoppingBagProps {
 }
 
 const ShoppingBag = ({ isOpen, onClose, cartItems, updateQuantity, onViewFavorites }: ShoppingBagProps) => {
+  const { theme } = useThemeConfig();
+
   if (!isOpen) return null;
 
   const subtotal = cartItems.reduce((sum, item) => {
@@ -27,25 +30,29 @@ const ShoppingBag = ({ isOpen, onClose, cartItems, updateQuantity, onViewFavorit
     return sum + (price * item.quantity);
   }, 0);
 
+  const btnStyle: React.CSSProperties = {
+    borderRadius: `${theme.buttonRadius}px`,
+    height: `${theme.buttonHeight}px`,
+    fontSize: `${theme.buttonFontSize}px`,
+    letterSpacing: `${theme.buttonLetterSpacing}em`,
+    fontWeight: Number(theme.buttonFontWeight),
+  };
+
   return (
     <div className="fixed inset-0 z-50 h-screen">
-      <div 
-        className="absolute inset-0 bg-black/50 h-screen"
-        onClick={onClose}
-      />
-      
-      <div className="absolute right-0 top-0 h-screen w-96 bg-background border-l border-border animate-slide-in-right flex flex-col">
+      <div className="absolute inset-0 bg-black/50 h-screen" onClick={onClose} />
+
+      <div
+        className="absolute right-0 top-0 h-screen bg-background border-l border-border animate-slide-in-right flex flex-col"
+        style={{ width: `${theme.cartWidth}px` }}
+      >
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-lg font-light text-foreground">Sacola de Compras</h2>
-          <button
-            onClick={onClose}
-            className="p-2 text-foreground hover:text-muted-foreground transition-colors"
-            aria-label="Fechar"
-          >
+          <button onClick={onClose} className="p-2 text-foreground hover:text-muted-foreground transition-colors" aria-label="Fechar">
             <X size={20} />
           </button>
         </div>
-        
+
         <div className="flex-1 flex flex-col p-6">
           {onViewFavorites && (
             <div className="md:hidden mb-6 pb-6 border-b border-border">
@@ -60,7 +67,7 @@ const ShoppingBag = ({ isOpen, onClose, cartItems, updateQuantity, onViewFavorit
               </button>
             </div>
           )}
-          
+
           {cartItems.length === 0 ? (
             <div className="flex-1 flex items-center justify-center">
               <p className="text-muted-foreground text-sm text-center">
@@ -73,13 +80,11 @@ const ShoppingBag = ({ isOpen, onClose, cartItems, updateQuantity, onViewFavorit
               <div className="flex-1 overflow-y-auto space-y-6 mb-6">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex gap-4">
-                    <div className="w-20 h-20 bg-muted/10 rounded-lg overflow-hidden">
-                      <img 
-                        src={item.image} 
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                    {theme.cartShowThumbnails && (
+                      <div className="w-20 h-20 bg-muted/10 rounded-lg overflow-hidden">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      </div>
+                    )}
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-2">
                         <div>
@@ -88,64 +93,51 @@ const ShoppingBag = ({ isOpen, onClose, cartItems, updateQuantity, onViewFavorit
                         </div>
                         <p className="text-sm font-light text-foreground">{item.price}</p>
                       </div>
-                      <div className="flex items-center gap-2 mt-3">
-                        <div className="flex items-center border border-border">
-                          <button 
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="p-2 hover:bg-muted/50 transition-colors"
-                            aria-label="Diminuir quantidade"
-                          >
-                            <Minus size={14} />
-                          </button>
-                          <span className="px-3 py-2 text-sm font-light min-w-[40px] text-center">
-                            {item.quantity}
-                          </span>
-                          <button 
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="p-2 hover:bg-muted/50 transition-colors"
-                            aria-label="Aumentar quantidade"
-                          >
-                            <Plus size={14} />
-                          </button>
+                      {theme.cartShowQuantity && (
+                        <div className="flex items-center gap-2 mt-3">
+                          <div className="flex items-center border border-border">
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              className="p-2 hover:bg-muted/50 transition-colors"
+                              aria-label="Diminuir quantidade"
+                            >
+                              <Minus size={14} />
+                            </button>
+                            <span className="px-3 py-2 text-sm font-light min-w-[40px] text-center">{item.quantity}</span>
+                            <button
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              className="p-2 hover:bg-muted/50 transition-colors"
+                              aria-label="Aumentar quantidade"
+                            >
+                              <Plus size={14} />
+                            </button>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
-              
+
               <div className="border-t border-border pt-6 space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-light text-foreground">Subtotal</span>
-                  <span className="text-sm font-medium text-foreground">R${subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                </div>
-                
-                <p className="text-xs text-muted-foreground">
-                  Frete e impostos calculados no checkout
-                </p>
-                
-                <Button 
-                  asChild 
-                  className="w-full rounded-none" 
-                  size="lg"
-                  onClick={onClose}
-                >
-                  <Link to="/checkout">
-                    Finalizar Compra
-                  </Link>
+                {theme.cartShowSubtotal && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-light text-foreground">Subtotal</span>
+                    <span className="text-sm font-medium text-foreground">R${subtotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                )}
+
+                <p className="text-xs text-muted-foreground">Frete e impostos calculados no checkout</p>
+
+                <Button asChild className="w-full" size="lg" onClick={onClose} style={btnStyle}>
+                  <Link to="/checkout">{theme.cartCtaText}</Link>
                 </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full rounded-none" 
-                  size="lg"
-                  onClick={onClose}
-                  asChild
-                >
-                  <Link to="/category/shop">
-                    Continuar Comprando
-                  </Link>
-                </Button>
+
+                {theme.cartShowContinue && (
+                  <Button variant="outline" className="w-full" size="lg" onClick={onClose} asChild style={btnStyle}>
+                    <Link to="/category/shop">Continuar Comprando</Link>
+                  </Button>
+                )}
               </div>
             </>
           )}
