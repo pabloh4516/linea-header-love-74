@@ -9,6 +9,16 @@ import FiftyFiftySection from "./FiftyFiftySection";
 import OneThirdTwoThirdsSection from "./OneThirdTwoThirdsSection";
 import EditorialSection from "./EditorialSection";
 import LargeHero from "./LargeHero";
+import RichTextSection from "./RichTextSection";
+import NewsletterSection from "./NewsletterSection";
+import SlideshowSection from "./SlideshowSection";
+import TestimonialsSection from "./TestimonialsSection";
+import VideoSection from "./VideoSection";
+import MultiColumnSection from "./MultiColumnSection";
+import CollapsibleContentSection from "./CollapsibleContentSection";
+import ContactFormSection from "./ContactFormSection";
+import ImageGallerySection from "./ImageGallerySection";
+import SeparatorSection from "./SeparatorSection";
 
 export type HomepageSection = Database["public"]["Tables"]["homepage_sections"]["Row"];
 
@@ -22,6 +32,16 @@ const SECTION_MAP: Record<string, React.ComponentType<{ section?: HomepageSectio
   one_third_two_thirds: OneThirdTwoThirdsSection,
   editorial: EditorialSection,
   large_hero: LargeHero,
+  rich_text: RichTextSection,
+  newsletter: NewsletterSection,
+  slideshow: SlideshowSection,
+  testimonials: TestimonialsSection,
+  video: VideoSection,
+  multicolumn: MultiColumnSection,
+  collapsible_content: CollapsibleContentSection,
+  contact_form: ContactFormSection,
+  image_gallery: ImageGallerySection,
+  separator: SeparatorSection,
 };
 
 const SectionRenderer = () => {
@@ -35,7 +55,6 @@ const SectionRenderer = () => {
     );
   }
 
-  // If no sections in DB, return null so Index.tsx can render defaults
   if (!sections || sections.length === 0) {
     return null;
   }

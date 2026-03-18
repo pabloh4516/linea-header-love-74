@@ -26,6 +26,7 @@ import type { Json } from "@/integrations/supabase/types";
 const SECTION_TYPES = [
   { value: "hero", label: "Hero Imersivo" },
   { value: "large_hero", label: "Hero Grande" },
+  { value: "slideshow", label: "Slideshow" },
   { value: "asymmetric_grid", label: "Grid Assimétrico" },
   { value: "fifty_fifty", label: "50/50" },
   { value: "one_third_two_thirds", label: "1/3 + 2/3" },
@@ -33,6 +34,15 @@ const SECTION_TYPES = [
   { value: "editorial", label: "Editorial" },
   { value: "full_width_banner", label: "Banner Full Width" },
   { value: "story", label: "Nossa História" },
+  { value: "rich_text", label: "Texto Rico" },
+  { value: "newsletter", label: "Newsletter" },
+  { value: "testimonials", label: "Depoimentos" },
+  { value: "video", label: "Vídeo" },
+  { value: "multicolumn", label: "Multi-Colunas" },
+  { value: "collapsible_content", label: "FAQ / Acordeão" },
+  { value: "contact_form", label: "Formulário de Contato" },
+  { value: "image_gallery", label: "Galeria de Imagens" },
+  { value: "separator", label: "Separador" },
 ];
 
 // ─── Section Schema ────────────────────────────────────────
@@ -82,6 +92,21 @@ const SECTION_SCHEMAS: Record<string, SectionSchema> = {
       { key: "subtitle", label: "Subtítulo", type: "text" },
       { key: "image_url", label: "Imagem", type: "image" },
     ],
+  },
+  slideshow: {
+    fields: [],
+    blocks: {
+      label: "Slides",
+      maxItems: 8,
+      schema: [
+        { key: "image", label: "Imagem", type: "image" },
+        { key: "heading", label: "Título", type: "text" },
+        { key: "subheading", label: "Subtítulo", type: "text" },
+        { key: "button_text", label: "Texto do Botão", type: "text" },
+        { key: "button_link", label: "Link do Botão", type: "url" },
+        { key: "text_position", label: "Posição (left/center/right)", type: "text" },
+      ],
+    },
   },
   asymmetric_grid: {
     fields: [
@@ -178,6 +203,97 @@ const SECTION_SCHEMAS: Record<string, SectionSchema> = {
         { key: "label", label: "Descrição", type: "text" },
       ],
     },
+  },
+  rich_text: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "description", label: "Conteúdo", type: "textarea" },
+    ],
+  },
+  newsletter: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "description", label: "Descrição", type: "text" },
+      { key: "cta_text", label: "Texto do Botão", type: "text" },
+    ],
+  },
+  testimonials: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+    ],
+    blocks: {
+      label: "Depoimentos",
+      maxItems: 6,
+      schema: [
+        { key: "author", label: "Autor", type: "text" },
+        { key: "quote", label: "Depoimento", type: "text" },
+        { key: "rating", label: "Nota (1-5)", type: "text" },
+        { key: "location", label: "Localização", type: "text" },
+      ],
+    },
+  },
+  video: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "description", label: "Descrição", type: "text" },
+      { key: "image_url", label: "Imagem de Capa", type: "image" },
+    ],
+  },
+  multicolumn: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+    ],
+    blocks: {
+      label: "Colunas",
+      maxItems: 4,
+      schema: [
+        { key: "image", label: "Imagem", type: "image" },
+        { key: "title", label: "Título", type: "text" },
+        { key: "description", label: "Descrição", type: "text" },
+        { key: "button_text", label: "Texto do Botão", type: "text" },
+        { key: "button_link", label: "Link", type: "url" },
+      ],
+    },
+  },
+  collapsible_content: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+    ],
+    blocks: {
+      label: "Perguntas",
+      maxItems: 20,
+      schema: [
+        { key: "question", label: "Pergunta", type: "text" },
+        { key: "answer", label: "Resposta", type: "text" },
+      ],
+    },
+  },
+  contact_form: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "description", label: "Descrição", type: "textarea" },
+      { key: "cta_text", label: "Texto do Botão", type: "text" },
+    ],
+  },
+  image_gallery: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+    ],
+    blocks: {
+      label: "Imagens",
+      maxItems: 12,
+      schema: [
+        { key: "image", label: "Imagem", type: "image" },
+        { key: "caption", label: "Legenda", type: "text" },
+        { key: "link", label: "Link", type: "url" },
+      ],
+    },
+  },
+  separator: {
+    fields: [],
   },
 };
 
