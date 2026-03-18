@@ -597,7 +597,7 @@ const AdminThemeEditor = () => {
           if (mapped.tab === "sections") {
             setSectionDrilldown(mapped.target);
           } else {
-            setSettingsDrilldown(mapped.target as SettingsGroupId);
+            setSettingsDrilldown(mapped.target);
           }
           if (sidebarCollapsed) setSidebarCollapsed(false);
         }
