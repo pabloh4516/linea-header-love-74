@@ -336,66 +336,10 @@ const AdminThemeEditor = () => {
 
   const applyToIframe = useCallback((t: Record<string, string>) => {
     const iframe = iframeRef.current;
-    if (!iframe?.contentDocument) return;
-    const root = iframe.contentDocument.documentElement;
-
-    // Core colors
-    root.style.setProperty("--primary", `${t.theme_primary_h} ${t.theme_primary_s}% ${t.theme_primary_l}%`);
-    root.style.setProperty("--primary-foreground", `${t.theme_bg_h} ${t.theme_bg_s}% ${t.theme_bg_l}%`);
-    root.style.setProperty("--background", `${t.theme_bg_h} ${t.theme_bg_s}% ${t.theme_bg_l}%`);
-    root.style.setProperty("--foreground", `${t.theme_fg_h} ${t.theme_fg_s}% ${t.theme_fg_l}%`);
-    root.style.setProperty("--accent", `${t.theme_accent_h} ${t.theme_accent_s}% ${t.theme_accent_l}%`);
-    root.style.setProperty("--muted", `${t.theme_muted_h} ${t.theme_muted_s}% ${t.theme_muted_l}%`);
-    root.style.setProperty("--muted-foreground", `${t.theme_muted_h} ${t.theme_muted_s}% 45%`);
-    root.style.setProperty("--border", `${t.theme_border_h} ${t.theme_border_s}% ${t.theme_border_l}%`);
-    root.style.setProperty("--input", `${t.theme_border_h} ${t.theme_border_s}% ${t.theme_border_l}%`);
-    root.style.setProperty("--destructive", `${t.theme_destructive_h} ${t.theme_destructive_s}% ${t.theme_destructive_l}%`);
-
-    // Status bar
-    root.style.setProperty("--status-bar", `${t.theme_statusbar_bg_h} ${t.theme_statusbar_bg_s}% ${t.theme_statusbar_bg_l}%`);
-    root.style.setProperty("--status-bar-foreground", `${t.theme_statusbar_fg_h} ${t.theme_statusbar_fg_s}% ${t.theme_statusbar_fg_l}%`);
-
-    // Nav
-    root.style.setProperty("--nav-background", `${t.theme_nav_bg_h} ${t.theme_nav_bg_s}% ${t.theme_nav_bg_l}%`);
-    root.style.setProperty("--nav-foreground", `${t.theme_nav_fg_h} ${t.theme_nav_fg_s}% ${t.theme_nav_fg_l}%`);
-
-    // Footer
-    root.style.setProperty("--footer-bg", `${t.theme_footer_bg_h} ${t.theme_footer_bg_s}% ${t.theme_footer_bg_l}%`);
-    root.style.setProperty("--footer-fg", `${t.theme_footer_fg_h} ${t.theme_footer_fg_s}% ${t.theme_footer_fg_l}%`);
-
-    // Layout
-    root.style.setProperty("--radius", `${t.theme_border_radius}rem`);
-    root.style.setProperty("font-family", `'${t.theme_font_body}', sans-serif`);
-
-    // Load Google Fonts
-    const fonts = [t.theme_font_display, t.theme_font_body].filter(Boolean);
-    const existing = iframe.contentDocument.getElementById("theme-fonts");
-    if (existing) existing.remove();
-    const link = iframe.contentDocument.createElement("link");
-    link.id = "theme-fonts";
-    link.rel = "stylesheet";
-    link.href = `https://fonts.googleapis.com/css2?${fonts.map(f => `family=${f.replace(/ /g, "+")}:wght@200;300;400;500;600;700`).join("&")}&display=swap`;
-    iframe.contentDocument.head.appendChild(link);
-
-    // Custom CSS
-    const existingStyle = iframe.contentDocument.getElementById("theme-custom-css");
-    if (existingStyle) existingStyle.remove();
-    if (t.theme_custom_css) {
-      const style = iframe.contentDocument.createElement("style");
-      style.id = "theme-custom-css";
-      style.textContent = t.theme_custom_css;
-      iframe.contentDocument.head.appendChild(style);
-    }
-
-    // Inject inline editing script
+    if (!iframe?.contentWindow) return;
+    iframe.contentWindow.postMessage({ type: "theme-preview-update", theme: t }, "*");
     if (inlineEditMode) {
-      const existingScript = iframe.contentDocument.getElementById("theme-inline-edit");
-      if (!existingScript) {
-        const script = iframe.contentDocument.createElement("script");
-        script.id = "theme-inline-edit";
-        script.textContent = INLINE_EDIT_SCRIPT;
-        iframe.contentDocument.body.appendChild(script);
-      }
+      iframe.contentWindow.postMessage({ type: "theme-enable-inline-edit", script: INLINE_EDIT_SCRIPT }, "*");
     }
   }, [inlineEditMode]);
 
