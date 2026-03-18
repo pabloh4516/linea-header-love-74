@@ -4,8 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, useInView } from "framer-motion";
-import { useRef, useMemo } from "react";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useRef } from "react";
+import { useThemeConfig } from "@/hooks/useThemeConfig";
 import Pagination from "./Pagination";
 
 // Fallback imports
@@ -27,7 +27,6 @@ const fallbackProducts = [
 
 export type GridLayout = "standard" | "editorial" | "masonry" | "highlight";
 
-// ── Theme-aware aspect ratio ──
 const getAspectClass = (aspect: string) => {
   switch (aspect) {
     case "square": return "aspect-square";
@@ -38,17 +37,27 @@ const getAspectClass = (aspect: string) => {
   }
 };
 
-// ── Theme-aware hover effect ──
 const getHoverClasses = (effect: string) => {
   switch (effect) {
     case "fade": return "group-hover:opacity-80";
     case "slide": return "group-hover:translate-y-[-4px]";
+    case "none": return "";
     case "zoom":
     default: return "group-hover:scale-105";
   }
 };
 
-// Animated product card
+interface CardSettings {
+  aspect: string;
+  hoverEffect: string;
+  showCategory: boolean;
+  showBadge: boolean;
+  badgeStyle: string;
+  priceWeight: string;
+  nameSize: string;
+  gap: string;
+}
+
 const ProductCard = ({
   product,
   index,
@@ -62,15 +71,7 @@ const ProductCard = ({
   aspectOverride?: string;
   showCategory?: boolean;
   className?: string;
-  cardSettings: {
-    aspect: string;
-    hoverEffect: string;
-    showBadge: boolean;
-    badgeStyle: string;
-    priceWeight: string;
-    nameSize: string;
-    gap: string;
-  };
+  cardSettings: CardSettings;
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
@@ -82,11 +83,7 @@ const ProductCard = ({
       ref={ref}
       initial={{ opacity: 0, y: 60 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{
-        duration: 0.7,
-        delay: (index % 4) * 0.1,
-        ease: [0.16, 1, 0.3, 1],
-      }}
+      transition={{ duration: 0.7, delay: (index % 4) * 0.1, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       <Link to={`/product/${product.id}`}>
@@ -102,7 +99,7 @@ const ProductCard = ({
                 <img
                   src={product.hoverImage}
                   alt={`${product.name} hover`}
-                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 opacity-0 group-hover:opacity-100 ${getHoverClasses(cardSettings.hoverEffect)}`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 opacity-0 group-hover:opacity-100 ${hoverClass}`}
                 />
               )}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
@@ -148,28 +145,7 @@ const ProductCard = ({
   );
 };
 
-// ── Layout: Standard ──
-const StandardGrid = ({ products, cardSettings, colsDesktop, colsMobile }: {
-  products: any[]; cardSettings: any; colsDesktop: number; colsMobile: number;
-}) => (
-  <div
-    className="grid gap-4 md:gap-8"
-    style={{
-      gridTemplateColumns: `repeat(${colsMobile}, 1fr)`,
-      gap: `${cardSettings.gap}px`,
-    }}
-  >
-    <style>{`@media (min-width: 768px) { .theme-product-grid { grid-template-columns: repeat(${Math.min(colsDesktop, 3)}, 1fr) !important; } } @media (min-width: 1024px) { .theme-product-grid { grid-template-columns: repeat(${colsDesktop}, 1fr) !important; } }`}</style>
-    <div className="contents theme-product-grid-wrapper">
-      {products.map((product, index) => (
-        <ProductCard key={product.id} product={product} index={index} cardSettings={cardSettings} />
-      ))}
-    </div>
-  </div>
-);
-
-// ── Layout: Editorial ──
-const EditorialGrid = ({ products, cardSettings }: { products: any[]; cardSettings: any }) => {
+const EditorialGrid = ({ products, cardSettings }: { products: any[]; cardSettings: CardSettings }) => {
   const chunks: any[][] = [];
   let i = 0;
   let isLargeRow = true;
@@ -195,8 +171,7 @@ const EditorialGrid = ({ products, cardSettings }: { products: any[]; cardSettin
   );
 };
 
-// ── Layout: Masonry ──
-const MasonryGrid = ({ products, cardSettings, colsDesktop }: { products: any[]; cardSettings: any; colsDesktop: number }) => {
+const MasonryGrid = ({ products, cardSettings, colsDesktop }: { products: any[]; cardSettings: CardSettings; colsDesktop: number }) => {
   const aspects = ["aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[2/3]"];
   return (
     <div className={`columns-2 md:columns-3 lg:columns-${colsDesktop} gap-4 md:gap-6 space-y-4 md:space-y-6`}>
@@ -209,8 +184,7 @@ const MasonryGrid = ({ products, cardSettings, colsDesktop }: { products: any[];
   );
 };
 
-// ── Layout: Highlight ──
-const HighlightGrid = ({ products, cardSettings }: { products: any[]; cardSettings: any }) => {
+const HighlightGrid = ({ products, cardSettings }: { products: any[]; cardSettings: CardSettings }) => {
   if (products.length === 0) return null;
   const [hero, ...rest] = products;
   return (
@@ -246,25 +220,26 @@ const HighlightGrid = ({ products, cardSettings }: { products: any[]; cardSettin
   );
 };
 
-// ── Main ProductGrid ──
-const ProductGrid = ({ layout = "standard" }: { layout?: GridLayout }) => {
+const ProductGrid = ({ layout }: { layout?: GridLayout }) => {
   const { category } = useParams();
   const { data: dbProducts, isLoading } = useProducts(category);
-  const { data: settings } = useSiteSettings();
+  const { theme } = useThemeConfig();
 
-  const cardSettings = useMemo(() => ({
-    aspect: settings?.theme_card_aspect || "3/4",
-    hoverEffect: settings?.theme_card_hover_effect || "zoom",
-    showCategory: settings?.theme_card_show_category !== "false",
-    showBadge: settings?.theme_card_show_badge !== "false",
-    badgeStyle: settings?.theme_card_badge_style || "filled",
-    priceWeight: settings?.theme_card_price_weight || "300",
-    nameSize: settings?.theme_card_name_size || "14",
-    gap: settings?.theme_card_gap || "16",
-  }), [settings]);
+  const effectiveLayout = layout || (theme.categoryLayout as GridLayout) || "standard";
 
-  const colsDesktop = parseInt(settings?.theme_card_columns_desktop || "3");
-  const colsMobile = parseInt(settings?.theme_card_columns_mobile || "2");
+  const cardSettings: CardSettings = {
+    aspect: theme.cardAspect,
+    hoverEffect: theme.cardHoverEffect,
+    showCategory: theme.cardShowCategory,
+    showBadge: theme.cardShowBadge,
+    badgeStyle: theme.cardBadgeStyle,
+    priceWeight: theme.cardPriceWeight,
+    nameSize: theme.cardNameSize,
+    gap: theme.cardGap,
+  };
+
+  const colsDesktop = parseInt(theme.cardColumnsDesktop);
+  const colsMobile = parseInt(theme.cardColumnsMobile);
 
   const products = dbProducts && dbProducts.length > 0
     ? dbProducts.map((p) => ({
@@ -295,12 +270,12 @@ const ProductGrid = ({ layout = "standard" }: { layout?: GridLayout }) => {
   }
 
   return (
-    <section className="w-full px-6 mb-16" style={{ gap: `${cardSettings.gap}px` }}>
-      {layout === "editorial" ? (
+    <section className="w-full px-6 mb-16">
+      {effectiveLayout === "editorial" ? (
         <EditorialGrid products={products} cardSettings={cardSettings} />
-      ) : layout === "masonry" ? (
+      ) : effectiveLayout === "masonry" ? (
         <MasonryGrid products={products} cardSettings={cardSettings} colsDesktop={colsDesktop} />
-      ) : layout === "highlight" ? (
+      ) : effectiveLayout === "highlight" ? (
         <HighlightGrid products={products} cardSettings={cardSettings} />
       ) : (
         <div

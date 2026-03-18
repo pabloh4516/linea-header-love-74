@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Header from "../components/header/Header";
@@ -7,34 +6,21 @@ import ProductImageGallery from "../components/product/ProductImageGallery";
 import ProductInfo from "../components/product/ProductInfo";
 import ProductDescription from "../components/product/ProductDescription";
 import ProductCarousel from "../components/content/ProductCarousel";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useThemeConfig } from "@/hooks/useThemeConfig";
 import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
 const ProductDetail = () => {
-  const { data: settings } = useSiteSettings();
-
-  const pdp = useMemo(() => ({
-    layout: settings?.theme_pdp_layout || "side-by-side",
-    showBreadcrumb: settings?.theme_pdp_show_breadcrumb !== "false",
-    showEditorNotes: settings?.theme_pdp_show_editor_notes !== "false",
-    showDetailsGrid: settings?.theme_pdp_show_details_grid !== "false",
-    showTrustBadges: settings?.theme_pdp_show_trust_badges !== "false",
-    stickyInfo: settings?.theme_pdp_sticky_info !== "false",
-    showRelated: settings?.theme_pdp_show_related !== "false",
-    showSku: settings?.theme_pdp_show_sku === "true",
-  }), [settings]);
-
-  const isStacked = pdp.layout === "stacked";
+  const { theme } = useThemeConfig();
+  const isStacked = theme.pdpLayout === "stacked";
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <Header />
 
       <main>
-        {/* Mobile breadcrumb */}
-        {pdp.showBreadcrumb && (
+        {theme.pdpShowBreadcrumb && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="lg:hidden px-6 pt-4 pb-3">
             <Breadcrumb>
               <BreadcrumbList>
@@ -58,10 +44,8 @@ const ProductDetail = () => {
           </motion.div>
         )}
 
-        {/* Product section */}
         <section className="w-full pb-10 lg:pb-0">
           {isStacked ? (
-            /* Stacked layout */
             <div className="max-w-4xl mx-auto">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
                 <ProductImageGallery />
@@ -71,12 +55,11 @@ const ProductDetail = () => {
                 transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className="px-6 lg:px-10 xl:px-14 pb-6 mt-6"
               >
-                <ProductInfo showBreadcrumb={pdp.showBreadcrumb} showEditorNotes={pdp.showEditorNotes} showDetailsGrid={pdp.showDetailsGrid} showTrustBadges={pdp.showTrustBadges} showSku={pdp.showSku} />
+                <ProductInfo />
                 <ProductDescription />
               </motion.div>
             </div>
           ) : (
-            /* Side-by-side layout (default) */
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }} className="lg:col-span-7">
                 <ProductImageGallery />
@@ -85,18 +68,17 @@ const ProductDetail = () => {
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className={`lg:col-span-5 px-6 lg:px-10 xl:px-14 pb-6 lg:pb-0 mt-6 lg:mt-0 ${
-                  pdp.stickyInfo ? "lg:sticky lg:top-24 lg:h-fit lg:py-10 lg:overflow-y-auto lg:max-h-[calc(100vh-6rem)]" : "lg:py-10"
+                  theme.pdpStickyInfo ? "lg:sticky lg:top-24 lg:h-fit lg:py-10 lg:overflow-y-auto lg:max-h-[calc(100vh-6rem)]" : "lg:py-10"
                 }`}
               >
-                <ProductInfo showBreadcrumb={pdp.showBreadcrumb} showEditorNotes={pdp.showEditorNotes} showDetailsGrid={pdp.showDetailsGrid} showTrustBadges={pdp.showTrustBadges} showSku={pdp.showSku} />
+                <ProductInfo />
                 <ProductDescription />
               </motion.div>
             </div>
           )}
         </section>
 
-        {/* Related products */}
-        {pdp.showRelated && (
+        {theme.pdpShowRelated && (
           <>
             <section className="w-full mt-16 lg:mt-32 px-6 md:px-0">
               <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.6 }} className="mb-3 md:px-12">

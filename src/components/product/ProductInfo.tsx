@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Minus, Plus, Heart } from "lucide-react";
 import { toast } from "sonner";
+import { useThemeConfig } from "@/hooks/useThemeConfig";
 import pantheonImage from "@/assets/pantheon.jpg";
 
 interface ProductInfoProps {
@@ -17,14 +18,22 @@ interface ProductInfoProps {
 }
 
 const ProductInfo = ({
-  showBreadcrumb = true,
-  showEditorNotes = true,
-  showDetailsGrid = true,
-  showTrustBadges = true,
-  showSku = false,
+  showBreadcrumb,
+  showEditorNotes,
+  showDetailsGrid,
+  showTrustBadges,
+  showSku,
 }: ProductInfoProps) => {
+  const { theme } = useThemeConfig();
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
+
+  // Props override theme defaults
+  const breadcrumb = showBreadcrumb ?? theme.pdpShowBreadcrumb;
+  const editorNotes = showEditorNotes ?? theme.pdpShowEditorNotes;
+  const detailsGrid = showDetailsGrid ?? theme.pdpShowDetailsGrid;
+  const trustBadges = showTrustBadges ?? theme.pdpShowTrustBadges;
+  const sku = showSku ?? theme.pdpShowSku;
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
@@ -44,9 +53,17 @@ const ProductInfo = ({
     toast.success(`${quantity} item(ns) adicionado(s) à sacola`);
   };
 
+  const btnStyle: React.CSSProperties = {
+    borderRadius: `${theme.buttonRadius}px`,
+    height: `${theme.buttonHeight}px`,
+    fontSize: `${theme.buttonFontSize}px`,
+    letterSpacing: `${theme.buttonLetterSpacing}em`,
+    fontWeight: Number(theme.buttonFontWeight),
+  };
+
   return (
     <div className="space-y-8">
-      {showBreadcrumb && (
+      {breadcrumb && (
         <div className="hidden lg:block">
           <Breadcrumb>
             <BreadcrumbList>
@@ -79,12 +96,12 @@ const ProductInfo = ({
           </button>
         </div>
         <p className="text-display text-xl text-foreground">R$2.850</p>
-        {showSku && (
+        {sku && (
           <p className="text-editorial text-[9px] tracking-[0.15em] text-muted-foreground">SKU: LE-PTH-001</p>
         )}
       </div>
 
-      {showDetailsGrid && (
+      {detailsGrid && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6 border-y border-border">
           <div className="space-y-1">
             <h3 className="text-editorial text-[9px] tracking-[0.2em] text-muted-foreground">Material</h3>
@@ -105,7 +122,7 @@ const ProductInfo = ({
         </div>
       )}
 
-      {showEditorNotes && (
+      {editorNotes && (
         <div className="space-y-2">
           <h3 className="text-editorial text-[9px] tracking-[0.2em] text-muted-foreground">Notas do Editor</h3>
           <p className="text-sm font-light text-foreground/80 italic leading-relaxed">
@@ -130,12 +147,13 @@ const ProductInfo = ({
 
         <Button
           type="button" onClick={handleAddToBag}
-          className="w-full h-[52px] bg-foreground text-background hover:bg-foreground/90 font-light rounded-none text-editorial text-xs tracking-[0.15em] transition-all duration-300 hover:tracking-[0.25em]"
+          className="w-full bg-foreground text-background hover:bg-foreground/90 font-light text-editorial tracking-[0.15em] transition-all duration-300 hover:tracking-[0.25em]"
+          style={btnStyle}
         >
           Adicionar à Sacola
         </Button>
 
-        {showTrustBadges && (
+        {trustBadges && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <div className="flex items-center justify-center gap-1.5 text-muted-foreground border border-border/60 px-3 py-2">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
