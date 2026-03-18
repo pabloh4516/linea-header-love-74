@@ -571,7 +571,7 @@ const AdminThemeEditor = () => {
   const [sectionDrilldown, setSectionDrilldown] = useState<string | null>(null);
 
   // Drill-down state for settings tab
-  const [settingsDrilldown, setSettingsDrilldown] = useState<string | null>(null);
+  const [settingsDrilldown, setSettingsDrilldown] = useState<SettingsGroupId | null>(null);
 
   useEffect(() => {
     if (settings) {
@@ -593,7 +593,7 @@ const AdminThemeEditor = () => {
           if (mapped.tab === "sections") {
             setSectionDrilldown(mapped.target);
           } else {
-            setSettingsDrilldown(mapped.target);
+            setSettingsDrilldown(mapped.target as SettingsGroupId);
           }
           if (sidebarCollapsed) setSidebarCollapsed(false);
         }
@@ -678,10 +678,6 @@ const AdminThemeEditor = () => {
       return null;
     }
     if (settingsDrilldown) {
-      // Try theme schema groups first, then hardcoded
-      const themeGroups = themeRegistry.getGlobalSettingsSchema();
-      const themeGroup = themeGroups.find(g => g.name === settingsDrilldown);
-      if (themeGroup) return themeGroup.name;
       return SETTINGS_GROUPS.find(s => s.id === settingsDrilldown)?.label || null;
     }
     return null;
@@ -959,50 +955,15 @@ const SectionsTab = ({
 const SettingsTab = ({
   drilldown, onDrilldown, settingsGrouped, theme, onChange, onApplyPreset,
 }: {
-  drilldown: string | null;
-  onDrilldown: (id: string | null) => void;
+  drilldown: SettingsGroupId | null;
+  onDrilldown: (id: SettingsGroupId | null) => void;
   settingsGrouped: Record<string, SettingsGroupDef[]>;
   theme: Record<string, string>;
   onChange: (key: string, value: string) => void;
   onApplyPreset: (values: Record<string, string>) => void;
 }) => {
-  // Read global settings schema from active theme
-  const themeGlobalGroups = themeRegistry.getGlobalSettingsSchema();
-  const hasThemeSchema = themeGlobalGroups.length > 0;
-
-  // ── Drilldown view ────────────────────────────────────────
+  // Drilldown into a specific settings panel
   if (drilldown) {
-    // Theme schema drilldown: find group by name
-    if (hasThemeSchema) {
-      const selectedGroup = themeGlobalGroups.find(g => g.name === drilldown);
-      if (selectedGroup) {
-        return (
-          <>
-            <button
-              onClick={() => onDrilldown(null)}
-              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors mb-3"
-            >
-              <ArrowLeft className="h-3 w-3" /> Voltar
-            </button>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1 mb-3">
-              {selectedGroup.name}
-            </p>
-            <div className="space-y-1">
-              {selectedGroup.settings.map(setting => (
-                <SchemaField
-                  key={setting.id}
-                  setting={setting}
-                  value={theme[`theme_${setting.id}`] ?? (setting.default !== undefined ? String(setting.default) : "")}
-                  onChange={(val) => onChange(`theme_${setting.id}`, String(val))}
-                />
-              ))}
-            </div>
-          </>
-        );
-      }
-    }
-
-    // Fallback: hardcoded panels (linea-minimal and alike)
     return (
       <>
         <button onClick={() => onDrilldown(null)}
@@ -1027,29 +988,7 @@ const SettingsTab = ({
     );
   }
 
-  // ── List view ─────────────────────────────────────────────
-
-  // If theme has globalSettingsSchema, render its groups dynamically
-  if (hasThemeSchema) {
-    return (
-      <div className="space-y-1">
-        {themeGlobalGroups.map((group, idx) => (
-          <button
-            key={idx}
-            onClick={() => onDrilldown(group.name)}
-            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[hsl(var(--admin-bg))] transition-colors text-left"
-          >
-            <Settings className="h-4 w-4 text-muted-foreground shrink-0" />
-            <span className="text-[12px] font-medium flex-1">{group.name}</span>
-            <span className="text-[10px] text-muted-foreground mr-1">{group.settings.length}</span>
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
-        ))}
-      </div>
-    );
-  }
-
-  // Fallback: hardcoded groups list (linea-minimal)
+  // List view — grouped settings
   return (
     <>
       {Object.entries(settingsGrouped).map(([group, items]) => (

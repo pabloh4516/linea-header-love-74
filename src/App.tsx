@@ -1,5 +1,4 @@
 import "@/themes/linea-minimal"; // Register theme before render
-import "@/themes/ecommerce-br"; // Register E-commerce Brasil theme
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
