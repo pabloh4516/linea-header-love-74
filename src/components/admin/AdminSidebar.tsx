@@ -19,8 +19,13 @@ const mainItems = [
   { title: "Início", url: "/admin", icon: Home },
   { title: "Pedidos", url: "/admin/orders", icon: ShoppingCart },
   { title: "Produtos", url: "/admin/products", icon: Package },
-  { title: "Clientes", url: "/admin/customers", icon: Users },
   { title: "Categorias", url: "/admin/categories", icon: FolderOpen },
+  { title: "Clientes", url: "/admin/customers", icon: Users },
+];
+
+const marketingItems = [
+  { title: "Cupons", url: "/admin/coupons", icon: Tag },
+  { title: "Order Bumps", url: "/admin/order-bumps", icon: Zap },
 ];
 
 const contentItems = [
