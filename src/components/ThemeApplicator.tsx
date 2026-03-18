@@ -139,6 +139,7 @@ const ThemeApplicator = () => {
       }
       if (e.data?.type === "theme-content-refresh") {
         queryClient.invalidateQueries({ queryKey: ["homepage-sections"] });
+        queryClient.invalidateQueries({ queryKey: ["page-template"] });
       }
       if (e.data?.type === "theme-enable-inline-edit" && e.data.script) {
         if (!document.getElementById("theme-inline-edit")) {
