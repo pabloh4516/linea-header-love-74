@@ -38,7 +38,13 @@ type AppliedCoupon = {
 };
 
 const Checkout = () => {
-  const [showDiscountInput, setShowDiscountInput] = useState(false);
+  const { data: settings } = useSiteSettings();
+  const checkout = useMemo(() => ({
+    showTrust: settings?.theme_checkout_show_trust !== "false",
+    showOrderBumps: settings?.theme_checkout_show_order_bumps !== "false",
+    showCoupon: settings?.theme_checkout_show_coupon !== "false",
+    trustText: settings?.theme_checkout_trust_text || "Pagamento 100% seguro",
+  }), [settings]);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
