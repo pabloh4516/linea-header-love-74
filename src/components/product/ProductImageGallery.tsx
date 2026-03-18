@@ -101,14 +101,14 @@ const ProductImageGallery = () => {
             </AnimatePresence>
           </div>
 
-          <div className="flex justify-center mt-4 gap-1.5 px-6">
+          <div className="flex justify-center mt-4 mb-2 gap-2 px-6">
             {productImages.map((_, index) => (
               <button
                 key={index}
                 type="button"
                 aria-label={`Ver imagem ${index + 1}`}
                 onClick={() => setCurrentImageIndex(index)}
-                className="h-0.5 flex-1 max-w-8 rounded-full transition-all duration-500"
+                className="h-1 flex-1 max-w-8 rounded-full transition-all duration-500"
                 style={{
                   backgroundColor: index === currentImageIndex ? "hsl(var(--foreground))" : "hsl(var(--border))",
                 }}
