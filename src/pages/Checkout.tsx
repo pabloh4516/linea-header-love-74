@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Minus, Plus, CreditCard, Check, X, Tag, Loader2, Zap } from "lucide-react";
 import CheckoutHeader from "../components/header/CheckoutHeader";
 import Footer from "../components/footer/Footer";
@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
 
@@ -37,6 +38,13 @@ type AppliedCoupon = {
 };
 
 const Checkout = () => {
+  const { data: settings } = useSiteSettings();
+  const checkout = useMemo(() => ({
+    showTrust: settings?.theme_checkout_show_trust !== "false",
+    showOrderBumps: settings?.theme_checkout_show_order_bumps !== "false",
+    showCoupon: settings?.theme_checkout_show_coupon !== "false",
+    trustText: settings?.theme_checkout_trust_text || "Pagamento 100% seguro",
+  }), [settings]);
   const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
@@ -348,7 +356,7 @@ const Checkout = () => {
                   ))}
                 </div>
 
-                {orderBumps.length > 0 && (
+                {checkout.showOrderBumps && orderBumps.length > 0 && (
                   <div className="mt-6 pt-6 border-t border-muted-foreground/20 space-y-3">
                     <div className="flex items-center gap-2 mb-2">
                       <Zap className="h-4 w-4 text-amber-500" />
@@ -414,6 +422,7 @@ const Checkout = () => {
                   </div>
                 )}
 
+                {checkout.showCoupon && (
                 <div className="mt-8 pt-6 border-t border-muted-foreground/20">
                   {appliedCoupon ? (
                     <div className="flex items-center justify-between bg-primary/5 border border-primary/20 px-3 py-2 rounded-sm">
@@ -459,6 +468,16 @@ const Checkout = () => {
                     </div>
                   )}
                 </div>
+                )}
+
+                {checkout.showTrust && (
+                  <div className="mt-4 pt-3 border-t border-muted-foreground/10 flex items-center justify-center gap-2 text-muted-foreground">
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                    <span className="text-[11px] font-light">{checkout.trustText}</span>
+                  </div>
+                )}
 
                 <div className="border-t border-muted-foreground/20 mt-4 pt-6 space-y-2">
                   <div className="flex justify-between text-sm">
