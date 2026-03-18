@@ -45,6 +45,25 @@ const Checkout = () => {
     showCoupon: settings?.theme_checkout_show_coupon !== "false",
     trustText: settings?.theme_checkout_trust_text || "Pagamento 100% seguro",
   }), [settings]);
+
+  const shippingOptions = useMemo(() => {
+    if (settings?.shipping_options) {
+      try {
+        const parsed = JSON.parse(settings.shipping_options) as Array<{
+          id: string; name: string; price: number; estimatedDays: string; enabled: boolean;
+        }>;
+        return parsed.filter(o => o.enabled);
+      } catch { /* fallback */ }
+    }
+    return [
+      { id: "standard", name: "Envio Padrão", price: 0, estimatedDays: "5-8 dias úteis", enabled: true },
+      { id: "express", name: "Envio Expresso", price: 25, estimatedDays: "2-3 dias úteis", enabled: true },
+      { id: "overnight", name: "Entrega no Dia Seguinte", price: 60, estimatedDays: "Próximo dia útil", enabled: true },
+    ];
+  }, [settings]);
+
+  const freeShippingEnabled = settings?.shipping_free_enabled === "true";
+  const freeShippingThreshold = parseFloat(settings?.shipping_free_threshold || "250") || 250;
   const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
