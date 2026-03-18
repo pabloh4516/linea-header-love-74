@@ -32,6 +32,7 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminCoupons from "./pages/admin/AdminCoupons";
 import AdminOrderBumps from "./pages/admin/AdminOrderBumps";
 import AdminPages from "./pages/admin/AdminPages";
+import DynamicPage from "./pages/DynamicPage";
 
 const queryClient = new QueryClient();
 
