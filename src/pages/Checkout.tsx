@@ -192,11 +192,10 @@ const Checkout = () => {
   }, 0);
 
   const getShippingCost = () => {
-    switch (shippingOption) {
-      case "express": return 25;
-      case "overnight": return 60;
-      default: return 0;
-    }
+    // Free shipping threshold check
+    if (freeShippingEnabled && subtotal >= freeShippingThreshold) return 0;
+    const selected = shippingOptions.find(o => o.id === shippingOption);
+    return selected?.price ?? 0;
   };
 
   const getDiscount = () => {
