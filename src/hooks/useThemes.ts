@@ -3,24 +3,40 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Theme {
   id: string;
+  slug: string;
   name: string;
   description: string | null;
-  settings: Record<string, string>;
-  preview_colors: Record<string, string>;
-  is_preset: boolean;
+  author: string | null;
+  version: string;
+  thumbnail_url: string | null;
   is_active: boolean;
+  settings_data: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
 
-export const useThemes = () => {
+export const useActiveTheme = () => {
+  return useQuery({
+    queryKey: ["themes", "active"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("themes" as any)
+        .select("*")
+        .eq("is_active", true)
+        .maybeSingle();
+      if (error) throw error;
+      return data as unknown as Theme | null;
+    },
+  });
+};
+
+export const useAllThemes = () => {
   return useQuery({
     queryKey: ["themes"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("themes" as any)
         .select("*")
-        .order("is_preset", { ascending: false })
         .order("created_at", { ascending: true });
       if (error) throw error;
       return (data as any[]) as Theme[];
@@ -28,55 +44,29 @@ export const useThemes = () => {
   });
 };
 
-export const useCreateTheme = () => {
+export const useActivateTheme = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (theme: {
-      name: string;
-      description?: string;
-      settings: Record<string, string>;
-      preview_colors?: Record<string, string>;
-      is_preset?: boolean;
-    }) => {
+    mutationFn: async (themeId: string) => {
+      // Deactivate all themes first
+      const { error: deactivateError } = await supabase
+        .from("themes" as any)
+        .update({ is_active: false } as any)
+        .neq("id", themeId);
+      if (deactivateError) throw deactivateError;
+
+      // Activate the selected theme
       const { data, error } = await supabase
         .from("themes" as any)
-        .insert(theme as any)
+        .update({ is_active: true } as any)
+        .eq("id", themeId)
         .select()
         .single();
       if (error) throw error;
       return data as unknown as Theme;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["themes"] }),
-  });
-};
-
-export const useUpdateTheme = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string } & Partial<Omit<Theme, "id" | "created_at" | "updated_at">>) => {
-      const { data, error } = await supabase
-        .from("themes" as any)
-        .update(updates as any)
-        .eq("id", id)
-        .select()
-        .single();
-      if (error) throw error;
-      return data as unknown as Theme;
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["themes"] });
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["themes"] }),
-  });
-};
-
-export const useDeleteTheme = () => {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("themes" as any)
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["themes"] }),
   });
 };

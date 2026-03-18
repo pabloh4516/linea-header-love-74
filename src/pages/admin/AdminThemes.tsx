@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
-import { useThemes, useCreateTheme, useDeleteTheme, Theme } from "@/hooks/useThemes";
+import { useAllThemes, useActivateTheme, Theme } from "@/hooks/useThemes";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -149,9 +151,9 @@ const ThemeMiniPreview = ({ settings }: { settings: Record<string, string> }) =>
 
 // ─── Main Component ────────────────────────────────────────
 const AdminThemes = () => {
-  const { data: themes, isLoading } = useThemes();
-  const createTheme = useCreateTheme();
-  const deleteTheme = useDeleteTheme();
+  const { data: themes, isLoading } = useAllThemes();
+  const activateTheme = useActivateTheme();
+  const queryClient = useQueryClient();
   const { data: currentSettings } = useSiteSettings();
   const updateSetting = useUpdateSetting();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -161,17 +163,17 @@ const AdminThemes = () => {
   const [saveDesc, setSaveDesc] = useState("");
   const [installing, setInstalling] = useState<string | null>(null);
 
-  const presets = themes?.filter((t) => t.is_preset) || [];
-  const customThemes = themes?.filter((t) => !t.is_preset) || [];
+  const allThemes = themes || [];
 
   // ─── Install theme ──────────────────────────────────────
   const handleInstall = async (theme: Theme) => {
     setInstalling(theme.id);
     try {
-      const settings = theme.settings as Record<string, string>;
+      const settings = (theme.settings_data || {}) as Record<string, string>;
       for (const [key, value] of Object.entries(settings)) {
         await updateSetting.mutateAsync({ key, value });
       }
+      await activateTheme.mutateAsync(theme.id);
       toast.success(`Tema "${theme.name}" instalado com sucesso!`);
     } catch {
       toast.error("Erro ao instalar tema");
@@ -192,13 +194,17 @@ const AdminThemes = () => {
           if (key.startsWith("theme_")) settings[key] = value;
         });
       }
-      await createTheme.mutateAsync({
-        name: saveName.trim(),
-        description: saveDesc.trim() || undefined,
-        settings,
-        preview_colors: getPreviewColors(settings),
-        is_preset: false,
-      });
+      const slug = saveName.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+      const { error } = await supabase
+        .from("themes" as any)
+        .insert({
+          name: saveName.trim(),
+          slug,
+          description: saveDesc.trim() || null,
+          settings_data: settings,
+        } as any);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["themes"] });
       toast.success("Tema salvo!");
       setSaveDialogOpen(false);
       setSaveName("");
@@ -212,7 +218,7 @@ const AdminThemes = () => {
   const handleExport = (theme?: Theme) => {
     const settings: Record<string, string> = {};
     if (theme) {
-      Object.assign(settings, theme.settings);
+      Object.assign(settings, theme.settings_data);
     } else if (currentSettings) {
       Object.entries(currentSettings).forEach(([key, value]) => {
         if (key.startsWith("theme_")) settings[key] = value;
@@ -221,7 +227,7 @@ const AdminThemes = () => {
     const exportData = {
       name: theme?.name || "Meu Tema",
       description: theme?.description || "",
-      version: "1.0",
+      version: theme?.version || "1.0",
       exported_at: new Date().toISOString(),
       settings,
     };
@@ -229,7 +235,7 @@ const AdminThemes = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `tema-${(theme?.name || "custom").toLowerCase().replace(/\s+/g, "-")}.json`;
+    a.download = `tema-${(theme?.slug || theme?.name || "custom").toLowerCase().replace(/\s+/g, "-")}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Tema exportado!");
@@ -247,13 +253,17 @@ const AdminThemes = () => {
           toast.error("Arquivo de tema inválido");
           return;
         }
-        await createTheme.mutateAsync({
-          name: data.name || "Tema Importado",
-          description: data.description || `Importado em ${new Date().toLocaleDateString("pt-BR")}`,
-          settings: data.settings,
-          preview_colors: getPreviewColors(data.settings),
-          is_preset: false,
-        });
+        const slug = (data.name || "importado").toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") + "-" + Date.now();
+        const { error } = await supabase
+          .from("themes" as any)
+          .insert({
+            name: data.name || "Tema Importado",
+            slug,
+            description: data.description || `Importado em ${new Date().toLocaleDateString("pt-BR")}`,
+            settings_data: data.settings,
+          } as any);
+        if (error) throw error;
+        queryClient.invalidateQueries({ queryKey: ["themes"] });
         toast.success(`Tema "${data.name || "Importado"}" adicionado à galeria!`);
       } catch {
         toast.error("Erro ao importar tema. Verifique o formato do arquivo.");
@@ -265,12 +275,17 @@ const AdminThemes = () => {
 
   // ─── Delete ─────────────────────────────────────────────
   const handleDelete = async (theme: Theme) => {
-    if (theme.is_preset) {
-      toast.error("Presets não podem ser excluídos");
+    if (theme.is_active) {
+      toast.error("Não é possível excluir o tema ativo");
       return;
     }
     try {
-      await deleteTheme.mutateAsync(theme.id);
+      const { error } = await supabase
+        .from("themes" as any)
+        .delete()
+        .eq("id", theme.id);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ["themes"] });
       toast.success("Tema excluído");
     } catch {
       toast.error("Erro ao excluir tema");
@@ -333,36 +348,15 @@ const AdminThemes = () => {
         </div>
       </div>
 
-      {/* Presets */}
-      {presets.length > 0 && (
-        <div>
-          <h2 className="text-[15px] font-semibold mb-3 flex items-center gap-2">
-            <Sparkles className="h-4 w-4" /> Temas Prontos
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {presets.map((theme) => (
-              <ThemeCard
-                key={theme.id}
-                theme={theme}
-                onInstall={handleInstall}
-                onExport={handleExport}
-                onDelete={handleDelete}
-                installing={installing === theme.id}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Custom themes */}
+      {/* All themes */}
       <div>
         <h2 className="text-[15px] font-semibold mb-3 flex items-center gap-2">
-          <Palette className="h-4 w-4" /> Meus Temas
-          {customThemes.length === 0 && (
+          <Palette className="h-4 w-4" /> Todos os Temas
+          {allThemes.length === 0 && (
             <span className="text-[12px] font-normal text-muted-foreground">(nenhum salvo ainda)</span>
           )}
         </h2>
-        {customThemes.length === 0 ? (
+        {allThemes.length === 0 ? (
           <div className="bg-[hsl(var(--admin-surface))] rounded-xl border border-dashed border-[hsl(var(--admin-border))] p-8 text-center">
             <Palette className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
             <p className="text-[13px] text-muted-foreground mb-3">
@@ -379,7 +373,7 @@ const AdminThemes = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {customThemes.map((theme) => (
+            {allThemes.map((theme) => (
               <ThemeCard
                 key={theme.id}
                 theme={theme}
@@ -425,9 +419,9 @@ const AdminThemes = () => {
               <Button variant="outline" size="sm" onClick={() => setSaveDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button size="sm" onClick={handleSaveCurrent} disabled={createTheme.isPending}>
+              <Button size="sm" onClick={handleSaveCurrent}>
                 <Save className="h-3.5 w-3.5 mr-1" />
-                {createTheme.isPending ? "Salvando..." : "Salvar"}
+                Salvar
               </Button>
             </div>
           </div>
@@ -451,7 +445,7 @@ const ThemeCard = ({
   onDelete: (t: Theme) => void;
   installing: boolean;
 }) => {
-  const settings = (theme.settings || {}) as Record<string, string>;
+  const settings = (theme.settings_data || {}) as Record<string, string>;
 
   return (
     <div className="bg-[hsl(var(--admin-surface))] rounded-xl border border-[hsl(var(--admin-border))] overflow-hidden hover:border-foreground/20 transition-colors group">
@@ -461,9 +455,9 @@ const ThemeCard = ({
           <div>
             <h3 className="text-[14px] font-semibold flex items-center gap-1.5">
               {theme.name}
-              {theme.is_preset && (
+              {theme.is_active && (
                 <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[hsl(var(--admin-info)/0.1)] text-[hsl(var(--admin-info))] font-medium">
-                  PRESET
+                  ATIVO
                 </span>
               )}
             </h3>
@@ -485,7 +479,7 @@ const ThemeCard = ({
               <DropdownMenuItem onClick={() => onExport(theme)}>
                 <Download className="h-3.5 w-3.5 mr-2" /> Exportar JSON
               </DropdownMenuItem>
-              {!theme.is_preset && (
+              {!theme.is_active && (
                 <DropdownMenuItem onClick={() => onDelete(theme)} className="text-destructive focus:text-destructive">
                   <Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir
                 </DropdownMenuItem>
