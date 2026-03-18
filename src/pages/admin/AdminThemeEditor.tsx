@@ -477,6 +477,8 @@ const THEME_PRESETS: ThemePreset[] = [
       },
     ],
   },
+  {
+    name: "Moderno", description: "Contemporâneo, arrojado, cantos arredondados — tech-forward",
     values: {
       theme_primary_h: "220", theme_primary_s: "15", theme_primary_l: "15",
       theme_bg_h: "220", theme_bg_s: "5", theme_bg_l: "98",
