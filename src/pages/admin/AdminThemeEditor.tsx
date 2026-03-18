@@ -548,6 +548,26 @@ const AdminThemeEditor = () => {
 
               <ScrollArea className="flex-1">
                 <div className="p-4 space-y-5">
+                  {activeSection === "presets" && (
+                    <PresetsSection
+                      theme={theme}
+                      onApply={(preset) => {
+                        const newTheme = { ...theme, ...preset };
+                        setTheme(newTheme);
+                        applyToIframe(newTheme);
+                        toast.success("Preset aplicado! Clique 'Salvar tema' para persistir.");
+                      }}
+                    />
+                  )}
+                  {activeSection === "homepage_sections" && (
+                    <HomepageSectionsPanel
+                      sections={homepageSections || []}
+                      onToggle={async (s) => {
+                        await updateHomepageSection.mutateAsync({ id: s.id, is_visible: !s.is_visible });
+                        toast.success("Visibilidade atualizada!");
+                      }}
+                    />
+                  )}
                   {activeSection === "colors" && <ColorsSection theme={theme} onChange={updateTheme} />}
                   {activeSection === "typography" && <TypographySection theme={theme} onChange={updateTheme} />}
                   {activeSection === "layout" && <LayoutSection theme={theme} onChange={updateTheme} />}
