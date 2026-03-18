@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Trash2, Search, MoreHorizontal, Image as ImageIcon } from "lucide-react";
+import VariantManager from "@/components/admin/VariantManager";
 import { toast } from "sonner";
 import {
   DropdownMenu,
