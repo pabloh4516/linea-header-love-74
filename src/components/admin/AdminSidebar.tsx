@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, FolderOpen, Home, Settings, LogOut, Store, Search, ShoppingCart, Users, Palette, BarChart3, Tag, Zap, FileText } from "lucide-react";
+import { LayoutDashboard, Package, FolderOpen, Home, Settings, LogOut, Store, Search, ShoppingCart, Users, Palette, BarChart3, Tag, Zap, FileText, SwatchBook } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -31,6 +31,7 @@ const marketingItems = [
 const contentItems = [
   { title: "Homepage", url: "/admin/homepage", icon: LayoutDashboard },
   { title: "Páginas", url: "/admin/pages", icon: FileText },
+  { title: "Galeria de Temas", url: "/admin/themes", icon: SwatchBook },
   { title: "Editor de Tema", url: "/admin/theme", icon: Palette },
   { title: "Relatórios", url: "/admin/analytics", icon: BarChart3 },
 ];

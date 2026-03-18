@@ -534,6 +534,42 @@ export type Database = {
         }
         Relationships: []
       }
+      themes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_preset: boolean
+          name: string
+          preview_colors: Json | null
+          settings: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_preset?: boolean
+          name: string
+          preview_colors?: Json | null
+          settings?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_preset?: boolean
+          name?: string
+          preview_colors?: Json | null
+          settings?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
