@@ -45,6 +45,25 @@ const Checkout = () => {
     showCoupon: settings?.theme_checkout_show_coupon !== "false",
     trustText: settings?.theme_checkout_trust_text || "Pagamento 100% seguro",
   }), [settings]);
+
+  const shippingOptions = useMemo(() => {
+    if (settings?.shipping_options) {
+      try {
+        const parsed = JSON.parse(settings.shipping_options) as Array<{
+          id: string; name: string; price: number; estimatedDays: string; enabled: boolean;
+        }>;
+        return parsed.filter(o => o.enabled);
+      } catch { /* fallback */ }
+    }
+    return [
+      { id: "standard", name: "Envio Padrão", price: 0, estimatedDays: "5-8 dias úteis", enabled: true },
+      { id: "express", name: "Envio Expresso", price: 25, estimatedDays: "2-3 dias úteis", enabled: true },
+      { id: "overnight", name: "Entrega no Dia Seguinte", price: 60, estimatedDays: "Próximo dia útil", enabled: true },
+    ];
+  }, [settings]);
+
+  const freeShippingEnabled = settings?.shipping_free_enabled === "true";
+  const freeShippingThreshold = parseFloat(settings?.shipping_free_threshold || "250") || 250;
   const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [discountCode, setDiscountCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
@@ -173,11 +192,10 @@ const Checkout = () => {
   }, 0);
 
   const getShippingCost = () => {
-    switch (shippingOption) {
-      case "express": return 25;
-      case "overnight": return 60;
-      default: return 0;
-    }
+    // Free shipping threshold check
+    if (freeShippingEnabled && subtotal >= freeShippingThreshold) return 0;
+    const selected = shippingOptions.find(o => o.id === shippingOption);
+    return selected?.price ?? 0;
   };
 
   const getDiscount = () => {
@@ -772,41 +790,25 @@ const Checkout = () => {
                 onValueChange={setShippingOption}
                 className="space-y-4"
               >
-                <div className="flex items-center justify-between p-4 border border-muted-foreground/20 rounded-none">
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="standard" id="standard" />
-                    <Label htmlFor="standard" className="font-light text-foreground">
-                      Envio Padrão
-                    </Label>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Grátis • 5-8 dias úteis
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 border border-muted-foreground/20 rounded-none">
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="express" id="express" />
-                    <Label htmlFor="express" className="font-light text-foreground">
-                      Envio Expresso
-                    </Label>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    R$25 • 2-3 dias úteis
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between p-4 border border-muted-foreground/20 rounded-none">
-                  <div className="flex items-center space-x-3">
-                    <RadioGroupItem value="overnight" id="overnight" />
-                    <Label htmlFor="overnight" className="font-light text-foreground">
-                      Entrega no Dia Seguinte
-                    </Label>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    R$60 • Próximo dia útil
-                  </div>
-                </div>
+                {shippingOptions.map((opt) => {
+                  const isFree = freeShippingEnabled && subtotal >= freeShippingThreshold && opt.price > 0;
+                  const displayPrice = opt.price === 0 || isFree
+                    ? "Grátis"
+                    : `R$${opt.price.toLocaleString("pt-BR", { minimumFractionDigits: 0 })}`;
+                  return (
+                    <div key={opt.id} className="flex items-center justify-between p-4 border border-muted-foreground/20 rounded-none">
+                      <div className="flex items-center space-x-3">
+                        <RadioGroupItem value={opt.id} id={opt.id} />
+                        <Label htmlFor={opt.id} className="font-light text-foreground">
+                          {opt.name}
+                        </Label>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {displayPrice} • {opt.estimatedDays}
+                      </div>
+                    </div>
+                  );
+                })}
               </RadioGroup>
             </div>
 
