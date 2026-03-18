@@ -751,10 +751,7 @@ const AdminThemeEditor = () => {
                   {activeSection === "homepage_sections" && (
                     <HomepageSectionsPanel
                       sections={homepageSections || []}
-                      onToggle={async (s) => {
-                        await updateHomepageSection.mutateAsync({ id: s.id, is_visible: !s.is_visible });
-                        toast.success("Visibilidade atualizada!");
-                      }}
+                      iframeRef={iframeRef}
                     />
                   )}
                   {activeSection === "colors" && <ColorsSection theme={theme} onChange={updateTheme} />}
