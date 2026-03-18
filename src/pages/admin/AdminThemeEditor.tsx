@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
 import { useHomepageSections, useUpdateSection, useCreateSection, useDeleteSection } from "@/hooks/useHomepageSections";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { useActiveThemeSync } from "@/hooks/useActiveThemeSync";
 import { usePageTemplate, useSavePageTemplate } from "@/hooks/usePageTemplates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -551,6 +552,7 @@ const PAGE_TYPE_MAP: Record<EditorPage, string> = {
 // ─── Main Component ───────────────────────────────────────
 // ═══════════════════════════════════════════════════════════
 const AdminThemeEditor = () => {
+  const activeThemeData = useActiveThemeSync();
   const { data: settings, isLoading } = useSiteSettings();
   const updateSetting = useUpdateSetting();
   const { data: homepageSections } = useHomepageSections();
@@ -973,7 +975,13 @@ const SettingsTab = ({
   onChange: (key: string, value: string) => void;
   onApplyPreset: (values: Record<string, string>) => void;
 }) => {
-  const themeGroups = themeRegistry.getGlobalSettingsSchema();
+  // Force re-read when active theme changes (themeRegistry is not reactive)
+  const activeThemeForSettings = useActiveThemeSync();
+  const themeGroups = useMemo(() => {
+    // activeThemeForSettings?.slug dependency forces re-computation
+    return themeRegistry.getGlobalSettingsSchema();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeThemeForSettings?.slug]);
   const useRegistryGroups = themeGroups.length > 0;
   const { upload } = useImageUpload();
   const [uploading, setUploading] = useState(false);
