@@ -1,26 +1,61 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import Header from "../components/header/Header";
 import Footer from "../components/footer/Footer";
 import ProductImageGallery from "../components/product/ProductImageGallery";
 import ProductInfo from "../components/product/ProductInfo";
+import type { ProductInfoBlock } from "../components/product/ProductInfo";
 import ProductDescription from "../components/product/ProductDescription";
 import ProductCarousel from "../components/content/ProductCarousel";
 import { useThemeConfig } from "@/hooks/useThemeConfig";
+import { usePageTemplate } from "@/hooks/usePageTemplates";
 import {
   Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
 const ProductDetail = () => {
   const { theme } = useThemeConfig();
+  const { data: template } = usePageTemplate("product");
   const isStacked = theme.pdpLayout === "stacked";
+
+  // Extract product_info blocks from template
+  const productInfoBlocks = useMemo((): ProductInfoBlock[] | undefined => {
+    if (!template) return undefined;
+    const order = (template.section_order || []) as string[];
+    const sectionsMap = (template.sections || {}) as Record<string, any>;
+    for (const id of order) {
+      const section = sectionsMap[id];
+      if (section?.type === "product_info" && section.is_visible !== false) {
+        if (Array.isArray(section.blocks) && section.blocks.length > 0) {
+          return section.blocks as ProductInfoBlock[];
+        }
+      }
+    }
+    return undefined;
+  }, [template]);
+
+  // Check if description block should show (part of product_info or standalone)
+  const showDescription = useMemo(() => {
+    if (productInfoBlocks) {
+      const descBlock = productInfoBlocks.find(b => b.type === "description");
+      return descBlock ? descBlock.visible : true;
+    }
+    return true;
+  }, [productInfoBlocks]);
+
+  // Filter out description from blocks passed to ProductInfo (rendered separately)
+  const infoBlocks = useMemo(() => {
+    if (!productInfoBlocks) return undefined;
+    return productInfoBlocks.filter(b => b.type !== "description");
+  }, [productInfoBlocks]);
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <Header />
 
       <main>
-        {theme.pdpShowBreadcrumb && (
+        {theme.pdpShowBreadcrumb && !productInfoBlocks && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="lg:hidden px-6 pt-4 pb-3">
             <Breadcrumb>
               <BreadcrumbList>
@@ -55,8 +90,8 @@ const ProductDetail = () => {
                 transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className="px-6 lg:px-10 xl:px-14 pb-6 mt-6"
               >
-                <ProductInfo />
-                <ProductDescription />
+                <ProductInfo blocks={infoBlocks} />
+                {showDescription && <ProductDescription />}
               </motion.div>
             </div>
           ) : (
@@ -71,8 +106,8 @@ const ProductDetail = () => {
                   theme.pdpStickyInfo ? "lg:sticky lg:top-24 lg:h-fit lg:py-10 lg:overflow-y-auto lg:max-h-[calc(100vh-6rem)]" : "lg:py-10"
                 }`}
               >
-                <ProductInfo />
-                <ProductDescription />
+                <ProductInfo blocks={infoBlocks} />
+                {showDescription && <ProductDescription />}
               </motion.div>
             </div>
           )}

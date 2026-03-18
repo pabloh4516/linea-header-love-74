@@ -18,7 +18,7 @@ import {
   Globe, Menu, AlignCenter, Layers, Eye, EyeOff, ArrowUp, Megaphone, Grid3X3, Search,
   Share2, Code, MousePointer, Sparkles, Home, Plus, Trash2, GripVertical, ArrowLeft,
   ChevronDown, ChevronUp, FileText, Video, MessageSquare, Mail, Columns, HelpCircle,
-  SeparatorHorizontal, Star, LayoutGrid, Settings,
+  SeparatorHorizontal, Star, LayoutGrid, Settings, Shield, Tag, Hash,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Link } from "react-router-dom";
@@ -452,6 +452,9 @@ const SECTION_TYPES = [
   { value: "contact_form", label: "Formulário de Contato", icon: MessageSquare },
   { value: "image_gallery", label: "Galeria de Imagens", icon: ImageIcon },
   { value: "separator", label: "Separador", icon: SeparatorHorizontal },
+  { value: "product_info", label: "Informações do Produto", icon: ShoppingBag },
+  { value: "product_gallery", label: "Galeria do Produto", icon: ImageIcon },
+  { value: "product_recommendations", label: "Produtos Recomendados", icon: Star },
 ];
 
 interface BlockFieldDef { key: string; label: string; type: "text" | "url" | "image"; }
@@ -600,12 +603,55 @@ const SECTION_SCHEMAS: Record<string, SectionSchema> = {
     { key: "link", label: "Link", type: "url" },
   ]}},
   separator: { fields: [] },
+  product_info: { fields: [] },
+  product_gallery: { fields: [
+    { key: "title", label: "Título", type: "text" },
+  ]},
+  product_recommendations: { fields: [
+    { key: "title", label: "Título da Seção", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+    { key: "cta_text", label: "Texto do CTA", type: "text" },
+    { key: "link_url", label: "Link do CTA", type: "url" },
+  ]},
 };
+
+// ─── Product Info Named Blocks ────────────────────────────
+const PRODUCT_INFO_BLOCK_TYPES = [
+  { type: "breadcrumb", label: "Breadcrumb", icon: ChevronRight },
+  { type: "title", label: "Título do Produto", icon: Type },
+  { type: "price", label: "Preço", icon: Tag },
+  { type: "variant_selector", label: "Seletor de Variantes", icon: Layers },
+  { type: "quantity_selector", label: "Seletor de Quantidade", icon: Plus },
+  { type: "add_to_cart", label: "Botão Comprar", icon: ShoppingBag },
+  { type: "details_grid", label: "Detalhes do Produto", icon: Grid3X3 },
+  { type: "editor_notes", label: "Notas do Editor", icon: Star },
+  { type: "sku", label: "SKU", icon: Hash },
+  { type: "trust_badges", label: "Selos de Confiança", icon: Shield },
+  { type: "description", label: "Descrição / Acordeão", icon: FileText },
+];
+
+interface ProductInfoBlock {
+  type: string;
+  visible: boolean;
+}
+
+const DEFAULT_PRODUCT_INFO_BLOCKS: ProductInfoBlock[] = [
+  { type: "breadcrumb", visible: true },
+  { type: "title", visible: true },
+  { type: "price", visible: true },
+  { type: "sku", visible: false },
+  { type: "details_grid", visible: true },
+  { type: "editor_notes", visible: true },
+  { type: "quantity_selector", visible: true },
+  { type: "add_to_cart", visible: true },
+  { type: "trust_badges", visible: true },
+  { type: "description", visible: true },
+];
 
 // ─── Available section types per page ─────────────────────
 const PAGE_AVAILABLE_SECTIONS: Record<EditorPage, string[]> = {
   index: SECTION_TYPES.map(t => t.value),
-  product: ["product_carousel", "rich_text", "newsletter", "testimonials", "collapsible_content", "video", "multicolumn", "full_width_banner", "editorial", "separator", "contact_form"],
+  product: ["product_info", "product_gallery", "product_recommendations", "product_carousel", "rich_text", "newsletter", "testimonials", "collapsible_content", "video", "multicolumn", "full_width_banner", "editorial", "separator", "contact_form"],
   collection: ["rich_text", "newsletter", "full_width_banner", "product_carousel", "editorial", "separator", "testimonials", "video"],
   cart: ["product_carousel", "rich_text", "newsletter", "full_width_banner", "separator", "testimonials"],
   checkout: ["rich_text", "separator"],
@@ -1716,43 +1762,53 @@ const PageSectionEdit = ({ sectionId, pageType, iframeRef, onBack }: {
       </button>
       <SectionTitle>{typeInfo?.label || sectionData.type}</SectionTitle>
       <div className="space-y-3 mt-3">
-        {schema?.fields.map(field => (
-          <div key={field.key} className="space-y-1">
-            <Label className="text-[11px] text-muted-foreground">{field.label}</Label>
-            {field.type === "textarea" ? (
-              <Textarea value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
-                className="text-[11px] min-h-[60px]" placeholder={field.label} />
-            ) : field.type === "image" ? (
-              <div className="space-y-1.5">
-                <Input type="file" accept="image/*" disabled={uploading} className="h-7 text-[10px]"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    setUploading(true);
-                    try {
-                      const url = await upload(file);
-                      setEditForm(f => ({ ...f, [field.key]: url }));
-                    } catch { toast.error("Erro ao enviar imagem"); }
-                    setUploading(false);
-                  }}
-                />
-                {editForm[field.key] && (
-                  <img src={editForm[field.key]} alt="" className="w-14 h-14 object-cover rounded border border-[hsl(var(--admin-border))]" />
+        {/* Product Info: special named blocks editor */}
+        {sectionData.type === "product_info" ? (
+          <ProductInfoBlocksEditor
+            blocks={editBlocks.length > 0 ? editBlocks as unknown as ProductInfoBlock[] : DEFAULT_PRODUCT_INFO_BLOCKS}
+            onBlocksChange={(blocks) => setEditBlocks(blocks as unknown as BlockData[])}
+          />
+        ) : (
+          <>
+            {schema?.fields.map(field => (
+              <div key={field.key} className="space-y-1">
+                <Label className="text-[11px] text-muted-foreground">{field.label}</Label>
+                {field.type === "textarea" ? (
+                  <Textarea value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                    className="text-[11px] min-h-[60px]" placeholder={field.label} />
+                ) : field.type === "image" ? (
+                  <div className="space-y-1.5">
+                    <Input type="file" accept="image/*" disabled={uploading} className="h-7 text-[10px]"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setUploading(true);
+                        try {
+                          const url = await upload(file);
+                          setEditForm(f => ({ ...f, [field.key]: url }));
+                        } catch { toast.error("Erro ao enviar imagem"); }
+                        setUploading(false);
+                      }}
+                    />
+                    {editForm[field.key] && (
+                      <img src={editForm[field.key]} alt="" className="w-14 h-14 object-cover rounded border border-[hsl(var(--admin-border))]" />
+                    )}
+                  </div>
+                ) : (
+                  <Input value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                    className="h-7 text-[11px]" placeholder={field.label} />
                 )}
               </div>
-            ) : (
-              <Input value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
-                className="h-7 text-[11px]" placeholder={field.label} />
-            )}
-          </div>
-        ))}
+            ))}
+          </>
+        )}
 
         <div className="flex items-center justify-between py-2">
           <Label className="text-[11px] text-muted-foreground">Visível</Label>
           <Switch checked={editForm.is_visible !== false} onCheckedChange={(v) => setEditForm(f => ({ ...f, is_visible: v }))} />
         </div>
 
-        {schema?.blocks && (
+        {schema?.blocks && sectionData.type !== "product_info" && (
           <div className="space-y-2">
             <Label className="text-[11px] text-muted-foreground font-medium">{schema.blocks.label}</Label>
             <InlineBlockEditor
@@ -1921,7 +1977,93 @@ const InlineBlockEditor = ({ blocks, schema, maxItems, onBlocksChange, onImageUp
 };
 
 // ═══════════════════════════════════════════════════════════
-// ─── Shared Components ────────────────────────────────────
+// ─── Product Info Blocks Editor (named blocks, reorderable)
+// ═══════════════════════════════════════════════════════════
+const ProductInfoBlocksEditor = ({ blocks, onBlocksChange }: {
+  blocks: ProductInfoBlock[];
+  onBlocksChange: (blocks: ProductInfoBlock[]) => void;
+}) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const fullBlocks = useMemo(() => {
+    const existing = new Set(blocks.map(b => b.type));
+    const result = [...blocks];
+    for (const bt of PRODUCT_INFO_BLOCK_TYPES) {
+      if (!existing.has(bt.type)) {
+        result.push({ type: bt.type, visible: false });
+      }
+    }
+    return result;
+  }, [blocks]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = fullBlocks.findIndex(b => b.type === active.id);
+    const newIndex = fullBlocks.findIndex(b => b.type === over.id);
+    onBlocksChange(arrayMove(fullBlocks, oldIndex, newIndex));
+  };
+
+  const handleToggle = (type: string) => {
+    onBlocksChange(fullBlocks.map(b => b.type === type ? { ...b, visible: !b.visible } : b));
+  };
+
+  return (
+    <div className="space-y-1">
+      <Label className="text-[11px] text-muted-foreground font-medium">Blocos do Produto</Label>
+      <p className="text-[10px] text-muted-foreground mb-2">Arraste para reordenar. Alterne a visibilidade de cada bloco.</p>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={fullBlocks.map(b => b.type)} strategy={verticalListSortingStrategy}>
+          {fullBlocks.map(block => {
+            const bt = PRODUCT_INFO_BLOCK_TYPES.find(t => t.type === block.type);
+            if (!bt) return null;
+            return (
+              <SortableProductInfoBlock
+                key={block.type}
+                block={block}
+                label={bt.label}
+                icon={bt.icon}
+                onToggle={() => handleToggle(block.type)}
+              />
+            );
+          })}
+        </SortableContext>
+      </DndContext>
+    </div>
+  );
+};
+
+const SortableProductInfoBlock = ({ block, label, icon: Icon, onToggle }: {
+  block: ProductInfoBlock;
+  label: string;
+  icon: typeof Type;
+  onToggle: () => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.type });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+
+  return (
+    <div ref={setNodeRef} style={style}
+      className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border border-[hsl(var(--admin-border))] mb-1 transition-colors ${
+        block.visible ? "bg-[hsl(var(--admin-bg))]" : "bg-[hsl(var(--admin-surface))] opacity-60"
+      }`}>
+      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none shrink-0">
+        <GripVertical className="h-3 w-3 text-muted-foreground/50" />
+      </button>
+      <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+      <span className="text-[11px] font-medium flex-1">{label}</span>
+      <button onClick={onToggle} className="p-0.5 rounded hover:bg-[hsl(var(--admin-surface))]">
+        {block.visible
+          ? <Eye className="h-3 w-3 text-[hsl(var(--admin-success))]" />
+          : <EyeOff className="h-3 w-3 text-muted-foreground" />}
+      </button>
+    </div>
+  );
+};
+
 // ═══════════════════════════════════════════════════════════
 interface FieldProps {
   theme: Record<string, string>;
