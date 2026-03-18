@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import Pagination from "./Pagination";
 
 // Fallback imports
@@ -26,22 +27,55 @@ const fallbackProducts = [
 
 export type GridLayout = "standard" | "editorial" | "masonry" | "highlight";
 
+// ── Theme-aware aspect ratio ──
+const getAspectClass = (aspect: string) => {
+  switch (aspect) {
+    case "square": return "aspect-square";
+    case "4/5": return "aspect-[4/5]";
+    case "2/3": return "aspect-[2/3]";
+    case "3/4":
+    default: return "aspect-[3/4]";
+  }
+};
+
+// ── Theme-aware hover effect ──
+const getHoverClasses = (effect: string) => {
+  switch (effect) {
+    case "fade": return "group-hover:opacity-80";
+    case "slide": return "group-hover:translate-y-[-4px]";
+    case "zoom":
+    default: return "group-hover:scale-105";
+  }
+};
+
 // Animated product card
 const ProductCard = ({
   product,
   index,
-  aspect = "aspect-[3/4]",
+  aspectOverride,
   showCategory = true,
   className = "",
+  cardSettings,
 }: {
   product: any;
   index: number;
-  aspect?: string;
+  aspectOverride?: string;
   showCategory?: boolean;
   className?: string;
+  cardSettings: {
+    aspect: string;
+    hoverEffect: string;
+    showBadge: boolean;
+    badgeStyle: string;
+    priceWeight: string;
+    nameSize: string;
+    gap: string;
+  };
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const aspectClass = aspectOverride || getAspectClass(cardSettings.aspect);
+  const hoverClass = getHoverClasses(cardSettings.hoverEffect);
 
   return (
     <motion.div
@@ -58,23 +92,29 @@ const ProductCard = ({
       <Link to={`/product/${product.id}`}>
         <Card className="border-none shadow-none bg-transparent group cursor-pointer">
           <CardContent className="p-0">
-            <div className={`${aspect} mb-4 overflow-hidden bg-muted/10 relative`}>
+            <div className={`${aspectClass} mb-4 overflow-hidden bg-muted/10 relative`}>
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 group-hover:opacity-0"
+                className={`w-full h-full object-cover transition-all duration-700 ${hoverClass} ${product.hoverImage ? "group-hover:opacity-0" : ""}`}
               />
               {product.hoverImage && (
                 <img
                   src={product.hoverImage}
                   alt={`${product.name} hover`}
-                  className="absolute inset-0 w-full h-full object-cover transition-all duration-700 opacity-0 group-hover:opacity-100 group-hover:scale-105"
+                  className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 opacity-0 group-hover:opacity-100 ${getHoverClasses(cardSettings.hoverEffect)}`}
                 />
               )}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
-              {product.isNew && (
+              {cardSettings.showBadge && product.isNew && (
                 <div className="absolute top-3 left-3">
-                  <span className="text-editorial text-[9px] tracking-[0.2em] text-foreground bg-background/80 backdrop-blur-sm px-2 py-1">
+                  <span
+                    className={`text-editorial text-[9px] tracking-[0.2em] px-2 py-1 ${
+                      cardSettings.badgeStyle === "outline"
+                        ? "border border-foreground text-foreground"
+                        : "text-foreground bg-background/80 backdrop-blur-sm"
+                    }`}
+                  >
                     NOVO
                   </span>
                 </div>
@@ -87,10 +127,16 @@ const ProductCard = ({
                 </p>
               )}
               <div className="flex justify-between items-center">
-                <h3 className="text-display text-sm md:text-base text-foreground group-hover:opacity-70 transition-opacity duration-300">
+                <h3
+                  className="text-display text-foreground group-hover:opacity-70 transition-opacity duration-300"
+                  style={{ fontSize: `${cardSettings.nameSize}px` }}
+                >
                   {product.name}
                 </h3>
-                <p className="text-sm font-light text-foreground">
+                <p
+                  className="text-foreground"
+                  style={{ fontWeight: Number(cardSettings.priceWeight), fontSize: `${cardSettings.nameSize}px` }}
+                >
                   R${product.price.toLocaleString('pt-BR')}
                 </p>
               </div>
@@ -102,52 +148,45 @@ const ProductCard = ({
   );
 };
 
-// ── Layout: Standard (4-column uniform grid) ──
-const StandardGrid = ({ products }: { products: any[] }) => (
-  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
-    {products.map((product, index) => (
-      <ProductCard key={product.id} product={product} index={index} />
-    ))}
+// ── Layout: Standard ──
+const StandardGrid = ({ products, cardSettings, colsDesktop, colsMobile }: {
+  products: any[]; cardSettings: any; colsDesktop: number; colsMobile: number;
+}) => (
+  <div
+    className="grid gap-4 md:gap-8"
+    style={{
+      gridTemplateColumns: `repeat(${colsMobile}, 1fr)`,
+      gap: `${cardSettings.gap}px`,
+    }}
+  >
+    <style>{`@media (min-width: 768px) { .theme-product-grid { grid-template-columns: repeat(${Math.min(colsDesktop, 3)}, 1fr) !important; } } @media (min-width: 1024px) { .theme-product-grid { grid-template-columns: repeat(${colsDesktop}, 1fr) !important; } }`}</style>
+    <div className="contents theme-product-grid-wrapper">
+      {products.map((product, index) => (
+        <ProductCard key={product.id} product={product} index={index} cardSettings={cardSettings} />
+      ))}
+    </div>
   </div>
 );
 
-// ── Layout: Editorial (mixed large/small rows) ──
-const EditorialGrid = ({ products }: { products: any[] }) => {
+// ── Layout: Editorial ──
+const EditorialGrid = ({ products, cardSettings }: { products: any[]; cardSettings: any }) => {
   const chunks: any[][] = [];
   let i = 0;
   let isLargeRow = true;
-
   while (i < products.length) {
-    if (isLargeRow) {
-      chunks.push(products.slice(i, i + 2));
-      i += 2;
-    } else {
-      chunks.push(products.slice(i, i + 3));
-      i += 3;
-    }
+    if (isLargeRow) { chunks.push(products.slice(i, i + 2)); i += 2; }
+    else { chunks.push(products.slice(i, i + 3)); i += 3; }
     isLargeRow = !isLargeRow;
   }
-
   return (
     <div className="space-y-6 md:space-y-10">
       {chunks.map((chunk, rowIndex) => {
         const isLarge = rowIndex % 2 === 0;
         return (
-          <div
-            key={rowIndex}
-            className={
-              isLarge
-                ? "grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8"
-                : "grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"
-            }
-          >
+          <div key={rowIndex} className={isLarge ? "grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8" : "grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"}>
             {chunk.map((product, idx) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                index={rowIndex * 3 + idx}
-                aspect={isLarge ? "aspect-[4/5]" : "aspect-[3/4]"}
-              />
+              <ProductCard key={product.id} product={product} index={rowIndex * 3 + idx}
+                aspectOverride={isLarge ? "aspect-[4/5]" : getAspectClass(cardSettings.aspect)} cardSettings={cardSettings} />
             ))}
           </div>
         );
@@ -156,82 +195,50 @@ const EditorialGrid = ({ products }: { products: any[] }) => {
   );
 };
 
-// ── Layout: Masonry (varied heights, Pinterest style) ──
-const MasonryGrid = ({ products }: { products: any[] }) => {
+// ── Layout: Masonry ──
+const MasonryGrid = ({ products, cardSettings, colsDesktop }: { products: any[]; cardSettings: any; colsDesktop: number }) => {
   const aspects = ["aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[2/3]"];
-
   return (
-    <div className="columns-2 md:columns-3 lg:columns-4 gap-4 md:gap-6 space-y-4 md:space-y-6">
+    <div className={`columns-2 md:columns-3 lg:columns-${colsDesktop} gap-4 md:gap-6 space-y-4 md:space-y-6`}>
       {products.map((product, index) => (
         <div key={product.id} className="break-inside-avoid">
-          <ProductCard
-            product={product}
-            index={index}
-            aspect={aspects[index % aspects.length]}
-          />
+          <ProductCard product={product} index={index} aspectOverride={aspects[index % aspects.length]} cardSettings={cardSettings} />
         </div>
       ))}
     </div>
   );
 };
 
-// ── Layout: Highlight (first product hero, rest in grid) ──
-const HighlightGrid = ({ products }: { products: any[] }) => {
+// ── Layout: Highlight ──
+const HighlightGrid = ({ products, cardSettings }: { products: any[]; cardSettings: any }) => {
   if (products.length === 0) return null;
-
   const [hero, ...rest] = products;
-
   return (
     <div className="space-y-8 md:space-y-12">
-      {/* Hero product */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8">
         <div className="md:col-span-7">
-          <ProductCard
-            product={hero}
-            index={0}
-            aspect="aspect-[4/5]"
-          />
+          <ProductCard product={hero} index={0} aspectOverride="aspect-[4/5]" cardSettings={cardSettings} />
         </div>
         <div className="md:col-span-5 flex flex-col justify-center px-0 md:px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="space-y-4"
-          >
-            <p className="text-editorial text-[10px] tracking-[0.2em] text-muted-foreground">
-              Destaque
-            </p>
-            <h2 className="text-display text-3xl md:text-4xl text-foreground">
-              {hero.name}
-            </h2>
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }} className="space-y-4">
+            <p className="text-editorial text-[10px] tracking-[0.2em] text-muted-foreground">Destaque</p>
+            <h2 className="text-display text-3xl md:text-4xl text-foreground">{hero.name}</h2>
             <p className="text-sm font-light text-muted-foreground leading-relaxed">
               {hero.category} — R${hero.price.toLocaleString('pt-BR')}
             </p>
-            <Link
-              to={`/product/${hero.id}`}
-              className="inline-flex items-center gap-2 text-sm font-light text-foreground border-b border-foreground/30 pb-1 hover:border-foreground transition-colors duration-300 group"
-            >
+            <Link to={`/product/${hero.id}`} className="inline-flex items-center gap-2 text-sm font-light text-foreground border-b border-foreground/30 pb-1 hover:border-foreground transition-colors duration-300 group">
               <span>Ver Produto</span>
-              <svg
-                className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
+              <svg className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
             </Link>
           </motion.div>
         </div>
       </div>
-
-      {/* Rest in standard grid */}
       {rest.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
           {rest.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index + 1} />
+            <ProductCard key={product.id} product={product} index={index + 1} cardSettings={cardSettings} />
           ))}
         </div>
       )}
@@ -243,6 +250,21 @@ const HighlightGrid = ({ products }: { products: any[] }) => {
 const ProductGrid = ({ layout = "standard" }: { layout?: GridLayout }) => {
   const { category } = useParams();
   const { data: dbProducts, isLoading } = useProducts(category);
+  const { data: settings } = useSiteSettings();
+
+  const cardSettings = useMemo(() => ({
+    aspect: settings?.theme_card_aspect || "3/4",
+    hoverEffect: settings?.theme_card_hover_effect || "zoom",
+    showCategory: settings?.theme_card_show_category !== "false",
+    showBadge: settings?.theme_card_show_badge !== "false",
+    badgeStyle: settings?.theme_card_badge_style || "filled",
+    priceWeight: settings?.theme_card_price_weight || "300",
+    nameSize: settings?.theme_card_name_size || "14",
+    gap: settings?.theme_card_gap || "16",
+  }), [settings]);
+
+  const colsDesktop = parseInt(settings?.theme_card_columns_desktop || "3");
+  const colsMobile = parseInt(settings?.theme_card_columns_mobile || "2");
 
   const products = dbProducts && dbProducts.length > 0
     ? dbProducts.map((p) => ({
@@ -262,7 +284,7 @@ const ProductGrid = ({ layout = "standard" }: { layout?: GridLayout }) => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="space-y-3">
-              <Skeleton className="aspect-[3/4] w-full" />
+              <Skeleton className={`${getAspectClass(cardSettings.aspect)} w-full`} />
               <Skeleton className="h-3 w-16" />
               <Skeleton className="h-4 w-28" />
             </div>
@@ -272,16 +294,25 @@ const ProductGrid = ({ layout = "standard" }: { layout?: GridLayout }) => {
     );
   }
 
-  const GridComponent = {
-    standard: StandardGrid,
-    editorial: EditorialGrid,
-    masonry: MasonryGrid,
-    highlight: HighlightGrid,
-  }[layout] || StandardGrid;
-
   return (
-    <section className="w-full px-6 mb-16">
-      <GridComponent products={products} />
+    <section className="w-full px-6 mb-16" style={{ gap: `${cardSettings.gap}px` }}>
+      {layout === "editorial" ? (
+        <EditorialGrid products={products} cardSettings={cardSettings} />
+      ) : layout === "masonry" ? (
+        <MasonryGrid products={products} cardSettings={cardSettings} colsDesktop={colsDesktop} />
+      ) : layout === "highlight" ? (
+        <HighlightGrid products={products} cardSettings={cardSettings} />
+      ) : (
+        <div
+          className="grid theme-product-grid"
+          style={{ gap: `${cardSettings.gap}px`, gridTemplateColumns: `repeat(${colsMobile}, 1fr)` }}
+        >
+          <style>{`@media (min-width: 768px) { .theme-product-grid { grid-template-columns: repeat(${Math.min(colsDesktop, 3)}, 1fr) !important; } } @media (min-width: 1024px) { .theme-product-grid { grid-template-columns: repeat(${colsDesktop}, 1fr) !important; } }`}</style>
+          {products.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} cardSettings={cardSettings} showCategory={cardSettings.showCategory} />
+          ))}
+        </div>
+      )}
       <Pagination />
     </section>
   );
