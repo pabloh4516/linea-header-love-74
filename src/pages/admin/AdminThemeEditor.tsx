@@ -164,8 +164,89 @@ const DEFAULTS: Record<string, string> = {
 
 const THEME_KEYS = Object.keys(DEFAULTS);
 
+// ─── Theme Presets ────────────────────────────────────────
+interface ThemePreset {
+  name: string;
+  description: string;
+  values: Record<string, string>;
+}
+
+const THEME_PRESETS: ThemePreset[] = [
+  {
+    name: "Minimal",
+    description: "Clean, espaçoso, tipografia leve",
+    values: {
+      theme_primary_h: "0", theme_primary_s: "0", theme_primary_l: "10",
+      theme_bg_h: "0", theme_bg_s: "0", theme_bg_l: "100",
+      theme_fg_h: "0", theme_fg_s: "0", theme_fg_l: "10",
+      theme_accent_h: "0", theme_accent_s: "0", theme_accent_l: "95",
+      theme_muted_h: "0", theme_muted_s: "0", theme_muted_l: "96",
+      theme_border_h: "0", theme_border_s: "0", theme_border_l: "90",
+      theme_font_display: "DM Sans", theme_font_body: "DM Sans",
+      theme_heading_weight: "300", theme_body_weight: "300",
+      theme_border_radius: "0", theme_button_style: "outline", theme_button_radius: "0",
+      theme_animation_intensity: "subtle",
+    },
+  },
+  {
+    name: "Luxo",
+    description: "Elegante, tons dourados, serif refinada",
+    values: {
+      theme_primary_h: "38", theme_primary_s: "60", theme_primary_l: "45",
+      theme_bg_h: "30", theme_bg_s: "15", theme_bg_l: "97",
+      theme_fg_h: "30", theme_fg_s: "10", theme_fg_l: "12",
+      theme_accent_h: "38", theme_accent_s: "40", theme_accent_l: "90",
+      theme_muted_h: "30", theme_muted_s: "10", theme_muted_l: "94",
+      theme_border_h: "30", theme_border_s: "15", theme_border_l: "85",
+      theme_font_display: "Cormorant Garamond", theme_font_body: "Raleway",
+      theme_heading_weight: "400", theme_body_weight: "300",
+      theme_border_radius: "0", theme_button_style: "solid", theme_button_radius: "0",
+      theme_animation_intensity: "medium",
+      theme_statusbar_bg_h: "38", theme_statusbar_bg_s: "60", theme_statusbar_bg_l: "45",
+      theme_statusbar_fg_h: "0", theme_statusbar_fg_s: "0", theme_statusbar_fg_l: "100",
+    },
+  },
+  {
+    name: "Moderno",
+    description: "Contemporâneo, arrojado, contrastes fortes",
+    values: {
+      theme_primary_h: "220", theme_primary_s: "15", theme_primary_l: "15",
+      theme_bg_h: "220", theme_bg_s: "5", theme_bg_l: "98",
+      theme_fg_h: "220", theme_fg_s: "15", theme_fg_l: "10",
+      theme_accent_h: "220", theme_accent_s: "20", theme_accent_l: "92",
+      theme_muted_h: "220", theme_muted_s: "8", theme_muted_l: "95",
+      theme_border_h: "220", theme_border_s: "10", theme_border_l: "88",
+      theme_font_display: "Montserrat", theme_font_body: "Inter",
+      theme_heading_weight: "500", theme_body_weight: "400",
+      theme_border_radius: "0.5", theme_button_style: "solid", theme_button_radius: "8",
+      theme_animation_intensity: "medium",
+    },
+  },
+  {
+    name: "Bold",
+    description: "Ousado, escuro, impactante",
+    values: {
+      theme_primary_h: "0", theme_primary_s: "0", theme_primary_l: "95",
+      theme_bg_h: "0", theme_bg_s: "0", theme_bg_l: "5",
+      theme_fg_h: "0", theme_fg_s: "0", theme_fg_l: "95",
+      theme_accent_h: "0", theme_accent_s: "0", theme_accent_l: "15",
+      theme_muted_h: "0", theme_muted_s: "0", theme_muted_l: "12",
+      theme_border_h: "0", theme_border_s: "0", theme_border_l: "20",
+      theme_font_display: "Playfair Display", theme_font_body: "DM Sans",
+      theme_heading_weight: "700", theme_body_weight: "300",
+      theme_border_radius: "0", theme_button_style: "solid", theme_button_radius: "0",
+      theme_animation_intensity: "dramatic",
+      theme_statusbar_bg_h: "0", theme_statusbar_bg_s: "0", theme_statusbar_bg_l: "95",
+      theme_statusbar_fg_h: "0", theme_statusbar_fg_s: "0", theme_statusbar_fg_l: "5",
+      theme_footer_bg_h: "0", theme_footer_bg_s: "0", theme_footer_bg_l: "10",
+      theme_footer_fg_h: "0", theme_footer_fg_s: "0", theme_footer_fg_l: "90",
+    },
+  },
+];
+
 // ─── Section Definitions ──────────────────────────────────
 type SectionId =
+  | "presets" | "homepage_sections"
   | "colors" | "typography" | "layout" | "buttons"
   | "statusbar" | "header" | "product_card" | "product_page"
   | "category" | "cart" | "footer" | "checkout"
@@ -179,6 +260,8 @@ interface SectionDef {
 }
 
 const SECTIONS: SectionDef[] = [
+  { id: "presets", label: "Presets de Tema", icon: Sparkles, group: "Início Rápido" },
+  { id: "homepage_sections", label: "Seções da Homepage", icon: Home, group: "Início Rápido" },
   { id: "colors", label: "Cores", icon: Palette, group: "Design" },
   { id: "typography", label: "Tipografia", icon: Type, group: "Design" },
   { id: "layout", label: "Layout & Espaçamento", icon: Layout, group: "Design" },
