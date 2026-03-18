@@ -576,12 +576,12 @@ const AdminThemeEditor = () => {
   const [settingsDrilldown, setSettingsDrilldown] = useState<string | number | null>(null);
 
   const registryDefaults = useMemo(() => {
-    const current = themeRegistry.getDefaultSettings(activeThemeData?.slug);
+    const current = themeRegistry.getDefaultSettings(activeThemeId ?? undefined);
     const normalized = Object.fromEntries(
       Object.entries(current || {}).map(([key, value]) => [`theme_${key}`, String(value)])
     );
     return Object.keys(normalized).length > 0 ? { ...DEFAULTS, ...normalized } : DEFAULTS;
-  }, [activeThemeData?.slug]);
+  }, [activeThemeId]);
 
   useEffect(() => {
     if (settings) {
