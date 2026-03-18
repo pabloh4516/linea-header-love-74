@@ -46,6 +46,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <PageViewTracker />
+          <ThemeApplicator />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/category/:category" element={<Category />} />
