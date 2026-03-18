@@ -1,7 +1,8 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
 import { useHomepageSections, useUpdateSection, useCreateSection, useDeleteSection } from "@/hooks/useHomepageSections";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { usePageTemplate, useSavePageTemplate } from "@/hooks/usePageTemplates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -601,6 +602,38 @@ const SECTION_SCHEMAS: Record<string, SectionSchema> = {
   separator: { fields: [] },
 };
 
+// ─── Available section types per page ─────────────────────
+const PAGE_AVAILABLE_SECTIONS: Record<EditorPage, string[]> = {
+  index: SECTION_TYPES.map(t => t.value),
+  product: ["product_carousel", "rich_text", "newsletter", "testimonials", "collapsible_content", "video", "multicolumn", "full_width_banner", "editorial", "separator", "contact_form"],
+  collection: ["rich_text", "newsletter", "full_width_banner", "product_carousel", "editorial", "separator", "testimonials", "video"],
+  cart: ["product_carousel", "rich_text", "newsletter", "full_width_banner", "separator", "testimonials"],
+  checkout: ["rich_text", "separator"],
+  "our-story": SECTION_TYPES.map(t => t.value),
+  sustainability: SECTION_TYPES.map(t => t.value),
+  "size-guide": SECTION_TYPES.map(t => t.value),
+  "customer-care": SECTION_TYPES.map(t => t.value),
+  "store-locator": SECTION_TYPES.map(t => t.value),
+  privacy: ["rich_text", "separator", "contact_form"],
+  terms: ["rich_text", "separator", "contact_form"],
+};
+
+// Map EditorPage to page_templates page_type
+const PAGE_TYPE_MAP: Record<EditorPage, string> = {
+  index: "homepage",
+  product: "product",
+  collection: "collection",
+  cart: "cart",
+  checkout: "checkout",
+  "our-story": "our-story",
+  sustainability: "sustainability",
+  "size-guide": "size-guide",
+  "customer-care": "customer-care",
+  "store-locator": "store-locator",
+  privacy: "privacy",
+  terms: "terms",
+};
+
 // ═══════════════════════════════════════════════════════════
 // ─── Main Component ───────────────────────────────────────
 // ═══════════════════════════════════════════════════════════
@@ -912,12 +945,22 @@ const SectionsTab = ({
     );
   }
 
-  // Drilldown: editing a homepage section (drilldown = section id)
+  // Drilldown: editing a section
   if (drilldown && drilldown !== "header" && drilldown !== "footer") {
+    if (selectedPage === "index") {
+      return (
+        <HomepageSectionEdit
+          sectionId={drilldown}
+          sections={homepageSections}
+          iframeRef={iframeRef}
+          onBack={() => onDrilldown(null)}
+        />
+      );
+    }
     return (
-      <HomepageSectionEdit
+      <PageSectionEdit
         sectionId={drilldown}
-        sections={homepageSections}
+        pageType={PAGE_TYPE_MAP[selectedPage]}
         iframeRef={iframeRef}
         onBack={() => onDrilldown(null)}
       />
@@ -965,12 +1008,12 @@ const SectionsTab = ({
           onEditSection={(id) => onDrilldown(id)}
         />
       ) : (
-        <div className="py-6 text-center border border-dashed border-[hsl(var(--admin-border))] rounded-lg">
-          <Layers className="h-5 w-5 mx-auto text-muted-foreground mb-2" />
-          <p className="text-[11px] text-muted-foreground">
-            Seções para esta página serão<br />configuráveis em breve.
-          </p>
-        </div>
+        <PageSectionsList
+          pageType={PAGE_TYPE_MAP[selectedPage]}
+          availableTypes={PAGE_AVAILABLE_SECTIONS[selectedPage] || []}
+          iframeRef={iframeRef}
+          onEditSection={(id) => onDrilldown(id)}
+        />
       )}
 
       {/* Footer (special, always on bottom) */}
@@ -1408,8 +1451,332 @@ const HomepageSectionEdit = ({ sectionId, sections, iframeRef, onBack }: {
 };
 
 // ═══════════════════════════════════════════════════════════
-// ─── Sortable Section Item ────────────────────────────────
+// ─── Page Sections List (non-homepage pages) ──────────────
 // ═══════════════════════════════════════════════════════════
+interface PageSection {
+  id: string;
+  type: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  cta_text?: string;
+  link_url?: string;
+  image_url?: string;
+  image_url_2?: string;
+  is_visible: boolean;
+  blocks?: BlockData[];
+  [key: string]: any;
+}
+
+const PageSectionsList = ({ pageType, availableTypes, iframeRef, onEditSection }: {
+  pageType: string;
+  availableTypes: string[];
+  iframeRef: React.RefObject<HTMLIFrameElement>;
+  onEditSection: (id: string) => void;
+}) => {
+  const { data: template, isLoading } = usePageTemplate(pageType);
+  const saveTemplate = useSavePageTemplate();
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  // Convert template data to ordered sections array
+  const sections = useMemo((): PageSection[] => {
+    if (!template) return [];
+    const order = (template.section_order || []) as string[];
+    const sectionsMap = (template.sections || {}) as Record<string, any>;
+    return order
+      .filter(id => sectionsMap[id])
+      .map(id => ({
+        id,
+        ...sectionsMap[id],
+        is_visible: sectionsMap[id].is_visible !== false,
+      }));
+  }, [template]);
+
+  const refreshIframe = () => {
+    iframeRef.current?.contentWindow?.postMessage({ type: "theme-content-refresh" }, "*");
+  };
+
+  const saveUpdatedTemplate = async (newSections: Record<string, any>, newOrder: string[]) => {
+    await saveTemplate.mutateAsync({
+      id: template?.id,
+      page_type: pageType,
+      name: pageType,
+      sections: newSections,
+      section_order: newOrder,
+      is_default: true,
+    });
+    refreshIframe();
+  };
+
+  const handleToggle = async (s: PageSection) => {
+    if (!template) return;
+    const sectionsMap = { ...(template.sections as Record<string, any>) };
+    sectionsMap[s.id] = { ...sectionsMap[s.id], is_visible: !s.is_visible };
+    await saveUpdatedTemplate(sectionsMap, template.section_order as string[]);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!template) return;
+    const sectionsMap = { ...(template.sections as Record<string, any>) };
+    delete sectionsMap[id];
+    const newOrder = ((template.section_order || []) as string[]).filter(i => i !== id);
+    await saveUpdatedTemplate(sectionsMap, newOrder);
+    toast.success("Seção excluída");
+  };
+
+  const handleAddSection = async (typeValue: string) => {
+    const id = crypto.randomUUID();
+    const existingSections = template ? { ...(template.sections as Record<string, any>) } : {};
+    const existingOrder = template ? [...(template.section_order as string[])] : [];
+    existingSections[id] = { type: typeValue, is_visible: true };
+    existingOrder.push(id);
+    await saveTemplate.mutateAsync({
+      id: template?.id,
+      page_type: pageType,
+      name: pageType,
+      sections: existingSections,
+      section_order: existingOrder,
+      is_default: true,
+    });
+    setAddDialogOpen(false);
+    refreshIframe();
+    onEditSection(id);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id || !template) return;
+    const order = [...(template.section_order as string[])];
+    const oldIndex = order.indexOf(active.id as string);
+    const newIndex = order.indexOf(over.id as string);
+    const newOrder = arrayMove(order, oldIndex, newIndex);
+    await saveUpdatedTemplate(template.sections as Record<string, any>, newOrder);
+  };
+
+  const filteredTypes = SECTION_TYPES
+    .filter(t => availableTypes.includes(t.value))
+    .filter(t =>
+      t.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.value.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+  if (isLoading) {
+    return (
+      <div className="py-6 text-center">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-[hsl(var(--admin-border))] border-t-foreground mx-auto" />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="border border-[hsl(var(--admin-border))] rounded-lg overflow-hidden">
+        {sections.length === 0 ? (
+          <div className="text-center py-6">
+            <p className="text-[11px] text-muted-foreground">Nenhuma seção configurada.</p>
+          </div>
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
+              {sections.map(s => (
+                <SortableSectionItem key={s.id}
+                  section={{ ...s, section_type: s.type }}
+                  onEdit={() => onEditSection(s.id)}
+                  onToggle={() => handleToggle(s)}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        )}
+      </div>
+
+      <Button variant="outline" size="sm" className="w-full h-8 text-[11px] rounded-lg" onClick={() => setAddDialogOpen(true)}>
+        <Plus className="h-3 w-3 mr-1" /> Adicionar Seção
+      </Button>
+
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-[15px]">Adicionar Seção</DialogTitle>
+          </DialogHeader>
+          <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar tipo de seção..." className="h-8 text-[12px] mb-3" />
+          <div className="grid grid-cols-2 gap-2 max-h-[400px] overflow-y-auto">
+            {filteredTypes.map(type => {
+              const IconComponent = type.icon;
+              return (
+                <button key={type.value} onClick={() => handleAddSection(type.value)}
+                  className="flex items-center gap-2.5 p-3 rounded-lg border border-[hsl(var(--admin-border))] hover:border-foreground/30 hover:bg-[hsl(var(--admin-bg))] transition-colors text-left">
+                  <IconComponent className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-[12px] font-medium">{type.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+// ═══════════════════════════════════════════════════════════
+// ─── Page Section Edit (non-homepage) ─────────────────────
+// ═══════════════════════════════════════════════════════════
+const PageSectionEdit = ({ sectionId, pageType, iframeRef, onBack }: {
+  sectionId: string;
+  pageType: string;
+  iframeRef: React.RefObject<HTMLIFrameElement>;
+  onBack: () => void;
+}) => {
+  const { data: template } = usePageTemplate(pageType);
+  const saveTemplate = useSavePageTemplate();
+  const { upload } = useImageUpload();
+  const [uploading, setUploading] = useState(false);
+  const [editForm, setEditForm] = useState<Record<string, any>>({});
+  const [editBlocks, setEditBlocks] = useState<BlockData[]>([]);
+  const [initialized, setInitialized] = useState(false);
+
+  const sectionData = useMemo(() => {
+    if (!template) return null;
+    const sectionsMap = (template.sections || {}) as Record<string, any>;
+    return sectionsMap[sectionId] || null;
+  }, [template, sectionId]);
+
+  useEffect(() => {
+    if (sectionData && !initialized) {
+      const blocks = Array.isArray(sectionData.blocks) ? sectionData.blocks : [];
+      const { type, blocks: _b, ...rest } = sectionData;
+      setEditForm({ is_visible: true, ...rest });
+      setEditBlocks(blocks);
+      setInitialized(true);
+    }
+  }, [sectionData, initialized]);
+
+  if (!sectionData) {
+    return (
+      <>
+        <button onClick={onBack} className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors mb-3">
+          <ArrowLeft className="h-3 w-3" /> Voltar
+        </button>
+        <p className="text-[11px] text-muted-foreground">Seção não encontrada.</p>
+      </>
+    );
+  }
+
+  const schema = SECTION_SCHEMAS[sectionData.type];
+  const typeInfo = SECTION_TYPES.find(t => t.value === sectionData.type);
+
+  const refreshIframe = () => {
+    iframeRef.current?.contentWindow?.postMessage({ type: "theme-content-refresh" }, "*");
+  };
+
+  const handleBlockImageUpload = async (file: File): Promise<string> => {
+    setUploading(true);
+    try { return await upload(file); } finally { setUploading(false); }
+  };
+
+  const handleSave = async () => {
+    if (!template) return;
+    try {
+      const sectionsMap = { ...(template.sections as Record<string, any>) };
+      const updatedSection: Record<string, any> = {
+        type: sectionData.type,
+        ...editForm,
+      };
+      if (editBlocks.length > 0) updatedSection.blocks = editBlocks;
+      sectionsMap[sectionId] = updatedSection;
+      await saveTemplate.mutateAsync({
+        id: template.id,
+        page_type: pageType,
+        name: pageType,
+        sections: sectionsMap,
+        section_order: template.section_order as string[],
+        is_default: true,
+      });
+      refreshIframe();
+      toast.success("Seção salva!");
+      onBack();
+    } catch {
+      toast.error("Erro ao salvar seção");
+    }
+  };
+
+  return (
+    <>
+      <button onClick={onBack}
+        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors mb-3">
+        <ArrowLeft className="h-3 w-3" /> Voltar
+      </button>
+      <SectionTitle>{typeInfo?.label || sectionData.type}</SectionTitle>
+      <div className="space-y-3 mt-3">
+        {schema?.fields.map(field => (
+          <div key={field.key} className="space-y-1">
+            <Label className="text-[11px] text-muted-foreground">{field.label}</Label>
+            {field.type === "textarea" ? (
+              <Textarea value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                className="text-[11px] min-h-[60px]" placeholder={field.label} />
+            ) : field.type === "image" ? (
+              <div className="space-y-1.5">
+                <Input type="file" accept="image/*" disabled={uploading} className="h-7 text-[10px]"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setUploading(true);
+                    try {
+                      const url = await upload(file);
+                      setEditForm(f => ({ ...f, [field.key]: url }));
+                    } catch { toast.error("Erro ao enviar imagem"); }
+                    setUploading(false);
+                  }}
+                />
+                {editForm[field.key] && (
+                  <img src={editForm[field.key]} alt="" className="w-14 h-14 object-cover rounded border border-[hsl(var(--admin-border))]" />
+                )}
+              </div>
+            ) : (
+              <Input value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                className="h-7 text-[11px]" placeholder={field.label} />
+            )}
+          </div>
+        ))}
+
+        <div className="flex items-center justify-between py-2">
+          <Label className="text-[11px] text-muted-foreground">Visível</Label>
+          <Switch checked={editForm.is_visible !== false} onCheckedChange={(v) => setEditForm(f => ({ ...f, is_visible: v }))} />
+        </div>
+
+        {schema?.blocks && (
+          <div className="space-y-2">
+            <Label className="text-[11px] text-muted-foreground font-medium">{schema.blocks.label}</Label>
+            <InlineBlockEditor
+              blocks={editBlocks}
+              schema={schema.blocks.schema}
+              maxItems={schema.blocks.maxItems}
+              onBlocksChange={setEditBlocks}
+              onImageUpload={handleBlockImageUpload}
+              uploading={uploading}
+            />
+          </div>
+        )}
+
+        <Button size="sm" className="w-full h-8 text-[12px] rounded-lg mt-2" onClick={handleSave}
+          disabled={saveTemplate.isPending}>
+          <Save className="h-3 w-3 mr-1" />
+          {saveTemplate.isPending ? "Salvando..." : "Salvar Seção"}
+        </Button>
+      </div>
+    </>
+  );
+};
+
+
 const SortableSectionItem = ({ section, onEdit, onToggle, onDelete }: {
   section: any; onEdit: () => void; onToggle: (s: any) => void; onDelete: (id: string) => void;
 }) => {
