@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Header } from "@/components/header/Header";
-import { Footer } from "@/components/footer/Footer";
+import Header from "@/components/header/Header";
+import Footer from "@/components/footer/Footer";
 import NotFound from "./NotFound";
 
 const DynamicPage = () => {
