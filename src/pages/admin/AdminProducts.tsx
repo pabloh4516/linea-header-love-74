@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Pencil, Trash2, Search, MoreHorizontal, Image as ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, MoreHorizontal, Image as ImageIcon, Link2, ExternalLink } from "lucide-react";
 import VariantManager from "@/components/admin/VariantManager";
 import { toast } from "sonner";
 import {
