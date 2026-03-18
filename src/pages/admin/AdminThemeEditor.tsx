@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
-import { useHomepageSections, useUpdateSection } from "@/hooks/useHomepageSections";
+import { useHomepageSections, useUpdateSection, useCreateSection, useDeleteSection } from "@/hooks/useHomepageSections";
+import { useImageUpload } from "@/hooks/useImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,15 +9,26 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   Save, Monitor, Smartphone, Tablet, RotateCcw, Palette, Type, Layout, Square,
   ChevronLeft, ChevronRight, Minus, Image as ImageIcon, ShoppingBag, CreditCard,
-  Globe, Menu, AlignCenter, Layers, Eye, ArrowUp, Megaphone, Grid3X3, Search,
-  Share2, Code, MousePointer, Sparkles, Home,
+  Globe, Menu, AlignCenter, Layers, Eye, EyeOff, ArrowUp, Megaphone, Grid3X3, Search,
+  Share2, Code, MousePointer, Sparkles, Home, Plus, Trash2, GripVertical, ArrowLeft,
+  ChevronDown, ChevronUp, FileText, Video, MessageSquare, Mail, Columns, HelpCircle,
+  SeparatorHorizontal, Star, LayoutGrid,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Link } from "react-router-dom";
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { Json } from "@/integrations/supabase/types";
 
 // ─── Font Options ──────────────────────────────────────────
 const FONT_OPTIONS = [
@@ -564,7 +576,7 @@ const AdminThemeEditor = () => {
   const { data: settings, isLoading } = useSiteSettings();
   const updateSetting = useUpdateSetting();
   const { data: homepageSections } = useHomepageSections();
-  const updateHomepageSection = useUpdateSection();
+  
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [theme, setTheme] = useState<Record<string, string>>(DEFAULTS);
@@ -739,10 +751,7 @@ const AdminThemeEditor = () => {
                   {activeSection === "homepage_sections" && (
                     <HomepageSectionsPanel
                       sections={homepageSections || []}
-                      onToggle={async (s) => {
-                        await updateHomepageSection.mutateAsync({ id: s.id, is_visible: !s.is_visible });
-                        toast.success("Visibilidade atualizada!");
-                      }}
+                      iframeRef={iframeRef}
                     />
                   )}
                   {activeSection === "colors" && <ColorsSection theme={theme} onChange={updateTheme} />}
@@ -1327,50 +1336,604 @@ const PresetsSection = ({ theme, onApply }: { theme: Record<string, string>; onA
   );
 };
 
-// ─── Homepage Sections Panel ──────────────────────────────
-const SECTION_TYPE_LABELS: Record<string, string> = {
-  hero: "Hero Imersivo", large_hero: "Hero Grande", asymmetric_grid: "Grid Assimétrico",
-  fifty_fifty: "50/50", one_third_two_thirds: "1/3 + 2/3", product_carousel: "Carrossel de Produtos",
-  editorial: "Editorial", full_width_banner: "Banner Full Width", story: "Nossa História",
+// ─── Section Types & Schemas (shared with AdminHomepage) ──
+const SECTION_TYPES = [
+  { value: "hero", label: "Hero Imersivo", icon: ImageIcon },
+  { value: "large_hero", label: "Hero Grande", icon: ImageIcon },
+  { value: "slideshow", label: "Slideshow", icon: Layers },
+  { value: "asymmetric_grid", label: "Grid Assimétrico", icon: LayoutGrid },
+  { value: "fifty_fifty", label: "50/50", icon: Columns },
+  { value: "one_third_two_thirds", label: "1/3 + 2/3", icon: Columns },
+  { value: "product_carousel", label: "Carrossel de Produtos", icon: ShoppingBag },
+  { value: "editorial", label: "Editorial", icon: FileText },
+  { value: "full_width_banner", label: "Banner Full Width", icon: ImageIcon },
+  { value: "story", label: "Nossa História", icon: FileText },
+  { value: "rich_text", label: "Texto Rico", icon: Type },
+  { value: "newsletter", label: "Newsletter", icon: Mail },
+  { value: "testimonials", label: "Depoimentos", icon: Star },
+  { value: "video", label: "Vídeo", icon: Video },
+  { value: "multicolumn", label: "Multi-Colunas", icon: LayoutGrid },
+  { value: "collapsible_content", label: "FAQ / Acordeão", icon: HelpCircle },
+  { value: "contact_form", label: "Formulário de Contato", icon: MessageSquare },
+  { value: "image_gallery", label: "Galeria de Imagens", icon: ImageIcon },
+  { value: "separator", label: "Separador", icon: SeparatorHorizontal },
+];
+
+interface BlockFieldDef { key: string; label: string; type: "text" | "url" | "image"; }
+interface SectionSchema {
+  fields: { key: string; label: string; type: "text" | "textarea" | "image" | "url" }[];
+  blocks?: { label: string; maxItems?: number; schema: BlockFieldDef[] };
+}
+
+const SECTION_SCHEMAS: Record<string, SectionSchema> = {
+  hero: {
+    fields: [
+      { key: "title", label: "Título", type: "text" },
+      { key: "subtitle", label: "Subtítulo", type: "text" },
+      { key: "cta_text", label: "Texto do CTA", type: "text" },
+      { key: "link_url", label: "Link do CTA", type: "url" },
+      { key: "image_url", label: "Imagem de Fundo", type: "image" },
+    ],
+    blocks: { label: "Botões CTA", maxItems: 3, schema: [
+      { key: "text", label: "Texto do Botão", type: "text" },
+      { key: "link", label: "Link", type: "url" },
+      { key: "style", label: "Estilo (primary/outline/text)", type: "text" },
+    ]},
+  },
+  large_hero: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+    { key: "image_url", label: "Imagem", type: "image" },
+  ]},
+  slideshow: { fields: [], blocks: { label: "Slides", maxItems: 8, schema: [
+    { key: "image", label: "Imagem", type: "image" },
+    { key: "heading", label: "Título", type: "text" },
+    { key: "subheading", label: "Subtítulo", type: "text" },
+    { key: "button_text", label: "Texto do Botão", type: "text" },
+    { key: "button_link", label: "Link do Botão", type: "url" },
+    { key: "text_position", label: "Posição (left/center/right)", type: "text" },
+  ]}},
+  asymmetric_grid: { fields: [
+    { key: "title", label: "Título da Seção", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+  ], blocks: { label: "Cards do Grid", maxItems: 5, schema: [
+    { key: "image", label: "Imagem", type: "image" },
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+    { key: "link", label: "Link", type: "url" },
+  ]}},
+  fifty_fifty: { fields: [], blocks: { label: "Items (2 colunas)", maxItems: 2, schema: [
+    { key: "image", label: "Imagem", type: "image" },
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Descrição", type: "text" },
+    { key: "link", label: "Link", type: "url" },
+  ]}},
+  one_third_two_thirds: { fields: [], blocks: { label: "Items (1/3 + 2/3)", maxItems: 2, schema: [
+    { key: "image", label: "Imagem", type: "image" },
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Descrição", type: "text" },
+    { key: "link", label: "Link", type: "url" },
+  ]}},
+  product_carousel: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+    { key: "cta_text", label: "Texto do CTA", type: "text" },
+    { key: "link_url", label: "Link do CTA", type: "url" },
+  ]},
+  editorial: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "description", label: "Descrição", type: "textarea" },
+    { key: "cta_text", label: "Texto do CTA", type: "text" },
+    { key: "link_url", label: "Link do CTA", type: "url" },
+    { key: "image_url", label: "Imagem", type: "image" },
+  ]},
+  full_width_banner: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+    { key: "description", label: "Descrição", type: "textarea" },
+    { key: "cta_text", label: "Texto do CTA", type: "text" },
+    { key: "link_url", label: "Link do CTA", type: "url" },
+    { key: "image_url", label: "Imagem de Fundo", type: "image" },
+  ], blocks: { label: "Botões CTA", maxItems: 3, schema: [
+    { key: "text", label: "Texto do Botão", type: "text" },
+    { key: "link", label: "Link", type: "url" },
+    { key: "style", label: "Estilo (primary/outline/text)", type: "text" },
+  ]}},
+  story: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+    { key: "description", label: "Descrição", type: "textarea" },
+    { key: "cta_text", label: "Texto do CTA", type: "text" },
+    { key: "link_url", label: "Link do CTA", type: "url" },
+    { key: "image_url", label: "Imagem", type: "image" },
+  ], blocks: { label: "Estatísticas / Números", maxItems: 4, schema: [
+    { key: "number", label: "Número", type: "text" },
+    { key: "label", label: "Descrição", type: "text" },
+  ]}},
+  rich_text: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "description", label: "Conteúdo", type: "textarea" },
+  ]},
+  newsletter: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "description", label: "Descrição", type: "text" },
+    { key: "cta_text", label: "Texto do Botão", type: "text" },
+  ]},
+  testimonials: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+  ], blocks: { label: "Depoimentos", maxItems: 6, schema: [
+    { key: "author", label: "Autor", type: "text" },
+    { key: "quote", label: "Depoimento", type: "text" },
+    { key: "rating", label: "Nota (1-5)", type: "text" },
+    { key: "location", label: "Localização", type: "text" },
+  ]}},
+  video: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "description", label: "Descrição", type: "text" },
+    { key: "image_url", label: "Imagem de Capa", type: "image" },
+  ]},
+  multicolumn: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+  ], blocks: { label: "Colunas", maxItems: 4, schema: [
+    { key: "image", label: "Imagem", type: "image" },
+    { key: "title", label: "Título", type: "text" },
+    { key: "description", label: "Descrição", type: "text" },
+    { key: "button_text", label: "Texto do Botão", type: "text" },
+    { key: "button_link", label: "Link", type: "url" },
+  ]}},
+  collapsible_content: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "subtitle", label: "Subtítulo", type: "text" },
+  ], blocks: { label: "Perguntas", maxItems: 20, schema: [
+    { key: "question", label: "Pergunta", type: "text" },
+    { key: "answer", label: "Resposta", type: "text" },
+  ]}},
+  contact_form: { fields: [
+    { key: "title", label: "Título", type: "text" },
+    { key: "description", label: "Descrição", type: "textarea" },
+    { key: "cta_text", label: "Texto do Botão", type: "text" },
+  ]},
+  image_gallery: { fields: [
+    { key: "title", label: "Título", type: "text" },
+  ], blocks: { label: "Imagens", maxItems: 12, schema: [
+    { key: "image", label: "Imagem", type: "image" },
+    { key: "caption", label: "Legenda", type: "text" },
+    { key: "link", label: "Link", type: "url" },
+  ]}},
+  separator: { fields: [] },
 };
 
-const HomepageSectionsPanel = ({ sections, onToggle }: {
-  sections: any[];
-  onToggle: (s: any) => void;
+// ─── Sortable Section Item ────────────────────────────────
+const SortableSectionItem = ({ section, onEdit, onToggle, onDelete }: {
+  section: any; onEdit: (s: any) => void; onToggle: (s: any) => void; onDelete: (id: string) => void;
 }) => {
-  const sorted = [...sections].sort((a, b) => a.sort_order - b.sort_order);
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+  const typeInfo = SECTION_TYPES.find(t => t.value === section.section_type);
 
+  return (
+    <div ref={setNodeRef} style={style}
+      className="flex items-center gap-2 px-2 py-2 hover:bg-[hsl(var(--admin-bg))] transition-colors rounded-lg group">
+      <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing touch-none shrink-0">
+        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40" />
+      </button>
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onEdit(section)}>
+        <p className="text-[12px] font-medium text-foreground truncate">
+          {section.title || typeInfo?.label || section.section_type}
+        </p>
+        <p className="text-[10px] text-muted-foreground truncate">{typeInfo?.label}</p>
+      </div>
+      <div className="flex items-center gap-0.5 shrink-0">
+        <button onClick={() => onToggle(section)} className="p-1 rounded hover:bg-[hsl(var(--admin-surface))]">
+          {section.is_visible
+            ? <Eye className="h-3 w-3 text-[hsl(var(--admin-success))]" />
+            : <EyeOff className="h-3 w-3 text-muted-foreground" />}
+        </button>
+        <button onClick={() => onDelete(section.id)}
+          className="p-1 rounded hover:bg-[hsl(var(--admin-surface))] opacity-0 group-hover:opacity-100 transition-opacity">
+          <Trash2 className="h-3 w-3 text-destructive" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ─── Block Editor (inline) ────────────────────────────────
+interface BlockData { [key: string]: string; }
+
+const InlineBlockEditor = ({ blocks, schema, maxItems, onBlocksChange, onImageUpload, uploading }: {
+  blocks: BlockData[];
+  schema: BlockFieldDef[];
+  maxItems?: number;
+  onBlocksChange: (blocks: BlockData[]) => void;
+  onImageUpload: (file: File) => Promise<string>;
+  uploading: boolean;
+}) => {
+  const [expandedBlock, setExpandedBlock] = useState<number | null>(0);
+
+  const addBlock = () => {
+    if (maxItems && blocks.length >= maxItems) return;
+    const newBlock: BlockData = {};
+    schema.forEach(f => { newBlock[f.key] = ""; });
+    onBlocksChange([...blocks, newBlock]);
+    setExpandedBlock(blocks.length);
+  };
+
+  const removeBlock = (index: number) => {
+    onBlocksChange(blocks.filter((_, i) => i !== index));
+  };
+
+  const updateBlock = (index: number, key: string, value: string) => {
+    const updated = [...blocks];
+    updated[index] = { ...updated[index], [key]: value };
+    onBlocksChange(updated);
+  };
+
+  const moveBlock = (index: number, direction: "up" | "down") => {
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= blocks.length) return;
+    const updated = [...blocks];
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+    onBlocksChange(updated);
+    setExpandedBlock(newIndex);
+  };
+
+  return (
+    <div className="space-y-1.5">
+      {blocks.map((block, index) => (
+        <div key={index} className="border border-[hsl(var(--admin-border))] rounded-lg overflow-hidden">
+          <div className="flex items-center justify-between px-2.5 py-1.5 bg-[hsl(var(--admin-bg))] cursor-pointer"
+            onClick={() => setExpandedBlock(expandedBlock === index ? null : index)}>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-medium text-muted-foreground">#{index + 1}</span>
+              <span className="text-[11px] font-medium text-foreground truncate">
+                {block.title || block.text || block.author || block.heading || block.question || `Item ${index + 1}`}
+              </span>
+            </div>
+            <div className="flex items-center gap-0.5">
+              {index > 0 && (
+                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={(e) => { e.stopPropagation(); moveBlock(index, "up"); }}>
+                  <ChevronUp className="h-2.5 w-2.5" />
+                </Button>
+              )}
+              {index < blocks.length - 1 && (
+                <Button variant="ghost" size="icon" className="h-5 w-5" onClick={(e) => { e.stopPropagation(); moveBlock(index, "down"); }}>
+                  <ChevronDown className="h-2.5 w-2.5" />
+                </Button>
+              )}
+              <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive" onClick={(e) => { e.stopPropagation(); removeBlock(index); }}>
+                <Trash2 className="h-2.5 w-2.5" />
+              </Button>
+              {expandedBlock === index ? <ChevronUp className="h-3 w-3 text-muted-foreground" /> : <ChevronDown className="h-3 w-3 text-muted-foreground" />}
+            </div>
+          </div>
+          {expandedBlock === index && (
+            <div className="p-2.5 space-y-2">
+              {schema.map((field) => (
+                <div key={field.key} className="space-y-1">
+                  <Label className="text-[10px] text-muted-foreground">{field.label}</Label>
+                  {field.type === "image" ? (
+                    <div className="space-y-1.5">
+                      <Input type="file" accept="image/*" disabled={uploading} className="h-7 text-[10px]"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            const url = await onImageUpload(file);
+                            updateBlock(index, field.key, url);
+                          } catch { toast.error("Erro ao enviar imagem"); }
+                        }}
+                      />
+                      {block[field.key] && (
+                        <img src={block[field.key]} alt="" className="w-12 h-12 object-cover rounded border border-[hsl(var(--admin-border))]" />
+                      )}
+                    </div>
+                  ) : (
+                    <Input value={block[field.key] || ""} onChange={(e) => updateBlock(index, field.key, e.target.value)}
+                      className="h-7 text-[11px]" placeholder={field.label} />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+      {(!maxItems || blocks.length < maxItems) && (
+        <Button variant="outline" size="sm" onClick={addBlock} className="w-full h-7 text-[11px] rounded-lg">
+          <Plus className="h-2.5 w-2.5 mr-1" /> Adicionar Item
+        </Button>
+      )}
+    </div>
+  );
+};
+
+// ─── Homepage Sections Panel (full editor) ────────────────
+const HomepageSectionsPanel = ({ sections, iframeRef }: {
+  sections: any[];
+  iframeRef: React.RefObject<HTMLIFrameElement>;
+}) => {
+  const updateSection = useUpdateSection();
+  const createSection = useCreateSection();
+  const deleteSection = useDeleteSection();
+  const { upload } = useImageUpload();
+  const [uploading, setUploading] = useState(false);
+  const [editingSection, setEditingSection] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState<Record<string, any>>({});
+  const [editBlocks, setEditBlocks] = useState<BlockData[]>([]);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [localSections, setLocalSections] = useState<any[]>([]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  useEffect(() => {
+    setLocalSections([...sections].sort((a, b) => a.sort_order - b.sort_order));
+  }, [sections]);
+
+  const handleBlockImageUpload = async (file: File): Promise<string> => {
+    setUploading(true);
+    try {
+      const url = await upload(file);
+      return url;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const refreshIframe = () => {
+    iframeRef.current?.contentWindow?.postMessage({ type: "theme-content-refresh" }, "*");
+  };
+
+  const openEdit = (s: any) => {
+    const config = (s.config && typeof s.config === "object" && !Array.isArray(s.config)) ? s.config as Record<string, Json | undefined> : {};
+    const blocks = Array.isArray(config.blocks) ? (config.blocks as BlockData[]) : [];
+    setEditForm({
+      title: s.title || "",
+      subtitle: s.subtitle || "",
+      description: s.description || "",
+      cta_text: s.cta_text || "",
+      link_url: s.link_url || "",
+      image_url: s.image_url || "",
+      image_url_2: s.image_url_2 || "",
+      is_visible: s.is_visible,
+      ...Object.fromEntries(
+        Object.entries(config).filter(([k]) => k !== "blocks")
+      ),
+    });
+    setEditBlocks(blocks);
+    setEditingSection(s);
+  };
+
+  const handleSave = async () => {
+    if (!editingSection) return;
+    try {
+      const config: Record<string, any> = {};
+      const schema = SECTION_SCHEMAS[editingSection.section_type];
+      // Preserve config fields that aren't direct table columns
+      const originalConfig = (editingSection.config && typeof editingSection.config === "object") ? editingSection.config as Record<string, any> : {};
+      Object.assign(config, originalConfig);
+      if (editBlocks.length > 0) config.blocks = editBlocks;
+      else delete config.blocks;
+      // Copy non-table config fields from editForm
+      for (const [k, v] of Object.entries(editForm)) {
+        if (!["title", "subtitle", "description", "cta_text", "link_url", "image_url", "image_url_2", "is_visible"].includes(k)) {
+          config[k] = v;
+        }
+      }
+      await updateSection.mutateAsync({
+        id: editingSection.id,
+        title: editForm.title || null,
+        subtitle: editForm.subtitle || null,
+        description: editForm.description || null,
+        cta_text: editForm.cta_text || null,
+        link_url: editForm.link_url || null,
+        image_url: editForm.image_url || null,
+        image_url_2: editForm.image_url_2 || null,
+        is_visible: editForm.is_visible,
+        config: config as Json,
+      });
+      refreshIframe();
+      toast.success("Seção salva!");
+      setEditingSection(null);
+    } catch {
+      toast.error("Erro ao salvar seção");
+    }
+  };
+
+  const handleToggle = async (s: any) => {
+    await updateSection.mutateAsync({ id: s.id, is_visible: !s.is_visible });
+    refreshIframe();
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteSection.mutateAsync(id);
+    refreshIframe();
+    toast.success("Seção excluída");
+  };
+
+  const handleAddSection = async (typeValue: string) => {
+    try {
+      const result = await createSection.mutateAsync({
+        section_type: typeValue,
+        sort_order: localSections.length + 1,
+        is_visible: true,
+      });
+      setAddDialogOpen(false);
+      refreshIframe();
+      // Open the newly created section for editing
+      if (result) openEdit(result);
+    } catch {
+      toast.error("Erro ao criar seção");
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = localSections.findIndex(s => s.id === active.id);
+    const newIndex = localSections.findIndex(s => s.id === over.id);
+    const reordered = arrayMove(localSections, oldIndex, newIndex);
+    setLocalSections(reordered);
+    // Persist new sort orders
+    for (let i = 0; i < reordered.length; i++) {
+      if (reordered[i].sort_order !== i) {
+        await updateSection.mutateAsync({ id: reordered[i].id, sort_order: i });
+      }
+    }
+    refreshIframe();
+  };
+
+  const filteredTypes = SECTION_TYPES.filter(t =>
+    t.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    t.value.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // ── Edit Mode ──
+  if (editingSection) {
+    const schema = SECTION_SCHEMAS[editingSection.section_type];
+    const typeInfo = SECTION_TYPES.find(t => t.value === editingSection.section_type);
+    return (
+      <>
+        <button onClick={() => setEditingSection(null)}
+          className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors mb-3">
+          <ArrowLeft className="h-3 w-3" /> Voltar à lista
+        </button>
+        <SectionTitle>{typeInfo?.label || editingSection.section_type}</SectionTitle>
+        <div className="space-y-3 mt-3">
+          {schema?.fields.map(field => (
+            <div key={field.key} className="space-y-1">
+              <Label className="text-[11px] text-muted-foreground">{field.label}</Label>
+              {field.type === "textarea" ? (
+                <Textarea value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                  className="text-[11px] min-h-[60px]" placeholder={field.label} />
+              ) : field.type === "image" ? (
+                <div className="space-y-1.5">
+                  <Input type="file" accept="image/*" disabled={uploading} className="h-7 text-[10px]"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploading(true);
+                      try {
+                        const url = await upload(file);
+                        setEditForm(f => ({ ...f, [field.key]: url }));
+                      } catch { toast.error("Erro ao enviar imagem"); }
+                      setUploading(false);
+                    }}
+                  />
+                  {editForm[field.key] && (
+                    <img src={editForm[field.key]} alt="" className="w-14 h-14 object-cover rounded border border-[hsl(var(--admin-border))]" />
+                  )}
+                </div>
+              ) : (
+                <Input value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                  className="h-7 text-[11px]" placeholder={field.label} />
+              )}
+            </div>
+          ))}
+
+          {/* Visibility toggle */}
+          <div className="flex items-center justify-between py-2">
+            <Label className="text-[11px] text-muted-foreground">Visível</Label>
+            <Switch checked={editForm.is_visible !== false} onCheckedChange={(v) => setEditForm(f => ({ ...f, is_visible: v }))} />
+          </div>
+
+          {/* Blocks */}
+          {schema?.blocks && (
+            <div className="space-y-2">
+              <Label className="text-[11px] text-muted-foreground font-medium">{schema.blocks.label}</Label>
+              <InlineBlockEditor
+                blocks={editBlocks}
+                schema={schema.blocks.schema}
+                maxItems={schema.blocks.maxItems}
+                onBlocksChange={setEditBlocks}
+                onImageUpload={handleBlockImageUpload}
+                uploading={uploading}
+              />
+            </div>
+          )}
+
+          <Button size="sm" className="w-full h-8 text-[12px] rounded-lg mt-2" onClick={handleSave}
+            disabled={updateSection.isPending}>
+            <Save className="h-3 w-3 mr-1" />
+            {updateSection.isPending ? "Salvando..." : "Salvar Seção"}
+          </Button>
+        </div>
+      </>
+    );
+  }
+
+  // ── List Mode ──
   return (
     <>
       <SectionTitle>Seções da Homepage</SectionTitle>
-      <p className="text-[11px] text-muted-foreground">
-        Gerencie a visibilidade das seções. Para edição completa, use a{" "}
-        <Link to="/admin/homepage" className="text-foreground underline">página de Homepage</Link>.
-      </p>
-      {sorted.length === 0 ? (
-        <div className="text-center py-6">
-          <p className="text-[12px] text-muted-foreground">Nenhuma seção configurada.</p>
-          <Link to="/admin/homepage" className="text-[12px] text-foreground underline mt-1 inline-block">
-            Configurar seções →
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-1">
-          {sorted.map((s) => (
-            <div key={s.id} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-bg))] transition-colors">
-              <div className="min-w-0">
-                <p className="text-[12px] font-medium text-foreground truncate">
-                  {s.title || SECTION_TYPE_LABELS[s.section_type] || s.section_type}
-                </p>
-                <p className="text-[10px] text-muted-foreground">
-                  {SECTION_TYPE_LABELS[s.section_type] || s.section_type}
-                </p>
-              </div>
-              <Switch checked={s.is_visible} onCheckedChange={() => onToggle(s)} />
-            </div>
-          ))}
-        </div>
-      )}
+
+      {/* Page selector */}
+      <div className="mt-2">
+        <Label className="text-[10px] text-muted-foreground">Página</Label>
+        <Select defaultValue="index" onValueChange={(val) => {
+          const urls: Record<string, string> = { index: "/", product: "/product/1", collection: "/category/shop" };
+          iframeRef.current?.setAttribute("src", urls[val] || "/");
+        }}>
+          <SelectTrigger className="h-7 text-[11px] mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="index">Página Inicial</SelectItem>
+            <SelectItem value="product">Página de Produto</SelectItem>
+            <SelectItem value="collection">Página de Categoria</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Drag-and-drop list */}
+      <div className="mt-3 border border-[hsl(var(--admin-border))] rounded-lg overflow-hidden">
+        {localSections.length === 0 ? (
+          <div className="text-center py-6">
+            <p className="text-[11px] text-muted-foreground">Nenhuma seção configurada.</p>
+          </div>
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={localSections.map(s => s.id)} strategy={verticalListSortingStrategy}>
+              {localSections.map(s => (
+                <SortableSectionItem key={s.id} section={s} onEdit={openEdit} onToggle={handleToggle} onDelete={handleDelete} />
+              ))}
+            </SortableContext>
+          </DndContext>
+        )}
+      </div>
+
+      {/* Add section button */}
+      <Button variant="outline" size="sm" className="w-full h-8 text-[11px] rounded-lg mt-2" onClick={() => setAddDialogOpen(true)}>
+        <Plus className="h-3 w-3 mr-1" /> Adicionar Seção
+      </Button>
+
+      {/* Add section dialog */}
+      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-[15px]">Adicionar Seção</DialogTitle>
+          </DialogHeader>
+          <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar tipo de seção..." className="h-8 text-[12px] mb-3" />
+          <div className="grid grid-cols-2 gap-2 max-h-[400px] overflow-y-auto">
+            {filteredTypes.map(type => {
+              const IconComponent = type.icon;
+              return (
+                <button key={type.value} onClick={() => handleAddSection(type.value)}
+                  className="flex items-center gap-2.5 p-3 rounded-lg border border-[hsl(var(--admin-border))] hover:border-foreground/30 hover:bg-[hsl(var(--admin-bg))] transition-colors text-left">
+                  <IconComponent className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-[12px] font-medium">{type.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
