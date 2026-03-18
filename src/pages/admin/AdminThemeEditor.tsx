@@ -945,12 +945,22 @@ const SectionsTab = ({
     );
   }
 
-  // Drilldown: editing a homepage section (drilldown = section id)
+  // Drilldown: editing a section
   if (drilldown && drilldown !== "header" && drilldown !== "footer") {
+    if (selectedPage === "index") {
+      return (
+        <HomepageSectionEdit
+          sectionId={drilldown}
+          sections={homepageSections}
+          iframeRef={iframeRef}
+          onBack={() => onDrilldown(null)}
+        />
+      );
+    }
     return (
-      <HomepageSectionEdit
+      <PageSectionEdit
         sectionId={drilldown}
-        sections={homepageSections}
+        pageType={PAGE_TYPE_MAP[selectedPage]}
         iframeRef={iframeRef}
         onBack={() => onDrilldown(null)}
       />
