@@ -488,7 +488,6 @@ const PAGE_OPTIONS: PageOption[] = [
   { value: "index", label: "Página Inicial", url: "/", group: "Principal" },
   { value: "product", label: "Página de Produto", url: "/product/1", group: "Principal" },
   { value: "collection", label: "Página de Categoria", url: "/category/shop", group: "Principal" },
-  { value: "cart", label: "Carrinho", url: "/checkout", group: "Principal" },
   { value: "checkout", label: "Checkout", url: "/checkout", group: "Principal" },
   { value: "our-story", label: "Nossa História", url: "/about/our-story", group: "Sobre" },
   { value: "sustainability", label: "Sustentabilidade", url: "/about/sustainability", group: "Sobre" },
