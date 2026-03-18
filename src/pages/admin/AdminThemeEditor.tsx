@@ -460,7 +460,7 @@ const THEME_PRESETS: ThemePreset[] = [
         },
       },
       {
-        section_type: "multi_column",
+        section_type: "multicolumn",
         title: "",
         config: {
           columns: "3",
