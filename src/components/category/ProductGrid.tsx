@@ -27,13 +27,13 @@ const fallbackProducts = [
 
 export type GridLayout = "standard" | "editorial" | "masonry" | "highlight";
 
-const getAspectClass = (aspect: string) => {
+const getAspectRatio = (aspect: string): string => {
   switch (aspect) {
-    case "square": return "aspect-square";
-    case "4/5": return "aspect-[4/5]";
-    case "2/3": return "aspect-[2/3]";
+    case "square": return "1/1";
+    case "4/5": return "4/5";
+    case "2/3": return "2/3";
     case "3/4":
-    default: return "aspect-[3/4]";
+    default: return "3/4";
   }
 };
 
@@ -75,7 +75,7 @@ const ProductCard = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
-  const aspectClass = aspectOverride || getAspectClass(cardSettings.aspect);
+  const aspectRatio = aspectOverride || getAspectRatio(cardSettings.aspect);
   const hoverClass = getHoverClasses(cardSettings.hoverEffect);
 
   return (
@@ -89,7 +89,7 @@ const ProductCard = ({
       <Link to={`/product/${product.id}`}>
         <Card className="border-none shadow-none bg-transparent group cursor-pointer">
           <CardContent className="p-0">
-            <div className={`${aspectClass} mb-4 overflow-hidden bg-muted/10 relative`}>
+            <div className="mb-4 overflow-hidden bg-muted/10 relative" style={{ aspectRatio }}>
               <img
                 src={product.image}
                 alt={product.name}
@@ -162,7 +162,7 @@ const EditorialGrid = ({ products, cardSettings }: { products: any[]; cardSettin
           <div key={rowIndex} className={isLarge ? "grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8" : "grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6"}>
             {chunk.map((product, idx) => (
               <ProductCard key={product.id} product={product} index={rowIndex * 3 + idx}
-                aspectOverride={isLarge ? "aspect-[4/5]" : getAspectClass(cardSettings.aspect)} cardSettings={cardSettings} />
+                aspectOverride={isLarge ? "4/5" : undefined} cardSettings={cardSettings} />
             ))}
           </div>
         );
@@ -172,7 +172,7 @@ const EditorialGrid = ({ products, cardSettings }: { products: any[]; cardSettin
 };
 
 const MasonryGrid = ({ products, cardSettings, colsDesktop }: { products: any[]; cardSettings: CardSettings; colsDesktop: number }) => {
-  const aspects = ["aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[2/3]"];
+  const aspects = ["3/4", "1/1", "4/5", "2/3"];
   return (
     <div className={`columns-2 md:columns-3 lg:columns-${colsDesktop} gap-4 md:gap-6 space-y-4 md:space-y-6`}>
       {products.map((product, index) => (
@@ -191,7 +191,7 @@ const HighlightGrid = ({ products, cardSettings }: { products: any[]; cardSettin
     <div className="space-y-8 md:space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8">
         <div className="md:col-span-7">
-          <ProductCard product={hero} index={0} aspectOverride="aspect-[4/5]" cardSettings={cardSettings} />
+          <ProductCard product={hero} index={0} aspectOverride="4/5" cardSettings={cardSettings} />
         </div>
         <div className="md:col-span-5 flex flex-col justify-center px-0 md:px-6">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }} className="space-y-4">
@@ -259,7 +259,7 @@ const ProductGrid = ({ layout }: { layout?: GridLayout }) => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="space-y-3">
-              <Skeleton className={`${getAspectClass(cardSettings.aspect)} w-full`} />
+              <Skeleton className="w-full" style={{ aspectRatio: getAspectRatio(cardSettings.aspect) }} />
               <Skeleton className="h-3 w-16" />
               <Skeleton className="h-4 w-28" />
             </div>
