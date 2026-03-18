@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Header from "../components/header/Header";
@@ -7,24 +6,21 @@ import ProductImageGallery from "../components/product/ProductImageGallery";
 import ProductInfo from "../components/product/ProductInfo";
 import ProductDescription from "../components/product/ProductDescription";
 import ProductCarousel from "../components/content/ProductCarousel";
-import { 
-  Breadcrumb, 
-  BreadcrumbItem, 
-  BreadcrumbLink, 
-  BreadcrumbList, 
-  BreadcrumbPage, 
-  BreadcrumbSeparator 
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
 const ProductDetail = () => {
-  const { productId } = useParams();
-
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <Header />
-      
+
       <main>
-        {/* Mobile breadcrumb */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -52,10 +48,8 @@ const ProductDetail = () => {
           </Breadcrumb>
         </motion.div>
 
-        {/* Product section */}
-        <section className="w-full">
+        <section className="w-full pb-10 lg:pb-0">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-            {/* Images - takes 7 cols on desktop, full bleed on mobile */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -64,8 +58,7 @@ const ProductDetail = () => {
             >
               <ProductImageGallery />
             </motion.div>
-            
-            {/* Info - takes 5 cols on desktop, sticky */}
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -77,41 +70,40 @@ const ProductDetail = () => {
             </motion.div>
           </div>
         </section>
-        
-        {/* Related products */}
-        <section className="w-full mt-20 lg:mt-32">
+
+        <section className="w-full mt-16 lg:mt-32">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6 }}
-            className="mb-6 px-6"
+            className="mb-3 px-6"
           >
             <p className="text-editorial text-[10px] md:text-xs text-muted-foreground tracking-[0.2em] mb-1">
               Sugestões
             </p>
             <h2 className="text-display text-2xl md:text-3xl text-foreground">Você também pode gostar</h2>
           </motion.div>
-          <ProductCarousel />
+          <ProductCarousel showHeader={false} />
         </section>
-        
-        <section className="w-full">
+
+        <section className="w-full mt-10 lg:mt-16 pb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6 }}
-            className="mb-6 px-6"
+            className="mb-3 px-6"
           >
             <p className="text-editorial text-[10px] md:text-xs text-muted-foreground tracking-[0.2em] mb-1">
               Explore mais
             </p>
             <h2 className="text-display text-2xl md:text-3xl text-foreground">Outros Brincos</h2>
           </motion.div>
-          <ProductCarousel />
+          <ProductCarousel showHeader={false} />
         </section>
       </main>
-      
+
       <Footer />
     </div>
   );

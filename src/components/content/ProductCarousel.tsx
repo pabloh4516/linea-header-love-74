@@ -26,7 +26,11 @@ const fallbackProducts = [
   { id: "6", name: "Shadowline", category: "Pulseiras", price: 3950, image: shadowlineImage },
 ];
 
-const ProductCarousel = () => {
+interface ProductCarouselProps {
+  showHeader?: boolean;
+}
+
+const ProductCarousel = ({ showHeader = true }: ProductCarouselProps) => {
   const { data: dbProducts, isLoading } = useProducts();
   const titleRef = useRef<HTMLDivElement>(null);
   const isTitleInView = useInView(titleRef, { once: true, margin: "-50px" });
@@ -47,9 +51,11 @@ const ProductCarousel = () => {
         isNew: p.id === "3",
       }));
 
+  const sectionClassName = showHeader ? "w-full py-16 md:py-24 px-6 md:px-12" : "w-full py-2 px-6 md:px-12";
+
   if (isLoading) {
     return (
-      <section className="w-full py-16 md:py-24 px-6 md:px-12">
+      <section className={sectionClassName}>
         <div className="flex gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="basis-1/4 space-y-3">
@@ -64,39 +70,40 @@ const ProductCarousel = () => {
   }
 
   return (
-    <section className="w-full py-16 md:py-24 px-6 md:px-12">
-      {/* Section title */}
-      <motion.div
-        ref={titleRef}
-        initial={{ opacity: 0, y: 30 }}
-        animate={isTitleInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="flex justify-between items-end mb-10 md:mb-14"
-      >
-        <div>
-          <p className="text-editorial text-[10px] md:text-xs text-muted-foreground tracking-[0.2em] mb-2">
-            Seleção
-          </p>
-          <h2 className="text-display text-3xl md:text-5xl text-foreground">
-            Destaques
-          </h2>
-        </div>
-        <Link
-          to="/category/shop"
-          className="hidden md:inline-flex items-center gap-2 text-foreground text-sm font-light border-b border-foreground/30 pb-1 hover:border-foreground transition-colors duration-300 group"
+    <section className={sectionClassName}>
+      {showHeader && (
+        <motion.div
+          ref={titleRef}
+          initial={{ opacity: 0, y: 30 }}
+          animate={isTitleInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="flex justify-between items-end mb-10 md:mb-14"
         >
-          <span>Ver Tudo</span>
-          <svg
-            className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={1.5}
+          <div>
+            <p className="text-editorial text-[10px] md:text-xs text-muted-foreground tracking-[0.2em] mb-2">
+              Seleção
+            </p>
+            <h2 className="text-display text-3xl md:text-5xl text-foreground">
+              Destaques
+            </h2>
+          </div>
+          <Link
+            to="/category/shop"
+            className="hidden md:inline-flex items-center gap-2 text-foreground text-sm font-light border-b border-foreground/30 pb-1 hover:border-foreground transition-colors duration-300 group"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-          </svg>
-        </Link>
-      </motion.div>
+            <span>Ver Tudo</span>
+            <svg
+              className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </Link>
+        </motion.div>
+      )}
 
       <Carousel opts={{ align: "start", loop: false }} className="w-full">
         <CarouselContent className="-ml-3 md:-ml-4">
@@ -110,20 +117,21 @@ const ProductCarousel = () => {
                 <Link to={`/product/${product.id}`}>
                   <Card className="border-none shadow-none bg-transparent group cursor-pointer">
                     <CardContent className="p-0">
-                      <div className="aspect-[3/4] mb-4 overflow-hidden relative">
+                      <div className="aspect-[3/4] mb-4 overflow-hidden relative bg-muted/20">
                         <img
                           src={product.image}
                           alt={product.name}
                           className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                          loading="lazy"
                         />
                         {product.hoverImage && (
                           <img
                             src={product.hoverImage}
                             alt={`${product.name} hover`}
                             className="absolute inset-0 w-full h-full object-cover transition-all duration-700 opacity-0 group-hover:opacity-100"
+                            loading="lazy"
                           />
                         )}
-                        {/* Subtle overlay on hover */}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
                         {product.isNew && (
                           <div className="absolute top-3 left-3">
@@ -137,12 +145,12 @@ const ProductCarousel = () => {
                         <p className="text-editorial text-[10px] text-muted-foreground tracking-[0.12em]">
                           {product.category}
                         </p>
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center gap-4">
                           <h3 className="text-sm font-medium text-foreground group-hover:opacity-70 transition-opacity duration-300">
                             {product.name}
                           </h3>
-                          <p className="text-sm font-light text-foreground">
-                            R${product.price.toLocaleString('pt-BR')}
+                          <p className="text-sm font-light text-foreground whitespace-nowrap">
+                            R${product.price.toLocaleString("pt-BR")}
                           </p>
                         </div>
                       </div>
@@ -155,18 +163,19 @@ const ProductCarousel = () => {
         </CarouselContent>
       </Carousel>
 
-      {/* Mobile "Ver tudo" link */}
-      <div className="mt-8 md:hidden">
-        <Link
-          to="/category/shop"
-          className="inline-flex items-center gap-2 text-foreground text-sm font-light border-b border-foreground/30 pb-1"
-        >
-          <span>Ver Tudo</span>
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-          </svg>
-        </Link>
-      </div>
+      {showHeader && (
+        <div className="mt-8 md:hidden">
+          <Link
+            to="/category/shop"
+            className="inline-flex items-center gap-2 text-foreground text-sm font-light border-b border-foreground/30 pb-1"
+          >
+            <span>Ver Tudo</span>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </Link>
+        </div>
+      )}
     </section>
   );
 };
