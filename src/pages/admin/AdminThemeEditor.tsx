@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
 import { useHomepageSections, useUpdateSection, useCreateSection, useDeleteSection } from "@/hooks/useHomepageSections";
 import { useImageUpload } from "@/hooks/useImageUpload";
-import { useActiveThemeSync } from "@/hooks/useActiveThemeSync";
+import { useThemeSync } from "@/hooks/useActiveThemeSync";
 import { usePageTemplate, useSavePageTemplate } from "@/hooks/usePageTemplates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -552,7 +552,7 @@ const PAGE_TYPE_MAP: Record<EditorPage, string> = {
 // ─── Main Component ───────────────────────────────────────
 // ═══════════════════════════════════════════════════════════
 const AdminThemeEditor = () => {
-  const activeThemeData = useActiveThemeSync();
+  const { activeThemeId } = useThemeSync();
   const { data: settings, isLoading } = useSiteSettings();
   const updateSetting = useUpdateSetting();
   const { data: homepageSections } = useHomepageSections();
@@ -576,12 +576,12 @@ const AdminThemeEditor = () => {
   const [settingsDrilldown, setSettingsDrilldown] = useState<string | number | null>(null);
 
   const registryDefaults = useMemo(() => {
-    const current = themeRegistry.getDefaultSettings(activeThemeData?.slug);
+    const current = themeRegistry.getDefaultSettings(activeThemeId ?? undefined);
     const normalized = Object.fromEntries(
       Object.entries(current || {}).map(([key, value]) => [`theme_${key}`, String(value)])
     );
     return Object.keys(normalized).length > 0 ? { ...DEFAULTS, ...normalized } : DEFAULTS;
-  }, [activeThemeData?.slug]);
+  }, [activeThemeId]);
 
   useEffect(() => {
     if (settings) {
@@ -691,7 +691,7 @@ const AdminThemeEditor = () => {
     }
     if (settingsDrilldown !== null && settingsDrilldown !== undefined) {
       // Check theme registry groups first
-      const themeGroups = themeRegistry.getGlobalSettingsSchema(activeThemeData?.slug);
+      const themeGroups = themeRegistry.getGlobalSettingsSchema(activeThemeId ?? undefined);
       if (themeGroups.length > 0 && typeof settingsDrilldown === "number") {
         return themeGroups[settingsDrilldown]?.name || null;
       }
@@ -980,10 +980,10 @@ const SettingsTab = ({
   onApplyPreset: (values: Record<string, string>) => void;
 }) => {
   // Force re-read when active theme changes (themeRegistry is not reactive)
-  const activeThemeForSettings = useActiveThemeSync();
+  const { activeThemeId: syncedThemeId } = useThemeSync();
   const themeGroups = useMemo(() => {
-    return themeRegistry.getGlobalSettingsSchema(activeThemeForSettings?.slug);
-  }, [activeThemeForSettings?.slug]);
+    return themeRegistry.getGlobalSettingsSchema(syncedThemeId ?? undefined);
+  }, [syncedThemeId]);
   const useRegistryGroups = themeGroups.length > 0;
   const { upload } = useImageUpload();
   const [uploading, setUploading] = useState(false);

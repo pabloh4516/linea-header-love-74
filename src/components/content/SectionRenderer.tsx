@@ -1,10 +1,12 @@
 import { themeRegistry } from "@/theme-engine";
 import { useHomepageSections } from "@/hooks/useHomepageSections";
+import { useThemeSync } from "@/hooks/useActiveThemeSync";
 
 export type { Database } from "@/integrations/supabase/types";
 export type HomepageSection = import("@/integrations/supabase/types").Database["public"]["Tables"]["homepage_sections"]["Row"];
 
 const SectionRenderer = () => {
+  const { activeThemeId } = useThemeSync(); // Forces re-render when theme changes
   const { data: sections, isLoading } = useHomepageSections(true);
 
   if (isLoading) {
