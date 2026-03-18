@@ -982,9 +982,7 @@ const SettingsTab = ({
   // Force re-read when active theme changes (themeRegistry is not reactive)
   const activeThemeForSettings = useActiveThemeSync();
   const themeGroups = useMemo(() => {
-    // activeThemeForSettings?.slug dependency forces re-computation
-    return themeRegistry.getGlobalSettingsSchema();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return themeRegistry.getGlobalSettingsSchema(activeThemeForSettings?.slug);
   }, [activeThemeForSettings?.slug]);
   const useRegistryGroups = themeGroups.length > 0;
   const { upload } = useImageUpload();
