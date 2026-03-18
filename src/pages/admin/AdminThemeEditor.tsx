@@ -1762,43 +1762,53 @@ const PageSectionEdit = ({ sectionId, pageType, iframeRef, onBack }: {
       </button>
       <SectionTitle>{typeInfo?.label || sectionData.type}</SectionTitle>
       <div className="space-y-3 mt-3">
-        {schema?.fields.map(field => (
-          <div key={field.key} className="space-y-1">
-            <Label className="text-[11px] text-muted-foreground">{field.label}</Label>
-            {field.type === "textarea" ? (
-              <Textarea value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
-                className="text-[11px] min-h-[60px]" placeholder={field.label} />
-            ) : field.type === "image" ? (
-              <div className="space-y-1.5">
-                <Input type="file" accept="image/*" disabled={uploading} className="h-7 text-[10px]"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    setUploading(true);
-                    try {
-                      const url = await upload(file);
-                      setEditForm(f => ({ ...f, [field.key]: url }));
-                    } catch { toast.error("Erro ao enviar imagem"); }
-                    setUploading(false);
-                  }}
-                />
-                {editForm[field.key] && (
-                  <img src={editForm[field.key]} alt="" className="w-14 h-14 object-cover rounded border border-[hsl(var(--admin-border))]" />
+        {/* Product Info: special named blocks editor */}
+        {sectionData.type === "product_info" ? (
+          <ProductInfoBlocksEditor
+            blocks={editBlocks.length > 0 ? editBlocks as unknown as ProductInfoBlock[] : DEFAULT_PRODUCT_INFO_BLOCKS}
+            onBlocksChange={(blocks) => setEditBlocks(blocks as unknown as BlockData[])}
+          />
+        ) : (
+          <>
+            {schema?.fields.map(field => (
+              <div key={field.key} className="space-y-1">
+                <Label className="text-[11px] text-muted-foreground">{field.label}</Label>
+                {field.type === "textarea" ? (
+                  <Textarea value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                    className="text-[11px] min-h-[60px]" placeholder={field.label} />
+                ) : field.type === "image" ? (
+                  <div className="space-y-1.5">
+                    <Input type="file" accept="image/*" disabled={uploading} className="h-7 text-[10px]"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setUploading(true);
+                        try {
+                          const url = await upload(file);
+                          setEditForm(f => ({ ...f, [field.key]: url }));
+                        } catch { toast.error("Erro ao enviar imagem"); }
+                        setUploading(false);
+                      }}
+                    />
+                    {editForm[field.key] && (
+                      <img src={editForm[field.key]} alt="" className="w-14 h-14 object-cover rounded border border-[hsl(var(--admin-border))]" />
+                    )}
+                  </div>
+                ) : (
+                  <Input value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
+                    className="h-7 text-[11px]" placeholder={field.label} />
                 )}
               </div>
-            ) : (
-              <Input value={editForm[field.key] || ""} onChange={(e) => setEditForm(f => ({ ...f, [field.key]: e.target.value }))}
-                className="h-7 text-[11px]" placeholder={field.label} />
-            )}
-          </div>
-        ))}
+            ))}
+          </>
+        )}
 
         <div className="flex items-center justify-between py-2">
           <Label className="text-[11px] text-muted-foreground">Visível</Label>
           <Switch checked={editForm.is_visible !== false} onCheckedChange={(v) => setEditForm(f => ({ ...f, is_visible: v }))} />
         </div>
 
-        {schema?.blocks && (
+        {schema?.blocks && sectionData.type !== "product_info" && (
           <div className="space-y-2">
             <Label className="text-[11px] text-muted-foreground font-medium">{schema.blocks.label}</Label>
             <InlineBlockEditor
