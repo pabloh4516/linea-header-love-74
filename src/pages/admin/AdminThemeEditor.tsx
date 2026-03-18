@@ -575,15 +575,19 @@ const AdminThemeEditor = () => {
   // Drill-down state for settings tab
   const [settingsDrilldown, setSettingsDrilldown] = useState<string | number | null>(null);
 
+  const registryDefaults = useMemo(() => {
+    const current = themeRegistry.getDefaultSettings();
+    const normalized = Object.fromEntries(
+      Object.entries(current || {}).map(([key, value]) => [`theme_${key}`, String(value)])
+    );
+    return Object.keys(normalized).length > 0 ? { ...DEFAULTS, ...normalized } : DEFAULTS;
+  }, [activeThemeData?.slug]);
+
   useEffect(() => {
     if (settings) {
-      const merged = { ...DEFAULTS };
-      // Load all theme_ keys from settings, not just THEME_KEYS
+      const merged = { ...registryDefaults };
       Object.keys(settings).forEach(key => {
         if (key.startsWith("theme_")) merged[key] = settings[key];
-      });
-      THEME_KEYS.forEach(key => {
-        if (settings[key] && !merged[key]) merged[key] = settings[key];
       });
       setTheme(merged);
     }
