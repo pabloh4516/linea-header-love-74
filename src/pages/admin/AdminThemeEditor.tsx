@@ -966,15 +966,46 @@ const SectionsTab = ({
 const SettingsTab = ({
   drilldown, onDrilldown, settingsGrouped, theme, onChange, onApplyPreset,
 }: {
-  drilldown: SettingsGroupId | null;
-  onDrilldown: (id: SettingsGroupId | null) => void;
+  drilldown: string | number | null;
+  onDrilldown: (id: string | number | null) => void;
   settingsGrouped: Record<string, SettingsGroupDef[]>;
   theme: Record<string, string>;
   onChange: (key: string, value: string) => void;
   onApplyPreset: (values: Record<string, string>) => void;
 }) => {
-  // Drilldown into a specific settings panel
-  if (drilldown) {
+  const themeGroups = themeRegistry.getGlobalSettingsSchema();
+  const useRegistryGroups = themeGroups.length > 0;
+  const { uploadImage, uploading } = useImageUpload();
+
+  // Drilldown into a theme-registry group (number index)
+  if (useRegistryGroups && typeof drilldown === "number") {
+    const selectedGroup = themeGroups[drilldown];
+    if (!selectedGroup) return null;
+    return (
+      <>
+        <button onClick={() => onDrilldown(null)}
+          className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors mb-3">
+          <ArrowLeft className="h-3 w-3" /> Voltar
+        </button>
+        <p className="text-[13px] font-semibold mb-3">{selectedGroup.name}</p>
+        <div className="space-y-3">
+          {selectedGroup.settings.map(setting => (
+            <SchemaField
+              key={setting.id}
+              setting={setting}
+              value={theme[`theme_${setting.id}`] ?? setting.default}
+              onChange={(val) => onChange(`theme_${setting.id}`, String(val))}
+              onImageUpload={uploadImage}
+              uploading={uploading}
+            />
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  // Drilldown into a hardcoded settings panel (string id — fallback)
+  if (typeof drilldown === "string" && drilldown) {
     return (
       <>
         <button onClick={() => onDrilldown(null)}
@@ -999,7 +1030,27 @@ const SettingsTab = ({
     );
   }
 
-  // List view — grouped settings
+  // List view — use theme registry groups if available, otherwise hardcoded
+  if (useRegistryGroups) {
+    return (
+      <>
+        {themeGroups.map((group, index) => (
+          <button
+            key={index}
+            onClick={() => onDrilldown(index)}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[hsl(var(--admin-bg))] transition-colors text-left"
+          >
+            <Settings className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-[12px] font-medium flex-1">{group.name}</span>
+            <span className="text-[10px] text-muted-foreground">{group.settings.length}</span>
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+          </button>
+        ))}
+      </>
+    );
+  }
+
+  // Fallback: hardcoded groups
   return (
     <>
       {Object.entries(settingsGrouped).map(([group, items]) => (
