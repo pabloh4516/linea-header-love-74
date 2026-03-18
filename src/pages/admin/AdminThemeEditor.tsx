@@ -1570,8 +1570,13 @@ const PageSectionEdit = ({ sectionId, pageType, iframeRef, onBack }: {
     if (sectionData && !initialized) {
       const blocks = Array.isArray(sectionData.blocks) ? sectionData.blocks : [];
       const { type, blocks: _b, ...rest } = sectionData;
-      setEditForm({ is_visible: true, ...rest });
-      setEditBlocks(blocks);
+      setEditForm({ is_visible: sectionData.is_visible !== false, ...rest });
+      // For product_info, ensure all block types are present from the start
+      if (sectionData.type === "product_info" && blocks.length === 0) {
+        setEditBlocks(DEFAULT_PRODUCT_INFO_BLOCKS as unknown as BlockData[]);
+      } else {
+        setEditBlocks(blocks);
+      }
       setInitialized(true);
     }
   }, [sectionData, initialized]);
