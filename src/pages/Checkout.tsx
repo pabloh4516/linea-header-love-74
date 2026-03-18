@@ -272,7 +272,20 @@ const Checkout = () => {
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-muted-foreground/20">
-                  {!showDiscountInput ? (
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between bg-primary/5 border border-primary/20 px-3 py-2 rounded-sm">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-sm font-mono font-medium text-foreground">{appliedCoupon.code}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({appliedCoupon.discount_type === "percentage" ? `${appliedCoupon.discount_value}%` : `R$${appliedCoupon.discount_value.toFixed(2)}`})
+                        </span>
+                      </div>
+                      <button onClick={handleRemoveCoupon} className="text-muted-foreground hover:text-foreground">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : !showDiscountInput ? (
                     <button 
                       onClick={() => setShowDiscountInput(true)}
                       className="text-sm text-foreground underline hover:no-underline transition-all"
@@ -280,31 +293,41 @@ const Checkout = () => {
                       Cupom de desconto
                     </button>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <div className="flex gap-2">
                         <Input
                           type="text"
                           value={discountCode}
-                          onChange={(e) => setDiscountCode(e.target.value)}
+                          onChange={(e) => { setDiscountCode(e.target.value.toUpperCase()); setCouponError(""); }}
+                          onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
                           placeholder="Digite o cupom"
-                          className="flex-1 rounded-none"
+                          className="flex-1 rounded-none font-mono"
                         />
-                        <button 
-                          onClick={handleDiscountSubmit}
-                          className="text-sm text-foreground underline hover:no-underline transition-all px-2"
+                        <Button 
+                          onClick={handleApplyCoupon}
+                          disabled={couponLoading || !discountCode.trim()}
+                          variant="outline"
+                          className="rounded-none px-4"
                         >
-                          Aplicar
-                        </button>
+                          {couponLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
+                        </Button>
                       </div>
+                      {couponError && <p className="text-xs text-destructive">{couponError}</p>}
                     </div>
                   )}
                 </div>
 
-                <div className="border-t border-muted-foreground/20 mt-4 pt-6">
+                <div className="border-t border-muted-foreground/20 mt-4 pt-6 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="text-foreground">{formatBRL(subtotal)}</span>
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-primary">Desconto</span>
+                      <span className="text-primary">-{formatBRL(discount)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
