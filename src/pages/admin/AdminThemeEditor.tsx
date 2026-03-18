@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
+import { useHomepageSections, useUpdateSection } from "@/hooks/useHomepageSections";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,9 +13,10 @@ import {
   Save, Monitor, Smartphone, Tablet, RotateCcw, Palette, Type, Layout, Square,
   ChevronLeft, ChevronRight, Minus, Image as ImageIcon, ShoppingBag, CreditCard,
   Globe, Menu, AlignCenter, Layers, Eye, ArrowUp, Megaphone, Grid3X3, Search,
-  Share2, Code, MousePointer,
+  Share2, Code, MousePointer, Sparkles, Home,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Link } from "react-router-dom";
 
 // ─── Font Options ──────────────────────────────────────────
 const FONT_OPTIONS = [
@@ -162,8 +164,89 @@ const DEFAULTS: Record<string, string> = {
 
 const THEME_KEYS = Object.keys(DEFAULTS);
 
+// ─── Theme Presets ────────────────────────────────────────
+interface ThemePreset {
+  name: string;
+  description: string;
+  values: Record<string, string>;
+}
+
+const THEME_PRESETS: ThemePreset[] = [
+  {
+    name: "Minimal",
+    description: "Clean, espaçoso, tipografia leve",
+    values: {
+      theme_primary_h: "0", theme_primary_s: "0", theme_primary_l: "10",
+      theme_bg_h: "0", theme_bg_s: "0", theme_bg_l: "100",
+      theme_fg_h: "0", theme_fg_s: "0", theme_fg_l: "10",
+      theme_accent_h: "0", theme_accent_s: "0", theme_accent_l: "95",
+      theme_muted_h: "0", theme_muted_s: "0", theme_muted_l: "96",
+      theme_border_h: "0", theme_border_s: "0", theme_border_l: "90",
+      theme_font_display: "DM Sans", theme_font_body: "DM Sans",
+      theme_heading_weight: "300", theme_body_weight: "300",
+      theme_border_radius: "0", theme_button_style: "outline", theme_button_radius: "0",
+      theme_animation_intensity: "subtle",
+    },
+  },
+  {
+    name: "Luxo",
+    description: "Elegante, tons dourados, serif refinada",
+    values: {
+      theme_primary_h: "38", theme_primary_s: "60", theme_primary_l: "45",
+      theme_bg_h: "30", theme_bg_s: "15", theme_bg_l: "97",
+      theme_fg_h: "30", theme_fg_s: "10", theme_fg_l: "12",
+      theme_accent_h: "38", theme_accent_s: "40", theme_accent_l: "90",
+      theme_muted_h: "30", theme_muted_s: "10", theme_muted_l: "94",
+      theme_border_h: "30", theme_border_s: "15", theme_border_l: "85",
+      theme_font_display: "Cormorant Garamond", theme_font_body: "Raleway",
+      theme_heading_weight: "400", theme_body_weight: "300",
+      theme_border_radius: "0", theme_button_style: "solid", theme_button_radius: "0",
+      theme_animation_intensity: "medium",
+      theme_statusbar_bg_h: "38", theme_statusbar_bg_s: "60", theme_statusbar_bg_l: "45",
+      theme_statusbar_fg_h: "0", theme_statusbar_fg_s: "0", theme_statusbar_fg_l: "100",
+    },
+  },
+  {
+    name: "Moderno",
+    description: "Contemporâneo, arrojado, contrastes fortes",
+    values: {
+      theme_primary_h: "220", theme_primary_s: "15", theme_primary_l: "15",
+      theme_bg_h: "220", theme_bg_s: "5", theme_bg_l: "98",
+      theme_fg_h: "220", theme_fg_s: "15", theme_fg_l: "10",
+      theme_accent_h: "220", theme_accent_s: "20", theme_accent_l: "92",
+      theme_muted_h: "220", theme_muted_s: "8", theme_muted_l: "95",
+      theme_border_h: "220", theme_border_s: "10", theme_border_l: "88",
+      theme_font_display: "Montserrat", theme_font_body: "Inter",
+      theme_heading_weight: "500", theme_body_weight: "400",
+      theme_border_radius: "0.5", theme_button_style: "solid", theme_button_radius: "8",
+      theme_animation_intensity: "medium",
+    },
+  },
+  {
+    name: "Bold",
+    description: "Ousado, escuro, impactante",
+    values: {
+      theme_primary_h: "0", theme_primary_s: "0", theme_primary_l: "95",
+      theme_bg_h: "0", theme_bg_s: "0", theme_bg_l: "5",
+      theme_fg_h: "0", theme_fg_s: "0", theme_fg_l: "95",
+      theme_accent_h: "0", theme_accent_s: "0", theme_accent_l: "15",
+      theme_muted_h: "0", theme_muted_s: "0", theme_muted_l: "12",
+      theme_border_h: "0", theme_border_s: "0", theme_border_l: "20",
+      theme_font_display: "Playfair Display", theme_font_body: "DM Sans",
+      theme_heading_weight: "700", theme_body_weight: "300",
+      theme_border_radius: "0", theme_button_style: "solid", theme_button_radius: "0",
+      theme_animation_intensity: "dramatic",
+      theme_statusbar_bg_h: "0", theme_statusbar_bg_s: "0", theme_statusbar_bg_l: "95",
+      theme_statusbar_fg_h: "0", theme_statusbar_fg_s: "0", theme_statusbar_fg_l: "5",
+      theme_footer_bg_h: "0", theme_footer_bg_s: "0", theme_footer_bg_l: "10",
+      theme_footer_fg_h: "0", theme_footer_fg_s: "0", theme_footer_fg_l: "90",
+    },
+  },
+];
+
 // ─── Section Definitions ──────────────────────────────────
 type SectionId =
+  | "presets" | "homepage_sections"
   | "colors" | "typography" | "layout" | "buttons"
   | "statusbar" | "header" | "product_card" | "product_page"
   | "category" | "cart" | "footer" | "checkout"
@@ -177,6 +260,8 @@ interface SectionDef {
 }
 
 const SECTIONS: SectionDef[] = [
+  { id: "presets", label: "Presets de Tema", icon: Sparkles, group: "Início Rápido" },
+  { id: "homepage_sections", label: "Seções da Homepage", icon: Home, group: "Início Rápido" },
   { id: "colors", label: "Cores", icon: Palette, group: "Design" },
   { id: "typography", label: "Tipografia", icon: Type, group: "Design" },
   { id: "layout", label: "Layout & Espaçamento", icon: Layout, group: "Design" },
@@ -301,11 +386,13 @@ const INLINE_EDIT_SCRIPT = `
 const AdminThemeEditor = () => {
   const { data: settings, isLoading } = useSiteSettings();
   const updateSetting = useUpdateSetting();
+  const { data: homepageSections } = useHomepageSections();
+  const updateHomepageSection = useUpdateSection();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [viewport, setViewport] = useState<Viewport>("desktop");
   const [theme, setTheme] = useState<Record<string, string>>(DEFAULTS);
   const [saving, setSaving] = useState(false);
-  const [activeSection, setActiveSection] = useState<SectionId>("colors");
+  const [activeSection, setActiveSection] = useState<SectionId>("presets");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [inlineEditMode, setInlineEditMode] = useState(true);
 
@@ -461,6 +548,26 @@ const AdminThemeEditor = () => {
 
               <ScrollArea className="flex-1">
                 <div className="p-4 space-y-5">
+                  {activeSection === "presets" && (
+                    <PresetsSection
+                      theme={theme}
+                      onApply={(preset) => {
+                        const newTheme = { ...theme, ...preset };
+                        setTheme(newTheme);
+                        applyToIframe(newTheme);
+                        toast.success("Preset aplicado! Clique 'Salvar tema' para persistir.");
+                      }}
+                    />
+                  )}
+                  {activeSection === "homepage_sections" && (
+                    <HomepageSectionsPanel
+                      sections={homepageSections || []}
+                      onToggle={async (s) => {
+                        await updateHomepageSection.mutateAsync({ id: s.id, is_visible: !s.is_visible });
+                        toast.success("Visibilidade atualizada!");
+                      }}
+                    />
+                  )}
                   {activeSection === "colors" && <ColorsSection theme={theme} onChange={updateTheme} />}
                   {activeSection === "typography" && <TypographySection theme={theme} onChange={updateTheme} />}
                   {activeSection === "layout" && <LayoutSection theme={theme} onChange={updateTheme} />}
@@ -981,5 +1088,114 @@ const CustomCssSection = ({ theme, onChange }: FieldProps) => (
     </div>
   </>
 );
+
+// ─── Presets Section ──────────────────────────────────────
+const PresetsSection = ({ theme, onApply }: { theme: Record<string, string>; onApply: (values: Record<string, string>) => void }) => {
+  const hslToHexLocal = (h: number, s: number, l: number): string => {
+    s /= 100; l /= 100;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color).toString(16).padStart(2, "0");
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+  };
+
+  return (
+    <>
+      <SectionTitle>Presets de Tema</SectionTitle>
+      <p className="text-[11px] text-muted-foreground">Escolha um tema base para começar. Você pode personalizar tudo depois.</p>
+      <div className="space-y-3">
+        {THEME_PRESETS.map((preset) => {
+          const bgColor = hslToHexLocal(
+            parseInt(preset.values.theme_bg_h || DEFAULTS.theme_bg_h),
+            parseInt(preset.values.theme_bg_s || DEFAULTS.theme_bg_s),
+            parseInt(preset.values.theme_bg_l || DEFAULTS.theme_bg_l),
+          );
+          const fgColor = hslToHexLocal(
+            parseInt(preset.values.theme_fg_h || DEFAULTS.theme_fg_h),
+            parseInt(preset.values.theme_fg_s || DEFAULTS.theme_fg_s),
+            parseInt(preset.values.theme_fg_l || DEFAULTS.theme_fg_l),
+          );
+          const primaryColor = hslToHexLocal(
+            parseInt(preset.values.theme_primary_h || DEFAULTS.theme_primary_h),
+            parseInt(preset.values.theme_primary_s || DEFAULTS.theme_primary_s),
+            parseInt(preset.values.theme_primary_l || DEFAULTS.theme_primary_l),
+          );
+
+          return (
+            <button
+              key={preset.name}
+              onClick={() => onApply(preset.values)}
+              className="w-full p-3 rounded-lg border border-[hsl(var(--admin-border))] hover:border-foreground/30 transition-colors text-left"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex gap-1">
+                  <div className="w-5 h-5 rounded-full border border-[hsl(var(--admin-border))]" style={{ backgroundColor: bgColor }} />
+                  <div className="w-5 h-5 rounded-full border border-[hsl(var(--admin-border))]" style={{ backgroundColor: fgColor }} />
+                  <div className="w-5 h-5 rounded-full border border-[hsl(var(--admin-border))]" style={{ backgroundColor: primaryColor }} />
+                </div>
+                <span className="text-[13px] font-medium">{preset.name}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{preset.description}</p>
+              <div className="mt-2 text-[10px] text-muted-foreground">
+                {preset.values.theme_font_display || DEFAULTS.theme_font_display} / {preset.values.theme_font_body || DEFAULTS.theme_font_body}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+};
+
+// ─── Homepage Sections Panel ──────────────────────────────
+const SECTION_TYPE_LABELS: Record<string, string> = {
+  hero: "Hero Imersivo", large_hero: "Hero Grande", asymmetric_grid: "Grid Assimétrico",
+  fifty_fifty: "50/50", one_third_two_thirds: "1/3 + 2/3", product_carousel: "Carrossel de Produtos",
+  editorial: "Editorial", full_width_banner: "Banner Full Width", story: "Nossa História",
+};
+
+const HomepageSectionsPanel = ({ sections, onToggle }: {
+  sections: any[];
+  onToggle: (s: any) => void;
+}) => {
+  const sorted = [...sections].sort((a, b) => a.sort_order - b.sort_order);
+
+  return (
+    <>
+      <SectionTitle>Seções da Homepage</SectionTitle>
+      <p className="text-[11px] text-muted-foreground">
+        Gerencie a visibilidade das seções. Para edição completa, use a{" "}
+        <Link to="/admin/homepage" className="text-foreground underline">página de Homepage</Link>.
+      </p>
+      {sorted.length === 0 ? (
+        <div className="text-center py-6">
+          <p className="text-[12px] text-muted-foreground">Nenhuma seção configurada.</p>
+          <Link to="/admin/homepage" className="text-[12px] text-foreground underline mt-1 inline-block">
+            Configurar seções →
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {sorted.map((s) => (
+            <div key={s.id} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-bg))] transition-colors">
+              <div className="min-w-0">
+                <p className="text-[12px] font-medium text-foreground truncate">
+                  {s.title || SECTION_TYPE_LABELS[s.section_type] || s.section_type}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {SECTION_TYPE_LABELS[s.section_type] || s.section_type}
+                </p>
+              </div>
+              <Switch checked={s.is_visible} onCheckedChange={() => onToggle(s)} />
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
 
 export default AdminThemeEditor;
