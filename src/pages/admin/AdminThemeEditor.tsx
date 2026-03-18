@@ -1008,12 +1008,12 @@ const SectionsTab = ({
           onEditSection={(id) => onDrilldown(id)}
         />
       ) : (
-        <div className="py-6 text-center border border-dashed border-[hsl(var(--admin-border))] rounded-lg">
-          <Layers className="h-5 w-5 mx-auto text-muted-foreground mb-2" />
-          <p className="text-[11px] text-muted-foreground">
-            Seções para esta página serão<br />configuráveis em breve.
-          </p>
-        </div>
+        <PageSectionsList
+          pageType={PAGE_TYPE_MAP[selectedPage]}
+          availableTypes={PAGE_AVAILABLE_SECTIONS[selectedPage] || []}
+          iframeRef={iframeRef}
+          onEditSection={(id) => onDrilldown(id)}
+        />
       )}
 
       {/* Footer (special, always on bottom) */}
