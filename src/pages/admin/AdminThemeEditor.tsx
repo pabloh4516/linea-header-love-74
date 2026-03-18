@@ -1271,7 +1271,7 @@ const SettingsTab = ({
   settingsGrouped: Record<string, SettingsGroupDef[]>;
   theme: Record<string, string>;
   onChange: (key: string, value: string) => void;
-  onApplyPreset: (values: Record<string, string>) => void;
+  onApplyPreset: (preset: ThemePreset) => void;
 }) => {
   // Force re-read when active theme changes (themeRegistry is not reactive)
   const { activeThemeId: syncedThemeId } = useThemeSync();
