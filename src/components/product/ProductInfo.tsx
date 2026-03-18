@@ -146,7 +146,7 @@ const ProductInfo = () => {
         <Button
           type="button"
           onClick={handleAddToBag}
-          className="w-full h-13 bg-foreground text-background hover:bg-foreground/90 font-light rounded-none text-editorial text-xs tracking-[0.15em] transition-all duration-300 hover:tracking-[0.25em]"
+          className="w-full h-[52px] bg-foreground text-background hover:bg-foreground/90 font-light rounded-none text-editorial text-xs tracking-[0.15em] transition-all duration-300 hover:tracking-[0.25em]"
         >
           Adicionar à Sacola
         </Button>
