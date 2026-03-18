@@ -63,7 +63,7 @@ const ProductDetail = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="lg:col-span-5 px-6 lg:px-10 xl:px-14 mt-6 lg:mt-0 lg:sticky lg:top-24 lg:h-fit lg:py-8"
+              className="lg:col-span-5 px-6 lg:px-10 xl:px-14 pb-6 lg:pb-0 mt-6 lg:mt-0 lg:sticky lg:top-24 lg:h-fit lg:py-10 lg:overflow-y-auto lg:max-h-[calc(100vh-6rem)]"
             >
               <ProductInfo />
               <ProductDescription />
@@ -71,13 +71,13 @@ const ProductDetail = () => {
           </div>
         </section>
 
-        <section className="w-full mt-16 lg:mt-32">
+        <section className="w-full mt-16 lg:mt-32 px-6 md:px-0">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6 }}
-            className="mb-3 px-6"
+            className="mb-3 md:px-12"
           >
             <p className="text-editorial text-[10px] md:text-xs text-muted-foreground tracking-[0.2em] mb-1">
               Sugestões
@@ -87,13 +87,13 @@ const ProductDetail = () => {
           <ProductCarousel showHeader={false} />
         </section>
 
-        <section className="w-full mt-10 lg:mt-16 pb-12">
+        <section className="w-full mt-10 lg:mt-16 pb-12 lg:pb-20 px-6 md:px-0">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6 }}
-            className="mb-3 px-6"
+            className="mb-3 md:px-12"
           >
             <p className="text-editorial text-[10px] md:text-xs text-muted-foreground tracking-[0.2em] mb-1">
               Explore mais
