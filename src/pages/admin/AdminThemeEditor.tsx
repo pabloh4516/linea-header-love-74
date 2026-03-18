@@ -431,189 +431,56 @@ const INLINE_EDIT_SCRIPT = `
 })();
 `;
 
-// ─── Section Types & Schemas ──────────────────────────────
-const SECTION_TYPES = [
-  { value: "hero", label: "Hero Imersivo", icon: ImageIcon },
-  { value: "large_hero", label: "Hero Grande", icon: ImageIcon },
-  { value: "slideshow", label: "Slideshow", icon: Layers },
-  { value: "asymmetric_grid", label: "Grid Assimétrico", icon: LayoutGrid },
-  { value: "fifty_fifty", label: "50/50", icon: Columns },
-  { value: "one_third_two_thirds", label: "1/3 + 2/3", icon: Columns },
-  { value: "product_carousel", label: "Carrossel de Produtos", icon: ShoppingBag },
-  { value: "editorial", label: "Editorial", icon: FileText },
-  { value: "full_width_banner", label: "Banner Full Width", icon: ImageIcon },
-  { value: "story", label: "Nossa História", icon: FileText },
-  { value: "rich_text", label: "Texto Rico", icon: Type },
-  { value: "newsletter", label: "Newsletter", icon: Mail },
-  { value: "testimonials", label: "Depoimentos", icon: Star },
-  { value: "video", label: "Vídeo", icon: Video },
-  { value: "multicolumn", label: "Multi-Colunas", icon: LayoutGrid },
-  { value: "collapsible_content", label: "FAQ / Acordeão", icon: HelpCircle },
-  { value: "contact_form", label: "Formulário de Contato", icon: MessageSquare },
-  { value: "image_gallery", label: "Galeria de Imagens", icon: ImageIcon },
-  { value: "separator", label: "Separador", icon: SeparatorHorizontal },
-  { value: "product_info", label: "Informações do Produto", icon: ShoppingBag },
-  { value: "product_gallery", label: "Galeria do Produto", icon: ImageIcon },
-  { value: "product_recommendations", label: "Produtos Recomendados", icon: Star },
-];
+// ─── Section Types & Schemas from Theme Registry ──────────
+import { themeRegistry } from "@/theme-engine";
+import SchemaField from "@/components/admin/SchemaField";
 
+const getSectionTypes = () => {
+  const available = themeRegistry.getAvailableSections();
+  const iconMap: Record<string, typeof ImageIcon> = {
+    ImageIcon, Layers, LayoutGrid, Columns, ShoppingBag, FileText, Type, Mail,
+    Star, Video, HelpCircle, MessageSquare, SeparatorHorizontal,
+  };
+  return available.map(s => ({
+    value: s.type,
+    label: s.name,
+    icon: iconMap[s.icon || ""] || LayoutGrid,
+  }));
+};
+
+const SECTION_TYPES = getSectionTypes();
+
+// Legacy adapter: convert new SectionSchema to old format for existing code
 interface BlockFieldDef { key: string; label: string; type: "text" | "url" | "image"; }
-interface SectionSchema {
+interface LegacySectionSchema {
   fields: { key: string; label: string; type: "text" | "textarea" | "image" | "url" }[];
   blocks?: { label: string; maxItems?: number; schema: BlockFieldDef[] };
 }
 
-const SECTION_SCHEMAS: Record<string, SectionSchema> = {
-  hero: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-      { key: "cta_text", label: "Texto do CTA", type: "text" },
-      { key: "link_url", label: "Link do CTA", type: "url" },
-      { key: "image_url", label: "Imagem de Fundo", type: "image" },
-    ],
-    blocks: { label: "Botões CTA", maxItems: 3, schema: [
-      { key: "text", label: "Texto do Botão", type: "text" },
-      { key: "link", label: "Link", type: "url" },
-      { key: "style", label: "Estilo (primary/outline/text)", type: "text" },
-    ]},
-  },
-  large_hero: { fields: [
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-    { key: "image_url", label: "Imagem", type: "image" },
-  ]},
-  slideshow: { fields: [], blocks: { label: "Slides", maxItems: 8, schema: [
-    { key: "image", label: "Imagem", type: "image" },
-    { key: "heading", label: "Título", type: "text" },
-    { key: "subheading", label: "Subtítulo", type: "text" },
-    { key: "button_text", label: "Texto do Botão", type: "text" },
-    { key: "button_link", label: "Link do Botão", type: "url" },
-    { key: "text_position", label: "Posição (left/center/right)", type: "text" },
-  ]}},
-  asymmetric_grid: { fields: [
-    { key: "title", label: "Título da Seção", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-  ], blocks: { label: "Cards do Grid", maxItems: 5, schema: [
-    { key: "image", label: "Imagem", type: "image" },
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-    { key: "link", label: "Link", type: "url" },
-  ]}},
-  fifty_fifty: { fields: [], blocks: { label: "Items (2 colunas)", maxItems: 2, schema: [
-    { key: "image", label: "Imagem", type: "image" },
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Descrição", type: "text" },
-    { key: "link", label: "Link", type: "url" },
-  ]}},
-  one_third_two_thirds: { fields: [], blocks: { label: "Items (1/3 + 2/3)", maxItems: 2, schema: [
-    { key: "image", label: "Imagem", type: "image" },
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Descrição", type: "text" },
-    { key: "link", label: "Link", type: "url" },
-  ]}},
-  product_carousel: { fields: [
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-    { key: "cta_text", label: "Texto do CTA", type: "text" },
-    { key: "link_url", label: "Link do CTA", type: "url" },
-  ]},
-  editorial: { fields: [
-    { key: "title", label: "Título", type: "text" },
-    { key: "description", label: "Descrição", type: "textarea" },
-    { key: "cta_text", label: "Texto do CTA", type: "text" },
-    { key: "link_url", label: "Link do CTA", type: "url" },
-    { key: "image_url", label: "Imagem", type: "image" },
-  ]},
-  full_width_banner: { fields: [
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-    { key: "description", label: "Descrição", type: "textarea" },
-    { key: "cta_text", label: "Texto do CTA", type: "text" },
-    { key: "link_url", label: "Link do CTA", type: "url" },
-    { key: "image_url", label: "Imagem de Fundo", type: "image" },
-  ], blocks: { label: "Botões CTA", maxItems: 3, schema: [
-    { key: "text", label: "Texto do Botão", type: "text" },
-    { key: "link", label: "Link", type: "url" },
-    { key: "style", label: "Estilo (primary/outline/text)", type: "text" },
-  ]}},
-  story: { fields: [
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-    { key: "description", label: "Descrição", type: "textarea" },
-    { key: "cta_text", label: "Texto do CTA", type: "text" },
-    { key: "link_url", label: "Link do CTA", type: "url" },
-    { key: "image_url", label: "Imagem", type: "image" },
-    { key: "image_url_2", label: "Imagem Secundária", type: "image" },
-  ]},
-  rich_text: { fields: [
-    { key: "title", label: "Título", type: "text" },
-    { key: "description", label: "Conteúdo", type: "textarea" },
-  ]},
-  newsletter: { fields: [
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-    { key: "description", label: "Descrição", type: "textarea" },
-    { key: "cta_text", label: "Texto do Botão", type: "text" },
-    { key: "image_url", label: "Imagem de Fundo", type: "image" },
-  ]},
-  testimonials: { fields: [
-    { key: "title", label: "Título da Seção", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-  ], blocks: { label: "Depoimentos", maxItems: 6, schema: [
-    { key: "text", label: "Texto", type: "text" },
-    { key: "author", label: "Autor", type: "text" },
-    { key: "role", label: "Cargo / Local", type: "text" },
-    { key: "image", label: "Foto", type: "image" },
-  ]}},
-  video: { fields: [
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-    { key: "description", label: "URL do Vídeo (YouTube/Vimeo)", type: "url" },
-    { key: "image_url", label: "Imagem de Capa", type: "image" },
-  ]},
-  multicolumn: { fields: [
-    { key: "title", label: "Título da Seção", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-  ], blocks: { label: "Colunas", maxItems: 6, schema: [
-    { key: "image", label: "Ícone / Imagem", type: "image" },
-    { key: "title", label: "Título", type: "text" },
-    { key: "text", label: "Texto", type: "text" },
-    { key: "link", label: "Link", type: "url" },
-  ]}},
-  collapsible_content: { fields: [
-    { key: "title", label: "Título da Seção", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-  ], blocks: { label: "Perguntas", maxItems: 20, schema: [
-    { key: "question", label: "Pergunta", type: "text" },
-    { key: "answer", label: "Resposta", type: "text" },
-  ]}},
-  contact_form: { fields: [
-    { key: "title", label: "Título", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-    { key: "description", label: "Descrição", type: "textarea" },
-    { key: "image_url", label: "Imagem", type: "image" },
-  ]},
-  image_gallery: { fields: [
-    { key: "title", label: "Título da Seção", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-  ], blocks: { label: "Imagens", maxItems: 12, schema: [
-    { key: "image", label: "Imagem", type: "image" },
-    { key: "caption", label: "Legenda", type: "text" },
-    { key: "link", label: "Link", type: "url" },
-  ]}},
-  separator: { fields: [] },
-  product_info: { fields: [] },
-  product_gallery: { fields: [
-    { key: "title", label: "Título", type: "text" },
-  ]},
-  product_recommendations: { fields: [
-    { key: "title", label: "Título da Seção", type: "text" },
-    { key: "subtitle", label: "Subtítulo", type: "text" },
-    { key: "cta_text", label: "Texto do CTA", type: "text" },
-    { key: "link_url", label: "Link do CTA", type: "url" },
-  ]},
-};
+function getLegacySchema(sectionType: string): LegacySectionSchema | undefined {
+  const schema = themeRegistry.getSectionSchema(sectionType);
+  if (!schema) return undefined;
+  const fields = schema.settings.map(s => ({
+    key: s.id,
+    label: s.label,
+    type: (s.type === "textarea" || s.type === "richtext" ? "textarea" : s.type === "image" ? "image" : s.type === "url" ? "url" : "text") as "text" | "textarea" | "image" | "url",
+  }));
+  const block = schema.blocks?.[0];
+  const blocks = block ? {
+    label: block.name,
+    maxItems: block.limit,
+    schema: block.settings.map(s => ({
+      key: s.id,
+      label: s.label,
+      type: (s.type === "image" ? "image" : s.type === "url" ? "url" : "text") as "text" | "url" | "image",
+    })),
+  } : undefined;
+  return { fields, blocks };
+}
+
+const SECTION_SCHEMAS: Record<string, LegacySectionSchema> = new Proxy({} as any, {
+  get: (_target, prop: string) => getLegacySchema(prop),
+});
 
 // ─── Product Info Named Blocks ────────────────────────────
 const PRODUCT_INFO_BLOCK_TYPES = [

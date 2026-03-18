@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useHomepageSections, useUpdateSection, useCreateSection, useDeleteSection } from "@/hooks/useHomepageSections";
 import { useImageUpload } from "@/hooks/useImageUpload";
+import { themeRegistry } from "@/theme-engine";
+import SchemaField from "@/components/admin/SchemaField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -22,280 +23,11 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import type { Json } from "@/integrations/supabase/types";
 
-// ─── Section Types ─────────────────────────────────────────
-const SECTION_TYPES = [
-  { value: "hero", label: "Hero Imersivo" },
-  { value: "large_hero", label: "Hero Grande" },
-  { value: "slideshow", label: "Slideshow" },
-  { value: "asymmetric_grid", label: "Grid Assimétrico" },
-  { value: "fifty_fifty", label: "50/50" },
-  { value: "one_third_two_thirds", label: "1/3 + 2/3" },
-  { value: "product_carousel", label: "Carrossel de Produtos" },
-  { value: "editorial", label: "Editorial" },
-  { value: "full_width_banner", label: "Banner Full Width" },
-  { value: "story", label: "Nossa História" },
-  { value: "rich_text", label: "Texto Rico" },
-  { value: "newsletter", label: "Newsletter" },
-  { value: "testimonials", label: "Depoimentos" },
-  { value: "video", label: "Vídeo" },
-  { value: "multicolumn", label: "Multi-Colunas" },
-  { value: "collapsible_content", label: "FAQ / Acordeão" },
-  { value: "contact_form", label: "Formulário de Contato" },
-  { value: "image_gallery", label: "Galeria de Imagens" },
-  { value: "separator", label: "Separador" },
-];
+// ─── Dynamic from registry (SINGLE SOURCE OF TRUTH) ───────
+const getAvailableSectionTypes = () =>
+  themeRegistry.getAvailableSections().map(s => ({ value: s.type, label: s.name }));
 
-// ─── Section Schema ────────────────────────────────────────
-interface FieldDef {
-  key: string;
-  label: string;
-  type: "text" | "textarea" | "image" | "url";
-}
-
-interface BlockFieldDef {
-  key: string;
-  label: string;
-  type: "text" | "url" | "image";
-}
-
-interface SectionSchema {
-  fields: FieldDef[];
-  blocks?: {
-    label: string;
-    maxItems?: number;
-    schema: BlockFieldDef[];
-  };
-}
-
-const SECTION_SCHEMAS: Record<string, SectionSchema> = {
-  hero: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-      { key: "cta_text", label: "Texto do CTA", type: "text" },
-      { key: "link_url", label: "Link do CTA", type: "url" },
-      { key: "image_url", label: "Imagem de Fundo", type: "image" },
-    ],
-    blocks: {
-      label: "Botões CTA",
-      maxItems: 3,
-      schema: [
-        { key: "text", label: "Texto do Botão", type: "text" },
-        { key: "link", label: "Link", type: "url" },
-        { key: "style", label: "Estilo (primary/outline/text)", type: "text" },
-      ],
-    },
-  },
-  large_hero: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-      { key: "image_url", label: "Imagem", type: "image" },
-    ],
-  },
-  slideshow: {
-    fields: [],
-    blocks: {
-      label: "Slides",
-      maxItems: 8,
-      schema: [
-        { key: "image", label: "Imagem", type: "image" },
-        { key: "heading", label: "Título", type: "text" },
-        { key: "subheading", label: "Subtítulo", type: "text" },
-        { key: "button_text", label: "Texto do Botão", type: "text" },
-        { key: "button_link", label: "Link do Botão", type: "url" },
-        { key: "text_position", label: "Posição (left/center/right)", type: "text" },
-      ],
-    },
-  },
-  asymmetric_grid: {
-    fields: [
-      { key: "title", label: "Título da Seção", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-    ],
-    blocks: {
-      label: "Cards do Grid",
-      maxItems: 5,
-      schema: [
-        { key: "image", label: "Imagem", type: "image" },
-        { key: "title", label: "Título", type: "text" },
-        { key: "subtitle", label: "Subtítulo", type: "text" },
-        { key: "link", label: "Link", type: "url" },
-      ],
-    },
-  },
-  fifty_fifty: {
-    fields: [],
-    blocks: {
-      label: "Items (2 colunas)",
-      maxItems: 2,
-      schema: [
-        { key: "image", label: "Imagem", type: "image" },
-        { key: "title", label: "Título", type: "text" },
-        { key: "subtitle", label: "Descrição", type: "text" },
-        { key: "link", label: "Link", type: "url" },
-      ],
-    },
-  },
-  one_third_two_thirds: {
-    fields: [],
-    blocks: {
-      label: "Items (1/3 + 2/3)",
-      maxItems: 2,
-      schema: [
-        { key: "image", label: "Imagem", type: "image" },
-        { key: "title", label: "Título", type: "text" },
-        { key: "subtitle", label: "Descrição", type: "text" },
-        { key: "link", label: "Link", type: "url" },
-      ],
-    },
-  },
-  product_carousel: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-      { key: "cta_text", label: "Texto do CTA", type: "text" },
-      { key: "link_url", label: "Link do CTA", type: "url" },
-    ],
-  },
-  editorial: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "description", label: "Descrição", type: "textarea" },
-      { key: "cta_text", label: "Texto do CTA", type: "text" },
-      { key: "link_url", label: "Link do CTA", type: "url" },
-      { key: "image_url", label: "Imagem", type: "image" },
-    ],
-  },
-  full_width_banner: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-      { key: "description", label: "Descrição", type: "textarea" },
-      { key: "cta_text", label: "Texto do CTA", type: "text" },
-      { key: "link_url", label: "Link do CTA", type: "url" },
-      { key: "image_url", label: "Imagem de Fundo", type: "image" },
-    ],
-    blocks: {
-      label: "Botões CTA",
-      maxItems: 3,
-      schema: [
-        { key: "text", label: "Texto do Botão", type: "text" },
-        { key: "link", label: "Link", type: "url" },
-        { key: "style", label: "Estilo (primary/outline/text)", type: "text" },
-      ],
-    },
-  },
-  story: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-      { key: "description", label: "Descrição", type: "textarea" },
-      { key: "cta_text", label: "Texto do CTA", type: "text" },
-      { key: "link_url", label: "Link do CTA", type: "url" },
-      { key: "image_url", label: "Imagem", type: "image" },
-    ],
-    blocks: {
-      label: "Estatísticas / Números",
-      maxItems: 4,
-      schema: [
-        { key: "number", label: "Número", type: "text" },
-        { key: "label", label: "Descrição", type: "text" },
-      ],
-    },
-  },
-  rich_text: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "description", label: "Conteúdo", type: "textarea" },
-    ],
-  },
-  newsletter: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "description", label: "Descrição", type: "text" },
-      { key: "cta_text", label: "Texto do Botão", type: "text" },
-    ],
-  },
-  testimonials: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-    ],
-    blocks: {
-      label: "Depoimentos",
-      maxItems: 6,
-      schema: [
-        { key: "author", label: "Autor", type: "text" },
-        { key: "quote", label: "Depoimento", type: "text" },
-        { key: "rating", label: "Nota (1-5)", type: "text" },
-        { key: "location", label: "Localização", type: "text" },
-      ],
-    },
-  },
-  video: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "description", label: "Descrição", type: "text" },
-      { key: "image_url", label: "Imagem de Capa", type: "image" },
-    ],
-  },
-  multicolumn: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-    ],
-    blocks: {
-      label: "Colunas",
-      maxItems: 4,
-      schema: [
-        { key: "image", label: "Imagem", type: "image" },
-        { key: "title", label: "Título", type: "text" },
-        { key: "description", label: "Descrição", type: "text" },
-        { key: "button_text", label: "Texto do Botão", type: "text" },
-        { key: "button_link", label: "Link", type: "url" },
-      ],
-    },
-  },
-  collapsible_content: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "subtitle", label: "Subtítulo", type: "text" },
-    ],
-    blocks: {
-      label: "Perguntas",
-      maxItems: 20,
-      schema: [
-        { key: "question", label: "Pergunta", type: "text" },
-        { key: "answer", label: "Resposta", type: "text" },
-      ],
-    },
-  },
-  contact_form: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-      { key: "description", label: "Descrição", type: "textarea" },
-      { key: "cta_text", label: "Texto do Botão", type: "text" },
-    ],
-  },
-  image_gallery: {
-    fields: [
-      { key: "title", label: "Título", type: "text" },
-    ],
-    blocks: {
-      label: "Imagens",
-      maxItems: 12,
-      schema: [
-        { key: "image", label: "Imagem", type: "image" },
-        { key: "caption", label: "Legenda", type: "text" },
-        { key: "link", label: "Link", type: "url" },
-      ],
-    },
-  },
-  separator: {
-    fields: [],
-  },
-};
+const getSectionSchema = (type: string) => themeRegistry.getSectionSchema(type);
 
 // ─── Types ─────────────────────────────────────────────────
 interface BlockData {
@@ -343,10 +75,10 @@ const SortableItem = ({ section, onEdit, onToggle, onDelete }: {
       <div className="flex-1 min-w-0" onClick={() => onEdit(section)}>
         <div className="flex items-center gap-2">
           <p className="text-[13px] font-medium text-foreground truncate">
-            {section.title || SECTION_TYPES.find(t => t.value === section.section_type)?.label || section.section_type}
+            {section.title || getAvailableSectionTypes().find(t => t.value === section.section_type)?.label || section.section_type}
           </p>
           <span className="text-[11px] text-muted-foreground px-1.5 py-0.5 rounded bg-[hsl(var(--admin-bg))] flex-shrink-0">
-            {SECTION_TYPES.find(t => t.value === section.section_type)?.label || section.section_type}
+            {getAvailableSectionTypes().find(t => t.value === section.section_type)?.label || section.section_type}
           </span>
         </div>
         {section.subtitle && <p className="text-[11px] text-muted-foreground truncate">{section.subtitle}</p>}
@@ -374,6 +106,7 @@ const SortableItem = ({ section, onEdit, onToggle, onDelete }: {
 };
 
 // ─── Block Editor ──────────────────────────────────────────
+interface BlockFieldDef { key: string; label: string; type: string; }
 const BlockEditor = ({ blocks, schema, maxItems, onBlocksChange, onImageUpload, uploading }: {
   blocks: BlockData[];
   schema: BlockFieldDef[];
@@ -607,7 +340,7 @@ const AdminHomepage = () => {
   }
 
   const sortedSections = sections ? [...sections].sort((a, b) => a.sort_order - b.sort_order) : [];
-  const currentSchema = SECTION_SCHEMAS[form.section_type];
+  const currentSchema = getSectionSchema(form.section_type);
 
   return (
     <div className={`${showPreview ? "flex gap-4 h-[calc(100vh-7rem)] -m-4 md:-m-6 lg:-m-8" : "space-y-5"}`}>
@@ -669,52 +402,42 @@ const AdminHomepage = () => {
                 <Label className="text-[13px]">Tipo de seção</Label>
                 <Select value={form.section_type} onValueChange={(v) => setForm(f => ({ ...f, section_type: v, blocks: [] }))}>
                   <SelectTrigger className="h-9 text-[13px]"><SelectValue /></SelectTrigger>
-                  <SelectContent>{SECTION_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
+                  <SelectContent>{getAvailableSectionTypes().map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
 
             {/* Dynamic fields based on schema */}
-            {currentSchema && currentSchema.fields.length > 0 && (
+            {currentSchema && currentSchema.settings.length > 0 && (
               <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-4">
                 <h3 className="text-[13px] font-semibold">Conteúdo</h3>
-                {currentSchema.fields.map((field) => (
-                  <div key={field.key} className="space-y-1.5">
-                    <Label className="text-[12px] text-muted-foreground">{field.label}</Label>
-                    {field.type === "textarea" ? (
-                      <Textarea
-                        value={(form as any)[field.key] || ""}
-                        onChange={(e) => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                        className="text-[13px] min-h-[60px]"
-                      />
-                    ) : field.type === "image" ? (
-                      <div className="space-y-2">
-                        <Input type="file" accept="image/*" disabled={uploading} className="h-9 text-[12px]"
-                          onChange={(e) => handleImageUpload(e, field.key as "image_url" | "image_url_2")} />
-                        {(form as any)[field.key] && (
-                          <img src={(form as any)[field.key]} alt="" className="w-16 h-16 object-cover rounded-lg border border-[hsl(var(--admin-border))]" />
-                        )}
-                      </div>
-                    ) : (
-                      <Input
-                        value={(form as any)[field.key] || ""}
-                        onChange={(e) => setForm(f => ({ ...f, [field.key]: e.target.value }))}
-                        className="h-9 text-[13px]"
-                      />
-                    )}
-                  </div>
+                {currentSchema.settings.map((setting) => (
+                  <SchemaField
+                    key={setting.id}
+                    setting={setting}
+                    value={(form as any)[setting.id] || ""}
+                    onChange={(v) => setForm(f => ({ ...f, [setting.id]: v }))}
+                    onImageUpload={async (file) => {
+                      setUploading(true);
+                      try {
+                        const url = await upload(file);
+                        return url;
+                      } finally { setUploading(false); }
+                    }}
+                    uploading={uploading}
+                  />
                 ))}
               </div>
             )}
 
             {/* Blocks editor */}
-            {currentSchema?.blocks && (
+            {currentSchema?.blocks && currentSchema.blocks.length > 0 && (
               <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-3">
-                <h3 className="text-[13px] font-semibold">{currentSchema.blocks.label}</h3>
+                <h3 className="text-[13px] font-semibold">{currentSchema.blocks[0].name}</h3>
                 <BlockEditor
                   blocks={form.blocks}
-                  schema={currentSchema.blocks.schema}
-                  maxItems={currentSchema.blocks.maxItems}
+                  schema={currentSchema.blocks[0].settings.map(s => ({ key: s.id, label: s.label, type: s.type }))}
+                  maxItems={currentSchema.blocks[0].limit}
                   onBlocksChange={(blocks) => setForm(f => ({ ...f, blocks }))}
                   onImageUpload={handleBlockImageUpload}
                   uploading={uploading}

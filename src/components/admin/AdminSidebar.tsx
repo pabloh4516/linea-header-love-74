@@ -1,4 +1,4 @@
-import { Package, FolderOpen, Home, Settings, LogOut, Store, Search, ShoppingCart, Users, Palette, BarChart3, Tag, Zap, FileText } from "lucide-react";
+import { Package, FolderOpen, Home, Settings, LogOut, Store, Search, ShoppingCart, Users, Palette, BarChart3, Tag, Zap, FileText, Layers } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -29,6 +29,7 @@ const marketingItems = [
 ];
 
 const lojaOnlineItems = [
+  { title: "Temas", url: "/admin/themes", icon: Layers },
   { title: "Personalizar", url: "/admin/theme", icon: Palette },
   { title: "Páginas", url: "/admin/pages", icon: FileText },
 ];
