@@ -23,6 +23,8 @@ type ProductForm = {
   name: string;
   category_id: string;
   price: string;
+  sale_price: string;
+  stock: string;
   image_url: string;
   hover_image_url: string;
   is_new: boolean;
@@ -37,7 +39,7 @@ type ProductForm = {
 };
 
 const empty: ProductForm = {
-  name: "", category_id: "", price: "", image_url: "", hover_image_url: "",
+  name: "", category_id: "", price: "", sale_price: "", stock: "0", image_url: "", hover_image_url: "",
   is_new: false, is_visible: true, description: "", material: "", dimensions: "",
   weight: "", editors_notes: "", sku: "", sort_order: "0",
 };
