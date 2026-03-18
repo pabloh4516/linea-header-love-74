@@ -197,7 +197,24 @@ const DEFAULTS: Record<string, string> = {
 const THEME_KEYS = Object.keys(DEFAULTS);
 
 // ─── Theme Presets ────────────────────────────────────────
-interface ThemePreset { name: string; description: string; values: Record<string, string>; }
+interface PresetSection {
+  section_type: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  cta_text?: string;
+  link_url?: string;
+  image_url?: string;
+  image_url_2?: string;
+  config?: Record<string, unknown>;
+}
+
+interface ThemePreset {
+  name: string;
+  description: string;
+  values: Record<string, string>;
+  sections?: PresetSection[];
+}
 
 const THEME_PRESETS: ThemePreset[] = [
   {
