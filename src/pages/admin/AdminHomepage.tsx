@@ -106,6 +106,7 @@ const SortableItem = ({ section, onEdit, onToggle, onDelete }: {
 };
 
 // ─── Block Editor ──────────────────────────────────────────
+interface BlockFieldDef { key: string; label: string; type: string; }
 const BlockEditor = ({ blocks, schema, maxItems, onBlocksChange, onImageUpload, uploading }: {
   blocks: BlockData[];
   schema: BlockFieldDef[];
