@@ -151,9 +151,9 @@ const ThemeMiniPreview = ({ settings }: { settings: Record<string, string> }) =>
 
 // ─── Main Component ────────────────────────────────────────
 const AdminThemes = () => {
-  const { data: themes, isLoading } = useThemes();
-  const createTheme = useCreateTheme();
-  const deleteTheme = useDeleteTheme();
+  const { data: themes, isLoading } = useAllThemes();
+  const activateTheme = useActivateTheme();
+  const queryClient = useQueryClient();
   const { data: currentSettings } = useSiteSettings();
   const updateSetting = useUpdateSetting();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -163,8 +163,7 @@ const AdminThemes = () => {
   const [saveDesc, setSaveDesc] = useState("");
   const [installing, setInstalling] = useState<string | null>(null);
 
-  const presets = themes?.filter((t) => t.is_preset) || [];
-  const customThemes = themes?.filter((t) => !t.is_preset) || [];
+  const allThemes = themes || [];
 
   // ─── Install theme ──────────────────────────────────────
   const handleInstall = async (theme: Theme) => {
