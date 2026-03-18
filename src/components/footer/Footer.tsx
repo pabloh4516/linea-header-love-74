@@ -6,7 +6,7 @@ const Footer = () => {
   const isInView = useInView(ref, { once: true, margin: "-50px" });
 
   return (
-    <footer className="w-full bg-foreground text-background pt-16 pb-4 px-6 md:px-12 mt-0">
+    <footer data-theme-section="footer" className="w-full bg-foreground text-background pt-16 pb-4 px-6 md:px-12 mt-0">
       <motion.div
         ref={ref}
         initial={{ opacity: 0, y: 30 }}

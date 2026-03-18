@@ -15,7 +15,7 @@ const ImmersiveHero = () => {
   const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   return (
-    <section ref={ref} className="relative h-screen w-full overflow-hidden">
+    <section data-theme-section="hero" ref={ref} className="relative h-screen w-full overflow-hidden">
       {/* Parallax background image */}
       <motion.div style={{ y, scale }} className="absolute inset-0">
         <img

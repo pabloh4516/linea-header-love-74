@@ -63,7 +63,7 @@ const AsymmetricGrid = () => {
   const isTitleInView = useInView(titleRef, { once: true, margin: "-50px" });
 
   return (
-    <section className="py-20 md:py-32 px-6 md:px-12">
+    <section data-theme-section="asymmetric-grid" className="py-20 md:py-32 px-6 md:px-12">
       {/* Section title */}
       <motion.div
         ref={titleRef}

@@ -8,7 +8,7 @@ const StorySection = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section className="py-20 md:py-32 px-6 md:px-12">
+    <section data-theme-section="story-section" className="py-20 md:py-32 px-6 md:px-12">
       <div ref={ref} className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
         {/* Image - takes 5 cols, offset by 1 */}
         <motion.div

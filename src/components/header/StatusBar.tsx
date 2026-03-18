@@ -18,7 +18,7 @@ const StatusBar = () => {
   }, [usps.length]);
 
   return (
-    <div className="bg-status-bar text-status-bar-foreground py-2">
+    <div data-theme-section="statusbar" className="bg-status-bar text-status-bar-foreground py-2">
       <div className="container mx-auto px-4 text-center">
         <p 
           key={currentIndex}
