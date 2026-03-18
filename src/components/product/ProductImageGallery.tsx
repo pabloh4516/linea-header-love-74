@@ -51,7 +51,7 @@ const ProductImageGallery = () => {
 
   return (
     <div className="w-full overflow-hidden">
-      <div className="hidden lg:block">
+      <div className="hidden lg:block p-2">
         <div className="grid grid-cols-2 gap-2">
           {productImages.map((image, index) => {
             const DesktopImage = ({ img, idx }: { img: string; idx: number }) => {
