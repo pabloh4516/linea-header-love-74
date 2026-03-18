@@ -74,6 +74,60 @@ const Checkout = () => {
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentComplete, setPaymentComplete] = useState(false);
+  const [orderBumps, setOrderBumps] = useState<OrderBump[]>([]);
+  const [acceptedBumps, setAcceptedBumps] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const fetchBumps = async () => {
+      const { data: bumps } = await supabase
+        .from("order_bumps")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (!bumps || bumps.length === 0) return;
+
+      const bumpProductIds = bumps.map((b: any) => b.bump_product_id);
+      const { data: products } = await supabase
+        .from("products")
+        .select("id, name, price, image_url, currency")
+        .in("id", bumpProductIds);
+
+      const productMap = new Map((products || []).map((p: any) => [p.id, p]));
+      setOrderBumps(
+        bumps.map((b: any) => ({
+          ...b,
+          bump_product: productMap.get(b.bump_product_id),
+        }))
+      );
+    };
+    fetchBumps();
+  }, []);
+
+  const toggleBump = (bumpId: string) => {
+    setAcceptedBumps(prev => {
+      const next = new Set(prev);
+      if (next.has(bumpId)) {
+        next.delete(bumpId);
+        toast.info("Oferta removida");
+      } else {
+        next.add(bumpId);
+        toast.success("Oferta adicionada!");
+      }
+      return next;
+    });
+  };
+
+  const getBumpsTotal = () => {
+    let total = 0;
+    for (const bump of orderBumps) {
+      if (acceptedBumps.has(bump.id) && bump.bump_product) {
+        const price = bump.bump_product.price;
+        const discounted = price * (1 - bump.discount_percentage / 100);
+        total += discounted;
+      }
+    }
+    return Math.round(total * 100) / 100;
+  };
   
   const [cartItems, setCartItems] = useState([
     {
