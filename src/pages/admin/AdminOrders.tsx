@@ -29,7 +29,7 @@ type OrderForm = {
 
 const empty: OrderForm = {
   customer_name: "", customer_email: "", customer_phone: "",
-  status: "pending", total: "0", currency: "EUR", notes: "", items: "[]",
+  status: "pending", total: "0", currency: "BRL", notes: "", items: "[]",
 };
 
 const useOrders = () => useQuery({
