@@ -77,10 +77,10 @@ const ProductImageGallery = () => {
         </div>
       </div>
 
-      <div className="lg:hidden">
+      <div className="lg:hidden px-4">
         <div className="relative">
           <div
-            className="w-full aspect-[3/4] overflow-hidden cursor-pointer group touch-pan-y bg-muted/20"
+            className="w-full aspect-[3/4] overflow-hidden cursor-pointer group touch-pan-y bg-muted/20 rounded-none"
             onClick={() => handleImageClick(currentImageIndex)}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
