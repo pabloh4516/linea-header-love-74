@@ -218,8 +218,21 @@ const AdminProducts = () => {
                       {(p as any).categories?.name || "—"}
                     </span>
                   </td>
+                  <td className="px-4 py-2.5 text-right hidden lg:table-cell">
+                    <span className={`text-[13px] font-medium ${(p as any).stock <= 0 ? "text-destructive" : (p as any).stock <= 5 ? "text-amber-500" : "text-muted-foreground"}`}>
+                      {(p as any).stock ?? 0}
+                    </span>
+                  </td>
                   <td className="px-4 py-2.5 text-right">
-                    <span className="text-[13px] font-medium">R${Number(p.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    {(p as any).sale_price ? (
+                      <div>
+                        <span className="text-[11px] text-muted-foreground line-through">R${Number(p.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                        <br />
+                        <span className="text-[13px] font-medium text-[hsl(var(--admin-success))]">R${Number((p as any).sale_price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    ) : (
+                      <span className="text-[13px] font-medium">R${Number(p.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    )}
                   </td>
                   <td className="px-4 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
