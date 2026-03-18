@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAllThemes, useActivateTheme, Theme } from "@/hooks/useThemes";
+import { themeRegistry } from "@/theme-engine";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
