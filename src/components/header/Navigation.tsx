@@ -161,7 +161,7 @@ const Navigation = () => {
         backdropFilter: "blur(10px)",
       }}
     >
-      <div className="flex items-center justify-between h-16 px-6">
+      <div className="flex items-center justify-between px-6" style={{ height: `${navHeight}px` }}>
         <button
           className="lg:hidden p-2 mt-0.5 text-nav-foreground hover:text-nav-hover transition-colors duration-200"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
