@@ -356,7 +356,7 @@ const Checkout = () => {
                   ))}
                 </div>
 
-                {orderBumps.length > 0 && (
+                {checkout.showOrderBumps && orderBumps.length > 0 && (
                   <div className="mt-6 pt-6 border-t border-muted-foreground/20 space-y-3">
                     <div className="flex items-center gap-2 mb-2">
                       <Zap className="h-4 w-4 text-amber-500" />
