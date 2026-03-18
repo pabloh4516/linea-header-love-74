@@ -2728,7 +2728,7 @@ const CustomCssSection = ({ theme, onChange }: FieldProps) => (
 );
 
 // ─── Presets Section ──────────────────────────────────────
-const PresetsSection = ({ theme, onApply }: { theme: Record<string, string>; onApply: (values: Record<string, string>) => void }) => (
+const PresetsSection = ({ theme, onApply }: { theme: Record<string, string>; onApply: (preset: ThemePreset) => void }) => (
   <>
     <SectionTitle>Presets de Tema</SectionTitle>
     <p className="text-[11px] text-muted-foreground">Escolha um tema base para começar. Você pode personalizar tudo depois.</p>
@@ -2750,7 +2750,7 @@ const PresetsSection = ({ theme, onApply }: { theme: Record<string, string>; onA
           parseInt(preset.values.theme_primary_l || DEFAULTS.theme_primary_l),
         );
         return (
-          <button key={preset.name} onClick={() => onApply(preset.values)}
+          <button key={preset.name} onClick={() => onApply(preset)}
             className="w-full p-3 rounded-lg border border-[hsl(var(--admin-border))] hover:border-foreground/30 transition-colors text-left">
             <div className="flex items-center gap-3 mb-2">
               <div className="flex gap-1">
