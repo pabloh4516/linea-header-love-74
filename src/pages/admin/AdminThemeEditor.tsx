@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
+import { useHomepageSections, useUpdateSection } from "@/hooks/useHomepageSections";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,9 +13,10 @@ import {
   Save, Monitor, Smartphone, Tablet, RotateCcw, Palette, Type, Layout, Square,
   ChevronLeft, ChevronRight, Minus, Image as ImageIcon, ShoppingBag, CreditCard,
   Globe, Menu, AlignCenter, Layers, Eye, ArrowUp, Megaphone, Grid3X3, Search,
-  Share2, Code, MousePointer,
+  Share2, Code, MousePointer, Sparkles, Home,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Link } from "react-router-dom";
 
 // ─── Font Options ──────────────────────────────────────────
 const FONT_OPTIONS = [
