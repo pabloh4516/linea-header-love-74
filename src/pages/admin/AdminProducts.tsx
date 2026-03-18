@@ -23,6 +23,8 @@ type ProductForm = {
   name: string;
   category_id: string;
   price: string;
+  sale_price: string;
+  stock: string;
   image_url: string;
   hover_image_url: string;
   is_new: boolean;
@@ -37,7 +39,7 @@ type ProductForm = {
 };
 
 const empty: ProductForm = {
-  name: "", category_id: "", price: "", image_url: "", hover_image_url: "",
+  name: "", category_id: "", price: "", sale_price: "", stock: "0", image_url: "", hover_image_url: "",
   is_new: false, is_visible: true, description: "", material: "", dimensions: "",
   weight: "", editors_notes: "", sku: "", sort_order: "0",
 };
@@ -60,6 +62,8 @@ const AdminProducts = () => {
   const openEdit = (p: any) => {
     setForm({
       name: p.name, category_id: p.category_id || "", price: String(p.price),
+      sale_price: p.sale_price ? String(p.sale_price) : "",
+      stock: String(p.stock ?? 0),
       image_url: p.image_url || "", hover_image_url: p.hover_image_url || "",
       is_new: p.is_new, is_visible: p.is_visible, description: p.description || "",
       material: p.material || "", dimensions: p.dimensions || "", weight: p.weight || "",
@@ -84,10 +88,12 @@ const AdminProducts = () => {
   };
 
   const handleSave = async () => {
-    const payload = {
+    const payload: any = {
       name: form.name,
       category_id: form.category_id || null,
       price: parseFloat(form.price),
+      sale_price: form.sale_price ? parseFloat(form.sale_price) : null,
+      stock: parseInt(form.stock) || 0,
       image_url: form.image_url || null,
       hover_image_url: form.hover_image_url || null,
       is_new: form.is_new,
@@ -169,6 +175,7 @@ const AdminProducts = () => {
                 <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-2.5">Produto</th>
                 <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-2.5 hidden md:table-cell">Status</th>
                 <th className="text-left text-[12px] font-medium text-muted-foreground px-4 py-2.5 hidden sm:table-cell">Categoria</th>
+                <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-2.5 hidden lg:table-cell">Estoque</th>
                 <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-2.5">Preço</th>
                 <th className="text-right text-[12px] font-medium text-muted-foreground px-4 py-2.5 w-12"></th>
               </tr>
@@ -211,8 +218,21 @@ const AdminProducts = () => {
                       {(p as any).categories?.name || "—"}
                     </span>
                   </td>
+                  <td className="px-4 py-2.5 text-right hidden lg:table-cell">
+                    <span className={`text-[13px] font-medium ${(p as any).stock <= 0 ? "text-destructive" : (p as any).stock <= 5 ? "text-amber-500" : "text-muted-foreground"}`}>
+                      {(p as any).stock ?? 0}
+                    </span>
+                  </td>
                   <td className="px-4 py-2.5 text-right">
-                    <span className="text-[13px] font-medium">R${Number(p.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    {(p as any).sale_price ? (
+                      <div>
+                        <span className="text-[11px] text-muted-foreground line-through">R${Number(p.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                        <br />
+                        <span className="text-[13px] font-medium text-[hsl(var(--admin-success))]">R${Number((p as any).sale_price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                      </div>
+                    ) : (
+                      <span className="text-[13px] font-medium">R${Number(p.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                    )}
                   </td>
                   <td className="px-4 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
@@ -299,11 +319,19 @@ const AdminProducts = () => {
 
             {/* Pricing + Category */}
             <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-4">
-              <h3 className="text-[13px] font-semibold">Preço e Organização</h3>
+              <h3 className="text-[13px] font-semibold">Preço, Estoque e Organização</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-[12px] text-muted-foreground">Preço (R$)</Label>
                   <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))} className="h-9 text-[13px]" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[12px] text-muted-foreground">Preço promocional (R$)</Label>
+                  <Input type="number" step="0.01" value={form.sale_price} onChange={(e) => setForm(f => ({ ...f, sale_price: e.target.value }))} placeholder="Deixe vazio se não houver" className="h-9 text-[13px]" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-[12px] text-muted-foreground">Estoque</Label>
+                  <Input type="number" value={form.stock} onChange={(e) => setForm(f => ({ ...f, stock: e.target.value }))} className="h-9 text-[13px]" />
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-[12px] text-muted-foreground">Categoria</Label>

@@ -50,6 +50,51 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_purchase: number | null
+          starts_at: string | null
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_purchase?: number | null
+          starts_at?: string | null
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_purchase?: number | null
+          starts_at?: string | null
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           created_at: string
@@ -136,6 +181,60 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      order_bumps: {
+        Row: {
+          bump_product_id: string
+          created_at: string
+          description: string | null
+          discount_percentage: number
+          id: string
+          is_active: boolean
+          product_id: string
+          sort_order: number
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          bump_product_id: string
+          created_at?: string
+          description?: string | null
+          discount_percentage?: number
+          id?: string
+          is_active?: boolean
+          product_id: string
+          sort_order?: number
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bump_product_id?: string
+          created_at?: string
+          description?: string | null
+          discount_percentage?: number
+          id?: string
+          is_active?: boolean
+          product_id?: string
+          sort_order?: number
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_bumps_bump_product_id_fkey"
+            columns: ["bump_product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_bumps_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders: {
         Row: {
@@ -236,6 +335,48 @@ export type Database = {
         }
         Relationships: []
       }
+      pages: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          meta_description: string | null
+          meta_title: string | null
+          page_type: string
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          page_type?: string
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          page_type?: string
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_variants: {
         Row: {
           created_at: string
@@ -302,8 +443,12 @@ export type Database = {
           material: string | null
           name: string
           price: number
+          sale_ends_at: string | null
+          sale_price: number | null
+          sale_starts_at: string | null
           sku: string | null
           sort_order: number
+          stock: number
           updated_at: string
           weight: string | null
         }
@@ -322,8 +467,12 @@ export type Database = {
           material?: string | null
           name: string
           price: number
+          sale_ends_at?: string | null
+          sale_price?: number | null
+          sale_starts_at?: string | null
           sku?: string | null
           sort_order?: number
+          stock?: number
           updated_at?: string
           weight?: string | null
         }
@@ -342,8 +491,12 @@ export type Database = {
           material?: string | null
           name?: string
           price?: number
+          sale_ends_at?: string | null
+          sale_price?: number | null
+          sale_starts_at?: string | null
           sku?: string | null
           sort_order?: number
+          stock?: number
           updated_at?: string
           weight?: string | null
         }

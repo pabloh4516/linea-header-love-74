@@ -29,6 +29,9 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminThemeEditor from "./pages/admin/AdminThemeEditor";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminCoupons from "./pages/admin/AdminCoupons";
+import AdminOrderBumps from "./pages/admin/AdminOrderBumps";
+import AdminPages from "./pages/admin/AdminPages";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +67,9 @@ const App = () => (
               <Route path="customers" element={<AdminCustomers />} />
               <Route path="theme" element={<AdminThemeEditor />} />
               <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="coupons" element={<AdminCoupons />} />
+              <Route path="order-bumps" element={<AdminOrderBumps />} />
+              <Route path="pages" element={<AdminPages />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

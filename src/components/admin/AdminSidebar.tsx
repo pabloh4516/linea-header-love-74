@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, FolderOpen, Home, Settings, LogOut, Store, Search, ShoppingCart, Users, Palette, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Package, FolderOpen, Home, Settings, LogOut, Store, Search, ShoppingCart, Users, Palette, BarChart3, Tag, Zap, FileText } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -19,12 +19,18 @@ const mainItems = [
   { title: "Início", url: "/admin", icon: Home },
   { title: "Pedidos", url: "/admin/orders", icon: ShoppingCart },
   { title: "Produtos", url: "/admin/products", icon: Package },
-  { title: "Clientes", url: "/admin/customers", icon: Users },
   { title: "Categorias", url: "/admin/categories", icon: FolderOpen },
+  { title: "Clientes", url: "/admin/customers", icon: Users },
+];
+
+const marketingItems = [
+  { title: "Cupons", url: "/admin/coupons", icon: Tag },
+  { title: "Order Bumps", url: "/admin/order-bumps", icon: Zap },
 ];
 
 const contentItems = [
   { title: "Homepage", url: "/admin/homepage", icon: LayoutDashboard },
+  { title: "Páginas", url: "/admin/pages", icon: FileText },
   { title: "Editor de Tema", url: "/admin/theme", icon: Palette },
   { title: "Relatórios", url: "/admin/analytics", icon: BarChart3 },
 ];
@@ -96,6 +102,7 @@ export function AdminSidebar() {
 
       <SidebarContent>
         {renderGroup(mainItems)}
+        {renderGroup(marketingItems, "Marketing")}
         {renderGroup(contentItems, "Loja Online")}
         {renderGroup(settingsItems, "Configuração")}
       </SidebarContent>
