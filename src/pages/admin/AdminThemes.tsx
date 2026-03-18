@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
-import { useThemes, useCreateTheme, useDeleteTheme, Theme } from "@/hooks/useThemes";
+import { useAllThemes, useActivateTheme, Theme } from "@/hooks/useThemes";
+import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSiteSettings, useUpdateSetting } from "@/hooks/useSiteSettings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
