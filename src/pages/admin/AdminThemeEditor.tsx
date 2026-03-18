@@ -441,33 +441,53 @@ type SectionId =
   | "category" | "cart" | "footer" | "checkout"
   | "effects" | "social" | "seo" | "custom_css";
 
+type EditorPage = "index" | "product" | "collection";
+
 interface SectionDef {
   id: SectionId;
   label: string;
   icon: typeof Palette;
   group: string;
+  pages?: EditorPage[]; // if undefined, show on all pages
 }
 
 const SECTIONS: SectionDef[] = [
-  { id: "presets", label: "Presets de Tema", icon: Sparkles, group: "Início Rápido" },
-  { id: "homepage_sections", label: "Seções da Homepage", icon: Home, group: "Início Rápido" },
+  // Homepage-only
+  { id: "presets", label: "Presets de Tema", icon: Sparkles, group: "Início Rápido", pages: ["index"] },
+  { id: "homepage_sections", label: "Seções da Homepage", icon: Home, group: "Início Rápido", pages: ["index"] },
+  // Global design
   { id: "colors", label: "Cores", icon: Palette, group: "Design" },
   { id: "typography", label: "Tipografia", icon: Type, group: "Design" },
   { id: "layout", label: "Layout & Espaçamento", icon: Layout, group: "Design" },
   { id: "buttons", label: "Botões", icon: Square, group: "Design" },
   { id: "effects", label: "Animações & Efeitos", icon: Layers, group: "Design" },
-  { id: "statusbar", label: "Barra de Anúncio", icon: Megaphone, group: "Seções" },
-  { id: "header", label: "Cabeçalho / Navegação", icon: Menu, group: "Seções" },
-  { id: "product_card", label: "Card de Produto", icon: ShoppingBag, group: "Seções" },
-  { id: "product_page", label: "Página de Produto", icon: Eye, group: "Seções" },
-  { id: "category", label: "Página de Categoria", icon: Grid3X3, group: "Seções" },
-  { id: "cart", label: "Carrinho / Sacola", icon: ShoppingBag, group: "Seções" },
-  { id: "footer", label: "Rodapé", icon: ArrowUp, group: "Seções" },
-  { id: "checkout", label: "Checkout", icon: CreditCard, group: "Seções" },
+  // Global sections
+  { id: "statusbar", label: "Barra de Anúncio", icon: Megaphone, group: "Seções Globais" },
+  { id: "header", label: "Cabeçalho / Navegação", icon: Menu, group: "Seções Globais" },
+  { id: "footer", label: "Rodapé", icon: ArrowUp, group: "Seções Globais" },
+  // Page-specific
+  { id: "product_card", label: "Card de Produto", icon: ShoppingBag, group: "Componentes", pages: ["index", "collection"] },
+  { id: "product_page", label: "Página de Produto", icon: Eye, group: "Componentes", pages: ["product"] },
+  { id: "category", label: "Página de Categoria", icon: Grid3X3, group: "Componentes", pages: ["collection"] },
+  { id: "cart", label: "Carrinho / Sacola", icon: ShoppingBag, group: "Componentes" },
+  { id: "checkout", label: "Checkout", icon: CreditCard, group: "Componentes" },
+  // Settings
   { id: "social", label: "Redes Sociais", icon: Share2, group: "Configurações" },
   { id: "seo", label: "SEO & Meta Tags", icon: Search, group: "Configurações" },
   { id: "custom_css", label: "CSS Personalizado", icon: Code, group: "Configurações" },
 ];
+
+const PAGE_LABELS: Record<EditorPage, string> = {
+  index: "Página Inicial",
+  product: "Página de Produto",
+  collection: "Página de Categoria",
+};
+
+const PAGE_URLS: Record<EditorPage, string> = {
+  index: "/",
+  product: "/product/1",
+  collection: "/category/shop",
+};
 
 // Map iframe section clicks to editor sections
 const INLINE_SECTION_MAP: Record<string, SectionId> = {
