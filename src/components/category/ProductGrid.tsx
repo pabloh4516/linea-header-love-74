@@ -259,7 +259,7 @@ const ProductGrid = ({ layout }: { layout?: GridLayout }) => {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="space-y-3">
-              <Skeleton className={`${getAspectClass(cardSettings.aspect)} w-full`} />
+              <Skeleton className="w-full" style={{ aspectRatio: getAspectRatio(cardSettings.aspect) }} />
               <Skeleton className="h-3 w-16" />
               <Skeleton className="h-4 w-28" />
             </div>
