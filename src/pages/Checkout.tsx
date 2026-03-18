@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Minus, Plus, CreditCard, Check, X, Tag, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Minus, Plus, CreditCard, Check, X, Tag, Loader2, Zap } from "lucide-react";
 import CheckoutHeader from "../components/header/CheckoutHeader";
 import Footer from "../components/footer/Footer";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import pantheonImage from "@/assets/pantheon.jpg";
 import eclipseImage from "@/assets/eclipse.jpg";
+
+type OrderBump = {
+  id: string;
+  product_id: string;
+  bump_product_id: string;
+  discount_percentage: number;
+  title: string | null;
+  description: string | null;
+  bump_product?: {
+    id: string;
+    name: string;
+    price: number;
+    image_url: string | null;
+    currency: string;
+  };
+};
 
 type AppliedCoupon = {
   id: string;
@@ -58,6 +74,60 @@ const Checkout = () => {
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentComplete, setPaymentComplete] = useState(false);
+  const [orderBumps, setOrderBumps] = useState<OrderBump[]>([]);
+  const [acceptedBumps, setAcceptedBumps] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const fetchBumps = async () => {
+      const { data: bumps } = await supabase
+        .from("order_bumps")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (!bumps || bumps.length === 0) return;
+
+      const bumpProductIds = bumps.map((b: any) => b.bump_product_id);
+      const { data: products } = await supabase
+        .from("products")
+        .select("id, name, price, image_url, currency")
+        .in("id", bumpProductIds);
+
+      const productMap = new Map((products || []).map((p: any) => [p.id, p]));
+      setOrderBumps(
+        bumps.map((b: any) => ({
+          ...b,
+          bump_product: productMap.get(b.bump_product_id),
+        }))
+      );
+    };
+    fetchBumps();
+  }, []);
+
+  const toggleBump = (bumpId: string) => {
+    setAcceptedBumps(prev => {
+      const next = new Set(prev);
+      if (next.has(bumpId)) {
+        next.delete(bumpId);
+        toast.info("Oferta removida");
+      } else {
+        next.add(bumpId);
+        toast.success("Oferta adicionada!");
+      }
+      return next;
+    });
+  };
+
+  const getBumpsTotal = () => {
+    let total = 0;
+    for (const bump of orderBumps) {
+      if (acceptedBumps.has(bump.id) && bump.bump_product) {
+        const price = bump.bump_product.price;
+        const discounted = price * (1 - bump.discount_percentage / 100);
+        total += discounted;
+      }
+    }
+    return Math.round(total * 100) / 100;
+  };
   
   const [cartItems, setCartItems] = useState([
     {
@@ -112,7 +182,8 @@ const Checkout = () => {
   
   const shipping = getShippingCost();
   const discount = getDiscount();
-  const total = Math.max(0, subtotal - discount + shipping);
+  const bumpsTotal = getBumpsTotal();
+  const total = Math.max(0, subtotal + bumpsTotal - discount + shipping);
 
   const handleApplyCoupon = async () => {
     const code = discountCode.trim().toUpperCase();
@@ -271,6 +342,72 @@ const Checkout = () => {
                   ))}
                 </div>
 
+                {orderBumps.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-muted-foreground/20 space-y-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Zap className="h-4 w-4 text-amber-500" />
+                      <span className="text-sm font-medium text-foreground">Ofertas Especiais</span>
+                    </div>
+                    {orderBumps.map((bump) => {
+                      if (!bump.bump_product) return null;
+                      const originalPrice = bump.bump_product.price;
+                      const finalPrice = originalPrice * (1 - bump.discount_percentage / 100);
+                      const isAccepted = acceptedBumps.has(bump.id);
+                      return (
+                        <div
+                          key={bump.id}
+                          onClick={() => toggleBump(bump.id)}
+                          className={`flex items-start gap-3 p-3 border rounded-sm cursor-pointer transition-all ${
+                            isAccepted
+                              ? "border-primary bg-primary/5"
+                              : "border-muted-foreground/20 hover:border-muted-foreground/40"
+                          }`}
+                        >
+                          <Checkbox
+                            checked={isAccepted}
+                            onCheckedChange={() => toggleBump(bump.id)}
+                            className="mt-0.5"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-foreground">
+                              {bump.title || `Adicione ${bump.bump_product.name}`}
+                            </p>
+                            {bump.description && (
+                              <p className="text-xs text-muted-foreground mt-0.5">{bump.description}</p>
+                            )}
+                            <div className="flex items-center gap-2 mt-1">
+                              {bump.discount_percentage > 0 ? (
+                                <>
+                                  <span className="text-xs text-muted-foreground line-through">
+                                    {formatBRL(originalPrice)}
+                                  </span>
+                                  <span className="text-sm font-medium text-primary">
+                                    {formatBRL(finalPrice)}
+                                  </span>
+                                  <span className="text-[11px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-sm font-medium">
+                                    -{bump.discount_percentage}%
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-sm font-medium text-foreground">
+                                  {formatBRL(originalPrice)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {bump.bump_product.image_url && (
+                            <img
+                              src={bump.bump_product.image_url}
+                              alt={bump.bump_product.name}
+                              className="w-12 h-12 object-cover rounded-sm"
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="mt-8 pt-6 border-t border-muted-foreground/20">
                   {appliedCoupon ? (
                     <div className="flex items-center justify-between bg-primary/5 border border-primary/20 px-3 py-2 rounded-sm">
@@ -322,6 +459,12 @@ const Checkout = () => {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="text-foreground">{formatBRL(subtotal)}</span>
                   </div>
+                  {bumpsTotal > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Ofertas especiais</span>
+                      <span className="text-foreground">+{formatBRL(bumpsTotal)}</span>
+                    </div>
+                  )}
                   {discount > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-primary">Desconto</span>
@@ -730,6 +873,12 @@ const Checkout = () => {
                       <span className="text-muted-foreground">Subtotal</span>
                       <span className="text-foreground">{formatBRL(subtotal)}</span>
                     </div>
+                    {bumpsTotal > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Ofertas especiais</span>
+                        <span className="text-foreground">+{formatBRL(bumpsTotal)}</span>
+                      </div>
+                    )}
                     {discount > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-primary">Desconto ({appliedCoupon?.code})</span>
