@@ -576,6 +576,157 @@ const THEME_PRESETS: ThemePreset[] = [
       theme_checkout_style: "single-page", theme_checkout_show_trust: "true",
     },
   },
+  {
+    name: "Bloom", description: "Beauty editorial — estética orgânica, tons terrosos, scroll imersivo para skincare e cosméticos",
+    values: {
+      // Colors — warm cream + olive
+      theme_primary_h: "150", theme_primary_s: "20", theme_primary_l: "35",
+      theme_bg_h: "40", theme_bg_s: "25", theme_bg_l: "96",
+      theme_fg_h: "150", theme_fg_s: "15", theme_fg_l: "18",
+      theme_accent_h: "40", theme_accent_s: "20", theme_accent_l: "90",
+      theme_muted_h: "40", theme_muted_s: "12", theme_muted_l: "92",
+      theme_border_h: "40", theme_border_s: "15", theme_border_l: "85",
+      theme_color_primary: "#4A6B50",
+      theme_color_background: "#F5F0EB",
+      theme_color_foreground: "#2D3B2D",
+      theme_color_accent: "#E8DFD5",
+      theme_color_muted: "#EBE5DE",
+      theme_color_border: "#D9D0C7",
+      // Typography — editorial serif + modern sans
+      theme_font_display: "Playfair Display", theme_font_body: "Outfit",
+      theme_font_heading: "Playfair Display",
+      theme_heading_weight: "400", theme_body_weight: "300",
+      theme_font_weight_heading: "400", theme_font_weight_body: "300",
+      theme_letter_spacing_editorial: "0.06",
+      // Layout
+      theme_border_radius: "0", theme_spacing_section: "0", theme_max_width: "1440",
+      theme_border_radius_global: "0",
+      theme_section_spacing: "0",
+      // Buttons — minimal, no radius
+      theme_button_style: "outline", theme_button_radius: "0",
+      theme_button_height: "48", theme_button_font_size: "11",
+      theme_button_letter_spacing: "0.25", theme_button_font_weight: "300",
+      theme_btn_border_radius: "0", theme_btn_height: "48",
+      theme_btn_font_size: "11", theme_btn_font_weight: "300",
+      // Status bar — sage
+      theme_statusbar_bg_h: "150", theme_statusbar_bg_s: "15", theme_statusbar_bg_l: "18",
+      theme_statusbar_fg_h: "40", theme_statusbar_fg_s: "20", theme_statusbar_fg_l: "95",
+      theme_statusbar_visible: "true", theme_statusbar_height: "32", theme_statusbar_font_size: "10",
+      theme_statusbar_text_1: "Fórmulas clean e veganas",
+      theme_statusbar_text_2: "Frete grátis acima de R$199",
+      theme_statusbar_text_3: "Ingredientes naturais e sustentáveis",
+      theme_announcement_enabled: "true",
+      theme_announcement_bg: "#2D3B2D",
+      theme_announcement_text_color: "#F5F0EB",
+      // Nav — cream bg, olive text
+      theme_nav_bg_h: "40", theme_nav_bg_s: "25", theme_nav_bg_l: "96",
+      theme_nav_fg_h: "150", theme_nav_fg_s: "15", theme_nav_fg_l: "18",
+      theme_nav_height: "68", theme_nav_logo_height: "24",
+      theme_nav_style: "centered", theme_nav_sticky: "true",
+      theme_nav_transparent_hero: "true",
+      theme_nav_show_search: "false", theme_nav_show_wishlist: "false",
+      theme_header_bg: "#F5F0EB", theme_header_text_color: "#2D3B2D",
+      // Product cards
+      theme_card_aspect: "3/4", theme_card_hover_effect: "zoom",
+      theme_card_show_category: "true", theme_card_show_badge: "false",
+      theme_card_badge_style: "outline", theme_card_price_weight: "300",
+      theme_card_name_size: "13", theme_card_gap: "24",
+      theme_card_columns_desktop: "3", theme_card_columns_mobile: "2",
+      theme_product_border_radius: "0", theme_product_border_enabled: "false",
+      theme_product_shadow_enabled: "false",
+      // PDP
+      theme_pdp_layout: "side-by-side", theme_pdp_gallery_style: "scroll",
+      theme_pdp_show_breadcrumb: "false", theme_pdp_show_editor_notes: "true",
+      theme_pdp_show_details_grid: "true", theme_pdp_show_trust_badges: "false",
+      theme_pdp_sticky_info: "true", theme_pdp_show_related: "true", theme_pdp_show_sku: "false",
+      // Category
+      theme_category_layout: "standard", theme_category_show_filters: "false",
+      theme_category_show_count: "false", theme_category_show_sort: "false",
+      theme_category_products_per_page: "9",
+      // Cart
+      theme_cart_style: "drawer", theme_cart_width: "380",
+      // Footer
+      theme_footer_bg_h: "150", theme_footer_bg_s: "15", theme_footer_bg_l: "12",
+      theme_footer_fg_h: "40", theme_footer_fg_s: "20", theme_footer_fg_l: "85",
+      theme_footer_layout: "centered", theme_footer_show_social: "true",
+      theme_footer_show_newsletter: "true", theme_footer_show_payment_icons: "false",
+      theme_footer_bg: "#1E2A1E", theme_footer_text: "#D4C9BD",
+      // Animations — smooth, organic
+      theme_animation_enabled: "true", theme_animation_intensity: "subtle",
+      theme_hover_scale: "1.03", theme_transition_speed: "700", theme_overlay_opacity: "0.03",
+      // Checkout
+      theme_checkout_style: "single-page", theme_checkout_show_trust: "true",
+      theme_checkout_show_order_bumps: "false", theme_checkout_show_coupon: "true",
+    },
+    sections: [
+      {
+        section_type: "hero",
+        title: "Sua pele merece rituais, não rotinas.",
+        subtitle: "Ingredientes puros. Ciência consciente. Beleza real.",
+        cta_text: "Explorar",
+        link_url: "/category/skincare",
+        config: { layout: "split" },
+      },
+      {
+        section_type: "product_carousel",
+        title: "Rituais",
+        subtitle: "Produtos pensados para cada etapa do seu cuidado",
+        cta_text: "Ver todos",
+        link_url: "/category/all",
+      },
+      {
+        section_type: "full_width_banner",
+        title: "Menos é mais.",
+        description: "Fórmulas essenciais que respeitam sua pele.",
+        cta_text: "Conheça",
+        link_url: "/category/essentials",
+      },
+      {
+        section_type: "fifty_fifty",
+        title: "Rotina simplificada",
+        description: "Três passos. Manhã e noite. Resultados reais.",
+        cta_text: "Descobrir",
+        link_url: "/category/routine",
+        config: { reverse: "false" },
+      },
+      {
+        section_type: "multicolumn",
+        title: "Ingredientes com propósito",
+        subtitle: "Cada fórmula é um ritual consciente",
+        config: {
+          blocks: [
+            { title: "Ácido Hialurônico", description: "Hidratação profunda que preenche e suaviza." },
+            { title: "Niacinamida", description: "Uniformiza o tom e fortalece a barreira cutânea." },
+            { title: "Esqualano Vegetal", description: "Emoliente natural que sela a hidratação." },
+            { title: "Vitamina C", description: "Ilumina e protege contra danos ambientais." },
+          ],
+        },
+      },
+      {
+        section_type: "story",
+        title: "Da terra à pele",
+        description: "Cada ingrediente é escolhido com intenção. Trabalhamos com produtores locais que compartilham nossa filosofia.",
+        cta_text: "Nossa história",
+        link_url: "/about/our-story",
+      },
+      {
+        section_type: "testimonials",
+        title: "Quem usa, sente",
+        config: {
+          blocks: [
+            { name: "Camila R.", text: "O sérum mudou minha rotina. Minha pele nunca esteve tão hidratada e luminosa.", product: "Sérum Hidratante" },
+            { name: "Juliana M.", text: "Finalmente encontrei produtos que fazem o que prometem. A textura é leve e o resultado é imediato.", product: "Creme Noturno" },
+            { name: "Beatriz S.", text: "Amo a proposta — ingredientes puros, sem exagero de embalagem. Minha pele sensível agradece.", product: "Óleo Facial" },
+          ],
+        },
+      },
+      {
+        section_type: "newsletter",
+        title: "Faça parte do ritual",
+        description: "Receba novidades, dicas de skincare e acesso antecipado a lançamentos.",
+      },
+    ],
+  },
 ];
 
 // ─── Page Options ─────────────────────────────────────────
