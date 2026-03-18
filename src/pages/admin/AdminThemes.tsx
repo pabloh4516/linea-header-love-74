@@ -138,10 +138,13 @@ const AdminThemes = () => {
   const handleActivate = async (theme: Theme) => {
     setInstalling(theme.id);
     try {
-      const settings = (theme.settings_data || {}) as Record<string, string>;
-      for (const [key, value] of Object.entries(settings)) {
-        await updateSetting.mutateAsync({ key, value });
-      }
+      const themeDefaults = Object.fromEntries(
+        Object.entries(themeRegistry.getDefaultSettings(theme.slug) || {}).map(([key, value]) => [`theme_${key}`, String(value)])
+      ) as Record<string, string>;
+      const settings = {
+        ...themeDefaults,
+        ...((theme.settings_data || {}) as Record<string, string>),
+      };
       await activateTheme.mutateAsync(theme.id);
       toast.success(`Tema "${theme.name}" ativado com sucesso!`);
       // Force reload to re-sync theme registry
