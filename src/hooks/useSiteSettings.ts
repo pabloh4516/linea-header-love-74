@@ -1,8 +1,11 @@
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useSiteSettings = () => {
-  return useQuery({
+  const [previewOverrides, setPreviewOverrides] = useState<Record<string, string>>({});
+
+  const query = useQuery({
     queryKey: ["site-settings"],
     queryFn: async () => {
       const { data, error } = await supabase.from("site_settings").select("*");
@@ -12,6 +15,26 @@ export const useSiteSettings = () => {
       return map;
     },
   });
+
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === "theme-preview-update" && e.data.theme) {
+        setPreviewOverrides((prev) => ({ ...prev, ...(e.data.theme as Record<string, string>) }));
+      }
+    };
+
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
+  const data = useMemo(() => {
+    return { ...(query.data || {}), ...previewOverrides };
+  }, [query.data, previewOverrides]);
+
+  return {
+    ...query,
+    data,
+  };
 };
 
 export const useUpdateSetting = () => {
