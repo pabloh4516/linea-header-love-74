@@ -452,6 +452,9 @@ const SECTION_TYPES = [
   { value: "contact_form", label: "Formulário de Contato", icon: MessageSquare },
   { value: "image_gallery", label: "Galeria de Imagens", icon: ImageIcon },
   { value: "separator", label: "Separador", icon: SeparatorHorizontal },
+  { value: "product_info", label: "Informações do Produto", icon: ShoppingBag },
+  { value: "product_gallery", label: "Galeria do Produto", icon: ImageIcon },
+  { value: "product_recommendations", label: "Produtos Recomendados", icon: Star },
 ];
 
 interface BlockFieldDef { key: string; label: string; type: "text" | "url" | "image"; }
