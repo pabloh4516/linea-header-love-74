@@ -571,13 +571,17 @@ const AdminThemeEditor = () => {
   const [sectionDrilldown, setSectionDrilldown] = useState<string | null>(null);
 
   // Drill-down state for settings tab
-  const [settingsDrilldown, setSettingsDrilldown] = useState<SettingsGroupId | null>(null);
+  const [settingsDrilldown, setSettingsDrilldown] = useState<string | number | null>(null);
 
   useEffect(() => {
     if (settings) {
       const merged = { ...DEFAULTS };
+      // Load all theme_ keys from settings, not just THEME_KEYS
+      Object.keys(settings).forEach(key => {
+        if (key.startsWith("theme_")) merged[key] = settings[key];
+      });
       THEME_KEYS.forEach(key => {
-        if (settings[key]) merged[key] = settings[key];
+        if (settings[key] && !merged[key]) merged[key] = settings[key];
       });
       setTheme(merged);
     }
@@ -593,7 +597,7 @@ const AdminThemeEditor = () => {
           if (mapped.tab === "sections") {
             setSectionDrilldown(mapped.target);
           } else {
-            setSettingsDrilldown(mapped.target as SettingsGroupId);
+            setSettingsDrilldown(mapped.target);
           }
           if (sidebarCollapsed) setSidebarCollapsed(false);
         }
@@ -621,7 +625,9 @@ const AdminThemeEditor = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const changed = THEME_KEYS.filter(key => theme[key] !== (settings?.[key] || DEFAULTS[key]));
+      // Save all theme_ keys that changed
+      const allThemeKeys = Object.keys(theme).filter(k => k.startsWith("theme_"));
+      const changed = allThemeKeys.filter(key => theme[key] !== (settings?.[key] ?? DEFAULTS[key] ?? ""));
       for (const key of changed) {
         await updateSetting.mutateAsync({ key, value: theme[key] });
       }
@@ -677,7 +683,12 @@ const AdminThemeEditor = () => {
       if (sectionDrilldown) return "Editar Seção";
       return null;
     }
-    if (settingsDrilldown) {
+    if (settingsDrilldown !== null && settingsDrilldown !== undefined) {
+      // Check theme registry groups first
+      const themeGroups = themeRegistry.getGlobalSettingsSchema();
+      if (themeGroups.length > 0 && typeof settingsDrilldown === "number") {
+        return themeGroups[settingsDrilldown]?.name || null;
+      }
       return SETTINGS_GROUPS.find(s => s.id === settingsDrilldown)?.label || null;
     }
     return null;
@@ -955,15 +966,51 @@ const SectionsTab = ({
 const SettingsTab = ({
   drilldown, onDrilldown, settingsGrouped, theme, onChange, onApplyPreset,
 }: {
-  drilldown: SettingsGroupId | null;
-  onDrilldown: (id: SettingsGroupId | null) => void;
+  drilldown: string | number | null;
+  onDrilldown: (id: string | number | null) => void;
   settingsGrouped: Record<string, SettingsGroupDef[]>;
   theme: Record<string, string>;
   onChange: (key: string, value: string) => void;
   onApplyPreset: (values: Record<string, string>) => void;
 }) => {
-  // Drilldown into a specific settings panel
-  if (drilldown) {
+  const themeGroups = themeRegistry.getGlobalSettingsSchema();
+  const useRegistryGroups = themeGroups.length > 0;
+  const { upload } = useImageUpload();
+  const [uploading, setUploading] = useState(false);
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try { return await upload(file, "theme"); } finally { setUploading(false); }
+  };
+
+  // Drilldown into a theme-registry group (number index)
+  if (useRegistryGroups && typeof drilldown === "number") {
+    const selectedGroup = themeGroups[drilldown];
+    if (!selectedGroup) return null;
+    return (
+      <>
+        <button onClick={() => onDrilldown(null)}
+          className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors mb-3">
+          <ArrowLeft className="h-3 w-3" /> Voltar
+        </button>
+        <p className="text-[13px] font-semibold mb-3">{selectedGroup.name}</p>
+        <div className="space-y-3">
+          {selectedGroup.settings.map(setting => (
+            <SchemaField
+              key={setting.id}
+              setting={setting}
+              value={theme[`theme_${setting.id}`] ?? setting.default}
+              onChange={(val) => onChange(`theme_${setting.id}`, String(val))}
+              onImageUpload={handleImageUpload}
+              uploading={uploading}
+            />
+          ))}
+        </div>
+      </>
+    );
+  }
+
+  // Drilldown into a hardcoded settings panel (string id — fallback)
+  if (typeof drilldown === "string" && drilldown) {
     return (
       <>
         <button onClick={() => onDrilldown(null)}
@@ -988,7 +1035,27 @@ const SettingsTab = ({
     );
   }
 
-  // List view — grouped settings
+  // List view — use theme registry groups if available, otherwise hardcoded
+  if (useRegistryGroups) {
+    return (
+      <>
+        {themeGroups.map((group, index) => (
+          <button
+            key={index}
+            onClick={() => onDrilldown(index)}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-[hsl(var(--admin-bg))] transition-colors text-left"
+          >
+            <Settings className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-[12px] font-medium flex-1">{group.name}</span>
+            <span className="text-[10px] text-muted-foreground">{group.settings.length}</span>
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+          </button>
+        ))}
+      </>
+    );
+  }
+
+  // Fallback: hardcoded groups
   return (
     <>
       {Object.entries(settingsGrouped).map(([group, items]) => (
