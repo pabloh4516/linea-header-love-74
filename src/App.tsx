@@ -1,5 +1,6 @@
 import "@/themes/linea-minimal"; // Register theme before render
 import "@/themes/ecommerce-br"; // Register ecommerce-br theme
+import "@/themes/bloom-beauty"; // Register bloom beauty theme
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
