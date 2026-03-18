@@ -51,7 +51,7 @@ const ProductImageGallery = () => {
 
   return (
     <div className="w-full overflow-hidden">
-      <div className="hidden lg:block">
+      <div className="hidden lg:block p-2">
         <div className="grid grid-cols-2 gap-2">
           {productImages.map((image, index) => {
             const DesktopImage = ({ img, idx }: { img: string; idx: number }) => {
@@ -77,10 +77,10 @@ const ProductImageGallery = () => {
         </div>
       </div>
 
-      <div className="lg:hidden">
+      <div className="lg:hidden px-4">
         <div className="relative">
           <div
-            className="w-full aspect-[3/4] overflow-hidden cursor-pointer group touch-pan-y bg-muted/20"
+            className="w-full aspect-[3/4] overflow-hidden cursor-pointer group touch-pan-y bg-muted/20 rounded-none"
             onClick={() => handleImageClick(currentImageIndex)}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
