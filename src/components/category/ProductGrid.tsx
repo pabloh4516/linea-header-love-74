@@ -191,7 +191,7 @@ const HighlightGrid = ({ products, cardSettings }: { products: any[]; cardSettin
     <div className="space-y-8 md:space-y-12">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8">
         <div className="md:col-span-7">
-          <ProductCard product={hero} index={0} aspectOverride="aspect-[4/5]" cardSettings={cardSettings} />
+          <ProductCard product={hero} index={0} aspectOverride="4/5" cardSettings={cardSettings} />
         </div>
         <div className="md:col-span-5 flex flex-col justify-center px-0 md:px-6">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }} className="space-y-4">
