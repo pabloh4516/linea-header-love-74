@@ -221,9 +221,19 @@ const AdminProducts = () => {
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40">
+                      <DropdownMenuContent align="end" className="w-44">
                         <DropdownMenuItem onClick={() => openEdit(p)}>
                           <Pencil className="h-3.5 w-3.5 mr-2" /> Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                          const url = `${window.location.origin}/product/${p.id}`;
+                          navigator.clipboard.writeText(url);
+                          toast.success("Link copiado!");
+                        }}>
+                          <Link2 className="h-3.5 w-3.5 mr-2" /> Copiar link
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => window.open(`/product/${p.id}`, "_blank")}>
+                          <ExternalLink className="h-3.5 w-3.5 mr-2" /> Ver na loja
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDelete(p.id)} className="text-destructive focus:text-destructive">
                           <Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir
