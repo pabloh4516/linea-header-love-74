@@ -688,6 +688,10 @@ const AdminThemeEditor = () => {
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-[hsl(var(--admin-border))] bg-[hsl(var(--admin-surface))] shrink-0">
         <div className="flex items-center gap-3">
+          <Link to="/admin/themes" className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-3.5 w-3.5" /> Temas
+          </Link>
+          <span className="text-muted-foreground/30">|</span>
           <button onClick={() => setSidebarCollapsed(!sidebarCollapsed)} className="p-1 rounded hover:bg-[hsl(var(--admin-bg))]">
             {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </button>
