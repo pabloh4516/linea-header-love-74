@@ -79,6 +79,7 @@ const Checkout = () => {
   const [shippingAddress, setShippingAddress] = useState({
     address: "",
     city: "",
+    state: "",
     postalCode: "",
     country: ""
   });
