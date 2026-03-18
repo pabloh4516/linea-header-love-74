@@ -126,7 +126,16 @@ const ThemeApplicator = () => {
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (e.data?.type === "theme-preview-update" && e.data.theme) {
-        applyTheme(e.data.theme);
+        const themeData = e.data.theme as Record<string, string>;
+        applyTheme(themeData);
+
+        // Update the site-settings query cache so components using
+        // useSiteSettings / useThemeConfig re-render with new values
+        // (e.g. footer layout, card columns, pdp layout, etc.)
+        queryClient.setQueryData<Record<string, string>>(["site-settings"], (old) => {
+          if (!old) return themeData;
+          return { ...old, ...themeData };
+        });
       }
       if (e.data?.type === "theme-content-refresh") {
         queryClient.invalidateQueries({ queryKey: ["homepage-sections"] });
