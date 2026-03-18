@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, FolderOpen, Home, Settings, LogOut, Store, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Package, FolderOpen, Home, Settings, LogOut, Store, Search, ShoppingCart, Users, Palette } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -17,9 +17,15 @@ import {
 
 const mainItems = [
   { title: "Início", url: "/admin", icon: Home },
+  { title: "Pedidos", url: "/admin/orders", icon: ShoppingCart },
   { title: "Produtos", url: "/admin/products", icon: Package },
+  { title: "Clientes", url: "/admin/customers", icon: Users },
   { title: "Categorias", url: "/admin/categories", icon: FolderOpen },
+];
+
+const contentItems = [
   { title: "Homepage", url: "/admin/homepage", icon: LayoutDashboard },
+  { title: "Editor de Tema", url: "/admin/theme", icon: Palette },
 ];
 
 const settingsItems = [
@@ -37,6 +43,32 @@ export function AdminSidebar() {
     return location.pathname.startsWith(path);
   };
 
+  const menuButtonClass = "h-8 text-[13px] font-normal data-[active=true]:bg-[hsl(var(--sidebar-accent))] data-[active=true]:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]";
+
+  const renderGroup = (items: typeof mainItems, label?: string) => (
+    <SidebarGroup>
+      {label && (
+        <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--sidebar-foreground)/0.5)] px-3">
+          {!collapsed && label}
+        </SidebarGroupLabel>
+      )}
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild isActive={isActive(item.url)} className={menuButtonClass}>
+                <Link to={item.url}>
+                  <item.icon className="h-[18px] w-[18px]" />
+                  {!collapsed && <span>{item.title}</span>}
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+
   return (
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="p-3">
@@ -45,81 +77,32 @@ export function AdminSidebar() {
             <Store className="h-4 w-4 text-white" />
           </div>
           {!collapsed && (
-            <div className="flex flex-col min-w-0">
-              <span className="text-[13px] font-semibold text-[hsl(var(--sidebar-accent-foreground))] truncate">
-                Linea Jewelry
-              </span>
-            </div>
+            <span className="text-[13px] font-semibold text-[hsl(var(--sidebar-accent-foreground))] truncate">
+              Linea Jewelry
+            </span>
           )}
         </div>
       </SidebarHeader>
 
       {!collapsed && (
         <div className="px-3 pb-2">
-          <Link
-            to="/admin"
-            className="flex items-center gap-2 rounded-lg bg-[hsl(var(--sidebar-accent))] px-3 py-1.5 text-[13px] text-[hsl(var(--sidebar-foreground))] hover:text-[hsl(var(--sidebar-accent-foreground))] transition-colors"
-          >
+          <div className="flex items-center gap-2 rounded-lg bg-[hsl(var(--sidebar-accent))] px-3 py-1.5 text-[13px] text-[hsl(var(--sidebar-foreground))]">
             <Search className="h-3.5 w-3.5" />
             <span>Buscar</span>
-          </Link>
+          </div>
         </div>
       )}
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                    className="h-8 text-[13px] font-normal data-[active=true]:bg-[hsl(var(--sidebar-accent))] data-[active=true]:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
-                  >
-                    <Link to={item.url}>
-                      <item.icon className="h-[18px] w-[18px]" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[11px] font-medium uppercase tracking-wider text-[hsl(var(--sidebar-foreground)/0.5)] px-3">
-            {!collapsed && "Configuração"}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {settingsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={isActive(item.url)}
-                    className="h-8 text-[13px] font-normal data-[active=true]:bg-[hsl(var(--sidebar-accent))] data-[active=true]:text-[hsl(var(--sidebar-accent-foreground))] hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
-                  >
-                    <Link to={item.url}>
-                      <item.icon className="h-[18px] w-[18px]" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {renderGroup(mainItems)}
+        {renderGroup(contentItems, "Loja Online")}
+        {renderGroup(settingsItems, "Configuração")}
       </SidebarContent>
 
       <SidebarFooter className="p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="h-8 text-[13px] font-normal hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
-            >
+            <SidebarMenuButton asChild className={menuButtonClass}>
               <Link to="/" target="_blank">
                 <Store className="h-[18px] w-[18px]" />
                 {!collapsed && <span>Ver Loja</span>}
@@ -127,10 +110,7 @@ export function AdminSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={signOut}
-              className="h-8 text-[13px] font-normal hover:bg-[hsl(var(--sidebar-accent))] hover:text-[hsl(var(--sidebar-accent-foreground))]"
-            >
+            <SidebarMenuButton onClick={signOut} className={menuButtonClass}>
               <LogOut className="h-[18px] w-[18px]" />
               {!collapsed && <span>Sair</span>}
             </SidebarMenuButton>
