@@ -512,6 +512,35 @@ const FieldGroup = ({ children, label }: { children: React.ReactNode; label?: st
   </div>
 );
 
+// HSL ↔ Hex conversion helpers
+const hslToHex = (h: number, s: number, l: number): string => {
+  s /= 100; l /= 100;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, "0");
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+};
+
+const hexToHsl = (hex: string): [number, number, number] => {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+};
+
 const ColorGroup = ({ label, hKey, sKey, lKey, theme, onChange }: {
   label: string; hKey: string; sKey: string; lKey: string;
   theme: Record<string, string>; onChange: (key: string, value: string) => void;
@@ -519,20 +548,31 @@ const ColorGroup = ({ label, hKey, sKey, lKey, theme, onChange }: {
   const h = parseInt(theme[hKey]) || 0;
   const s = parseInt(theme[sKey]) || 0;
   const l = parseInt(theme[lKey]) || 0;
+  const hexValue = hslToHex(h, s, l);
+
+  const handleColorChange = (hex: string) => {
+    const [newH, newS, newL] = hexToHsl(hex);
+    onChange(hKey, String(newH));
+    onChange(sKey, String(newS));
+    onChange(lKey, String(newL));
+  };
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <div className="flex items-center justify-between">
         <Label className="text-[12px] text-muted-foreground">{label}</Label>
-        <div className="w-6 h-6 rounded-md border border-[hsl(var(--admin-border))]" style={{ backgroundColor: `hsl(${h}, ${s}%, ${l}%)` }} />
-      </div>
-      <div className="space-y-1">
-        {[["H", hKey, 360], ["S", sKey, 100], ["L", lKey, 100]].map(([letter, key, max]) => (
-          <div key={key as string} className="flex items-center gap-2">
-            <span className="text-[10px] text-muted-foreground w-4">{letter as string}</span>
-            <Slider value={[parseInt(theme[key as string]) || 0]} onValueChange={([v]) => onChange(key as string, String(v))} min={0} max={max as number} step={1} className="flex-1" />
-            <Input value={theme[key as string] || "0"} onChange={(e) => onChange(key as string, e.target.value)} className="w-12 h-6 text-[11px] text-center p-0" />
-          </div>
-        ))}
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-muted-foreground uppercase">{hexValue}</span>
+          <label className="relative w-7 h-7 rounded-md border border-[hsl(var(--admin-border))] cursor-pointer overflow-hidden">
+            <input
+              type="color"
+              value={hexValue}
+              onChange={(e) => handleColorChange(e.target.value)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+            <div className="w-full h-full rounded-md" style={{ backgroundColor: `hsl(${h}, ${s}%, ${l}%)` }} />
+          </label>
+        </div>
       </div>
     </div>
   );
