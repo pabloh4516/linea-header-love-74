@@ -29,6 +29,7 @@ export const usePageViewTracker = () => {
 
     const visitorId = getVisitorId();
     const sessionId = getSessionId();
+    const params = new URLSearchParams(window.location.search);
 
     supabase.from("page_views").insert({
       page_path: location.pathname,
@@ -36,6 +37,11 @@ export const usePageViewTracker = () => {
       session_id: sessionId,
       referrer: document.referrer || null,
       user_agent: navigator.userAgent,
+      utm_source: params.get("utm_source") || null,
+      utm_medium: params.get("utm_medium") || null,
+      utm_campaign: params.get("utm_campaign") || null,
+      utm_content: params.get("utm_content") || null,
+      utm_term: params.get("utm_term") || null,
     }).then(() => {});
   }, [location.pathname]);
 };
