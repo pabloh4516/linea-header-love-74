@@ -185,6 +185,86 @@ export type Database = {
         }
         Relationships: []
       }
+      page_views: {
+        Row: {
+          created_at: string
+          id: string
+          page_path: string
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          visitor_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          page_path: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          visitor_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          visitor_id?: string
+        }
+        Relationships: []
+      }
+      product_variants: {
+        Row: {
+          created_at: string
+          id: string
+          is_available: boolean
+          price_adjustment: number
+          product_id: string
+          sku_suffix: string | null
+          sort_order: number
+          stock: number
+          updated_at: string
+          variant_type: string
+          variant_value: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_available?: boolean
+          price_adjustment?: number
+          product_id: string
+          sku_suffix?: string | null
+          sort_order?: number
+          stock?: number
+          updated_at?: string
+          variant_type: string
+          variant_value: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_available?: boolean
+          price_adjustment?: number
+          product_id?: string
+          sku_suffix?: string | null
+          sort_order?: number
+          stock?: number
+          updated_at?: string
+          variant_type?: string
+          variant_value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null

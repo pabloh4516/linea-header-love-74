@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Trash2, Search, MoreHorizontal, Image as ImageIcon } from "lucide-react";
+import VariantManager from "@/components/admin/VariantManager";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -211,7 +212,7 @@ const AdminProducts = () => {
                     </span>
                   </td>
                   <td className="px-4 py-2.5 text-right">
-                    <span className="text-[13px] font-medium">€{Number(p.price).toFixed(2)}</span>
+                    <span className="text-[13px] font-medium">R${Number(p.price).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                   </td>
                   <td className="px-4 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
@@ -291,7 +292,7 @@ const AdminProducts = () => {
               <h3 className="text-[13px] font-semibold">Preço e Organização</h3>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-[12px] text-muted-foreground">Preço (€)</Label>
+                  <Label className="text-[12px] text-muted-foreground">Preço (R$)</Label>
                   <Input type="number" step="0.01" value={form.price} onChange={(e) => setForm(f => ({ ...f, price: e.target.value }))} className="h-9 text-[13px]" />
                 </div>
                 <div className="space-y-1.5">
@@ -336,6 +337,9 @@ const AdminProducts = () => {
                 <Textarea value={form.editors_notes} onChange={(e) => setForm(f => ({ ...f, editors_notes: e.target.value }))} className="text-[13px] min-h-[60px]" />
               </div>
             </div>
+
+            {/* Variants - only show when editing */}
+            {editId && <VariantManager productId={editId} />}
 
             {/* Status */}
             <div className="bg-[hsl(var(--admin-bg))] rounded-xl p-4 space-y-3">
