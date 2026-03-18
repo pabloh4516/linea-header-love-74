@@ -1089,4 +1089,113 @@ const CustomCssSection = ({ theme, onChange }: FieldProps) => (
   </>
 );
 
+// ─── Presets Section ──────────────────────────────────────
+const PresetsSection = ({ theme, onApply }: { theme: Record<string, string>; onApply: (values: Record<string, string>) => void }) => {
+  const hslToHexLocal = (h: number, s: number, l: number): string => {
+    s /= 100; l /= 100;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number) => {
+      const k = (n + h / 30) % 12;
+      const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+      return Math.round(255 * color).toString(16).padStart(2, "0");
+    };
+    return `#${f(0)}${f(8)}${f(4)}`;
+  };
+
+  return (
+    <>
+      <SectionTitle>Presets de Tema</SectionTitle>
+      <p className="text-[11px] text-muted-foreground">Escolha um tema base para começar. Você pode personalizar tudo depois.</p>
+      <div className="space-y-3">
+        {THEME_PRESETS.map((preset) => {
+          const bgColor = hslToHexLocal(
+            parseInt(preset.values.theme_bg_h || DEFAULTS.theme_bg_h),
+            parseInt(preset.values.theme_bg_s || DEFAULTS.theme_bg_s),
+            parseInt(preset.values.theme_bg_l || DEFAULTS.theme_bg_l),
+          );
+          const fgColor = hslToHexLocal(
+            parseInt(preset.values.theme_fg_h || DEFAULTS.theme_fg_h),
+            parseInt(preset.values.theme_fg_s || DEFAULTS.theme_fg_s),
+            parseInt(preset.values.theme_fg_l || DEFAULTS.theme_fg_l),
+          );
+          const primaryColor = hslToHexLocal(
+            parseInt(preset.values.theme_primary_h || DEFAULTS.theme_primary_h),
+            parseInt(preset.values.theme_primary_s || DEFAULTS.theme_primary_s),
+            parseInt(preset.values.theme_primary_l || DEFAULTS.theme_primary_l),
+          );
+
+          return (
+            <button
+              key={preset.name}
+              onClick={() => onApply(preset.values)}
+              className="w-full p-3 rounded-lg border border-[hsl(var(--admin-border))] hover:border-foreground/30 transition-colors text-left"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex gap-1">
+                  <div className="w-5 h-5 rounded-full border border-[hsl(var(--admin-border))]" style={{ backgroundColor: bgColor }} />
+                  <div className="w-5 h-5 rounded-full border border-[hsl(var(--admin-border))]" style={{ backgroundColor: fgColor }} />
+                  <div className="w-5 h-5 rounded-full border border-[hsl(var(--admin-border))]" style={{ backgroundColor: primaryColor }} />
+                </div>
+                <span className="text-[13px] font-medium">{preset.name}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{preset.description}</p>
+              <div className="mt-2 text-[10px] text-muted-foreground">
+                {preset.values.theme_font_display || DEFAULTS.theme_font_display} / {preset.values.theme_font_body || DEFAULTS.theme_font_body}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+};
+
+// ─── Homepage Sections Panel ──────────────────────────────
+const SECTION_TYPE_LABELS: Record<string, string> = {
+  hero: "Hero Imersivo", large_hero: "Hero Grande", asymmetric_grid: "Grid Assimétrico",
+  fifty_fifty: "50/50", one_third_two_thirds: "1/3 + 2/3", product_carousel: "Carrossel de Produtos",
+  editorial: "Editorial", full_width_banner: "Banner Full Width", story: "Nossa História",
+};
+
+const HomepageSectionsPanel = ({ sections, onToggle }: {
+  sections: any[];
+  onToggle: (s: any) => void;
+}) => {
+  const sorted = [...sections].sort((a, b) => a.sort_order - b.sort_order);
+
+  return (
+    <>
+      <SectionTitle>Seções da Homepage</SectionTitle>
+      <p className="text-[11px] text-muted-foreground">
+        Gerencie a visibilidade das seções. Para edição completa, use a{" "}
+        <Link to="/admin/homepage" className="text-foreground underline">página de Homepage</Link>.
+      </p>
+      {sorted.length === 0 ? (
+        <div className="text-center py-6">
+          <p className="text-[12px] text-muted-foreground">Nenhuma seção configurada.</p>
+          <Link to="/admin/homepage" className="text-[12px] text-foreground underline mt-1 inline-block">
+            Configurar seções →
+          </Link>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          {sorted.map((s) => (
+            <div key={s.id} className="flex items-center justify-between px-3 py-2.5 rounded-lg border border-[hsl(var(--admin-border))] hover:bg-[hsl(var(--admin-bg))] transition-colors">
+              <div className="min-w-0">
+                <p className="text-[12px] font-medium text-foreground truncate">
+                  {s.title || SECTION_TYPE_LABELS[s.section_type] || s.section_type}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {SECTION_TYPE_LABELS[s.section_type] || s.section_type}
+                </p>
+              </div>
+              <Switch checked={s.is_visible} onCheckedChange={() => onToggle(s)} />
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};
+
 export default AdminThemeEditor;
