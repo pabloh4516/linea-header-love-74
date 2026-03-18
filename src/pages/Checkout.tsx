@@ -459,6 +459,12 @@ const Checkout = () => {
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="text-foreground">{formatBRL(subtotal)}</span>
                   </div>
+                  {bumpsTotal > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Ofertas especiais</span>
+                      <span className="text-foreground">+{formatBRL(bumpsTotal)}</span>
+                    </div>
+                  )}
                   {discount > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-primary">Desconto</span>
